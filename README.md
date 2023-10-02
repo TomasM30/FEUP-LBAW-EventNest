@@ -1,6 +1,6 @@
 # EventNest
 
-> Project vision.
+> EventNest is an online event management system where users can easily create and participate in a variety of sports-related events, connecting with people who share the same interests.
 
 ## Project Components
 
