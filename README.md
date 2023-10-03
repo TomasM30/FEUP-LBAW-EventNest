@@ -4,7 +4,7 @@
 
 ## Project Components
 
-* [ER: Requirements Specification](wikis/er)
+* [ER: Requirements Specification](./wikis/er)
 * [EBD: Database Specification](wikis/ebd)
 * [EAP: Architecture Specification and Prototype](wikis/eap)
 * [PA: Product and Presentation](wikis/pa)
