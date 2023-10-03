@@ -4,10 +4,10 @@
 
 ## Project Components
 
-* [ER: Requirements Specification](Wiki/er)
-* [EBD: Database Specification](Wiki/ebd)
-* [EAP: Architecture Specification and Prototype](Wiki/eap)
-* [PA: Product and Presentation](Wiki/pa)
+* [ER: Requirements Specification](wikis/er)
+* [EBD: Database Specification](wikis/ebd)
+* [EAP: Architecture Specification and Prototype](wikis/eap)
+* [PA: Product and Presentation](wikis/pa)
 
 ## Artefacts Checklist
 
