@@ -17,6 +17,9 @@ DROP TABLE IF EXISTS Ticket CASCADE;
 DROP TABLE IF EXISTS Report CASCADE;
 DROP TABLE IF EXISTS EventReport CASCADE;
 DROP TABLE IF EXISTS UploadFile CASCADE;
+DROP TABLE IF EXISTS Poll CASCADE;
+DROP TABLE IF EXISTS PollOptions CASCADE;
+DROP TABLE IF EXISTS PollVotes CASCADE;
 
 -----------------------------------------
 -- Create tables
@@ -61,6 +64,8 @@ CREATE TABLE EventMessage (
     id_event INT NOT NULL,
     id_user INT NOT NULL,
     date DATE DEFAULT CURRENT_DATE
+    FOREIGN KEY (id_event) REFERENCES Event(id),
+    FOREIGN KEY (id_user) REFERENCES Authenticated(id_user)
 );
 
 CREATE TABLE MessageReaction (
@@ -108,6 +113,18 @@ CREATE TABLE Hashtag (
     FOREIGN KEY (id_event) REFERENCES Event(id)
 );
 
+CREATE TABLE Hashtag{
+ id INT PRIMARY KEY,
+ title VARCHAR(255) NOT NULL,
+};
+
+CREATE TABLE EventHashtag {
+ id_event INT NOT NULL,
+ id_hashtag INT NOT NULL,
+ FOREIGN KEY (id_event) REFERENCES Event(id),
+ FOREIGN KEY (id_hashtag) REFERENCES Hashtag(id)
+};
+
 CREATE TABLE Ticket (
     id INT PRIMARY KEY,
     id_event INT NOT NULL,
@@ -132,7 +149,7 @@ CREATE TABLE EventReport (
     FOREIGN KEY (id_report) REFERENCES Report(id)
 );
 
-CREATE TABLE UploadFile (
+CREATE TABLE File (
     id INT PRIMARY KEY,
     path VARCHAR(255) NOT NULL,
     id_user INT NOT NULL,
@@ -144,3 +161,28 @@ CREATE TABLE UploadFile (
     FOREIGN KEY (id_report) REFERENCES Report(id),
     FOREIGN KEY (id_event) REFERENCES Event(id)
 );
+
+CREATE TABLE Poll{
+    id INT PRIMARY KEY,
+    title VARCHAR(255) NOT NULL,
+    summary TEXT NOT NULL,
+    question TEXT NOT NULL,
+    startsAt DATE NOT NULL,
+    endsAt DATE NOT NULL,
+    id_event INT NOT NULL,
+    id user INT NOT NULL, /* Duvidas */
+    FOREIGN KEY (id_event) REFERENCES Event(id),
+    FOREIGN KEY (id_user) REFERENCES Authenticated(id_user)
+};
+
+CREATE TABLE poll_options{
+    int id INT PRIMARY KEY,
+    option TEXT NOT NULL,
+    id_pool INT NOT NULL,
+    FOREIGN KEY (id_poll) REFERENCES Poll(id)
+};
+
+CREATE TABLE poll_votes{
+ int id_user INT NOT NULL,
+ int id_option INT NOT NULL,
+};
