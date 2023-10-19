@@ -41,7 +41,7 @@ DROP DEFAULT IF EXISTS path;
 -----------------------------------------
 
 CREATE TYPE TypesEvent AS ENUM ('public', 'private', 'approval');
-CREATE TYPE TypesMessage AS ENUM ('chat', 'comment', 'video', 'audio');
+CREATE TYPE TypesMessage AS ENUM ('chat', 'comment');
 CREATE TYPE TypesNotification AS ENUM ('request_answer', 'invitation');
 
 -----------------------------------------
@@ -49,7 +49,7 @@ CREATE TYPE TypesNotification AS ENUM ('request_answer', 'invitation');
 -----------------------------------------
 
 DATE DEFAULT CURRENT_DATE;
-path VARCHAR(255) DEFAULT 'default.png';
+path VARCHAR(255) DEFAULT 'defaultpic.png';
 
 -----------------------------------------
 -- Create tables
