@@ -22,6 +22,36 @@ DROP TABLE IF EXISTS PollOptions CASCADE;
 DROP TABLE IF EXISTS PollVotes CASCADE;
 
 -----------------------------------------
+-- Drop old types
+-----------------------------------------
+
+DROP TYPE IF EXISTS TypesEvent CASCADE;
+DROP TYPE IF EXISTS TypesMessage CASCADE;
+DROP TYPE IF EXISTS TypesNotification CASCADE;
+
+-----------------------------------------
+-- Drop old default values
+-----------------------------------------
+
+DROP DEFAULT IF EXISTS DATE;
+DROP DEFAULT IF EXISTS path;
+
+-----------------------------------------
+-- Create types
+-----------------------------------------
+
+CREATE TYPE TypesEvent AS ENUM ('public', 'private', 'approval');
+CREATE TYPE TypesMessage AS ENUM ('chat', 'comment', 'video', 'audio');
+CREATE TYPE TypesNotification AS ENUM ('request_answer', 'invitation');
+
+-----------------------------------------
+-- Create Default Values
+-----------------------------------------
+
+DATE DEFAULT CURRENT_DATE;
+path VARCHAR(255) DEFAULT 'default.png';
+
+-----------------------------------------
 -- Create tables
 -----------------------------------------
 
