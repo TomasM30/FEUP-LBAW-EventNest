@@ -56,6 +56,7 @@ CREATE TABLE Event (
     type TypesEvent DEFAULT 'public',
     date DATE NOT NULL,
     capacity INT NOT NULL,
+    ticket_limit INT ,
     place VARCHAR(255) NOT NULL,
     id_user INT NOT NULL,
     FOREIGN KEY (id_user) REFERENCES Authenticated(id_user)
