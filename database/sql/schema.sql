@@ -4,21 +4,24 @@ DROP TABLE IF EXISTS EventParticipants CASCADE;
 DROP TABLE IF EXISTS FavoriteEvent CASCADE;
 DROP TABLE IF EXISTS EventHashtag CASCADE;
 DROP TABLE IF EXISTS PollVotes CASCADE;
-DROP TABLE IF EXISTS EventNotification CASCADE; -- Renamed from UserNotifications
+DROP TABLE IF EXISTS MessageNotification CASCADE;
+DROP TABLE IF EXISTS EventNotification CASCADE;
 DROP TABLE IF EXISTS Notification CASCADE;
 DROP TABLE IF EXISTS MessageReaction CASCADE;
 DROP TABLE IF EXISTS EventMessage CASCADE;
-DROP TABLE IF EXISTS EventReport CASCADE;
-DROP TABLE IF EXISTS Tickets CASCADE; -- Renamed from Ticket
+DROP TABLE IF EXISTS Ticket CASCADE;
 DROP TABLE IF EXISTS Hashtag CASCADE;
 DROP TABLE IF EXISTS Report CASCADE;
-DROP TABLE IF EXISTS PollOptions CASCADE;
+DROP TABLE IF EXISTS PollOption CASCADE;
 DROP TABLE IF EXISTS Poll CASCADE;
-DROP TABLE IF EXISTS UploadFile CASCADE;
+DROP TABLE IF EXISTS File CASCADE;
 DROP TABLE IF EXISTS Authenticated CASCADE;
 DROP TABLE IF EXISTS Admin CASCADE;
 DROP TABLE IF EXISTS Event CASCADE;
 DROP TABLE IF EXISTS Users CASCADE;
+DROP TABLE IF EXISTS OrderDetail CASCADE;
+DROP TABLE IF EXISTS TicketType CASCADE;
+DROP TABLE IF EXISTS Orders CASCADE;
 DROP TYPE IF EXISTS TypesNotification CASCADE;
 DROP TYPE IF EXISTS TypesMessage CASCADE;
 DROP TYPE IF EXISTS TypesEvent CASCADE;
@@ -59,6 +62,7 @@ CREATE TABLE Event (
     ticket_limit INT ,
     place VARCHAR(255) NOT NULL,
     id_user INT NOT NULL,
+    CHECK (ticket_limit <= capacity),
     FOREIGN KEY (id_user) REFERENCES Authenticated(id_user)
 );
 
@@ -90,6 +94,14 @@ CREATE TABLE EventNotification (
     id_event INT NOT NULL,
     FOREIGN KEY (id_user) REFERENCES Authenticated(id_user),
     FOREIGN KEY (id_event) REFERENCES Event(id)
+);
+
+CREATE TABLE MessageNotification (
+    id SERIAL PRIMARY KEY,
+    id_user INT NOT NULL,
+    id_message INT NOT NULL,
+    FOREIGN KEY (id_user) REFERENCES Authenticated(id_user),
+    FOREIGN KEY (id_message) REFERENCES EventMessage(id)
 );
 
 CREATE TABLE EventParticipants (
@@ -134,7 +146,7 @@ CREATE TABLE Orders (
     FOREIGN KEY (id_user) REFERENCES Authenticated(id_user)
 );
 
-CREATE TABLE Tickets (
+CREATE TABLE Ticket (
     id SERIAL PRIMARY KEY,
     description TEXT NOT NULL,
     id_order INT NOT NULL,
@@ -143,9 +155,7 @@ CREATE TABLE Tickets (
     FOREIGN KEY (id_ticket_type) REFERENCES TicketType(id)
 );
 
-
-
-CREATE TABLE OrderDetails (
+CREATE TABLE OrderDetail (
     id_order INT NOT NULL,
     quantity INT NOT NULL,
     FOREIGN KEY (id_order) REFERENCES Orders(id)
@@ -157,14 +167,7 @@ CREATE TABLE Report (
     content TEXT NOT NULL
 );
 
-CREATE TABLE EventReport (
-    id_event INT NOT NULL,
-    id_report INT NOT NULL,
-    FOREIGN KEY (id_event) REFERENCES Event(id),
-    FOREIGN KEY (id_report) REFERENCES Report(id)
-);
-
-CREATE TABLE UploadFile (
+CREATE TABLE File (
     id SERIAL PRIMARY KEY,
     path VARCHAR(255) NOT NULL,
     id_user INT NOT NULL,
@@ -190,7 +193,7 @@ CREATE TABLE Poll (
     FOREIGN KEY (id_user) REFERENCES Authenticated(id_user)
 );
 
-CREATE TABLE PollOptions (
+CREATE TABLE PollOption (
     id SERIAL PRIMARY KEY,
     option TEXT NOT NULL,
     id_poll INT NOT NULL,
@@ -201,5 +204,5 @@ CREATE TABLE PollVotes (
     id_user INT NOT NULL,
     id_option INT NOT NULL,
     FOREIGN KEY (id_user) REFERENCES Authenticated(id_user),
-    FOREIGN KEY (id_option) REFERENCES PollOptions(id)
+    FOREIGN KEY (id_option) REFERENCES PollOption(id)
 );
