@@ -4,12 +4,12 @@ DROP TABLE IF EXISTS EventParticipants CASCADE;
 DROP TABLE IF EXISTS FavoriteEvent CASCADE;
 DROP TABLE IF EXISTS EventHashtag CASCADE;
 DROP TABLE IF EXISTS PollVotes CASCADE;
-DROP TABLE IF EXISTS UserNotifications CASCADE;
+DROP TABLE IF EXISTS EventNotification CASCADE; -- Renamed from UserNotifications
 DROP TABLE IF EXISTS Notification CASCADE;
 DROP TABLE IF EXISTS MessageReaction CASCADE;
 DROP TABLE IF EXISTS EventMessage CASCADE;
 DROP TABLE IF EXISTS EventReport CASCADE;
-DROP TABLE IF EXISTS Ticket CASCADE;
+DROP TABLE IF EXISTS Tickets CASCADE; -- Renamed from Ticket
 DROP TABLE IF EXISTS Hashtag CASCADE;
 DROP TABLE IF EXISTS Report CASCADE;
 DROP TABLE IF EXISTS PollOptions CASCADE;
@@ -24,13 +24,11 @@ DROP TYPE IF EXISTS TypesMessage CASCADE;
 DROP TYPE IF EXISTS TypesEvent CASCADE;
 
 -- Create types
-
 CREATE TYPE TypesEvent AS ENUM ('public', 'private', 'approval');
 CREATE TYPE TypesMessage AS ENUM ('chat', 'comment');
 CREATE TYPE TypesNotification AS ENUM ('request_answer', 'invitation');
 
 -- Create tables
-
 CREATE TABLE Users (
     id SERIAL PRIMARY KEY,
     email VARCHAR(255) UNIQUE NOT NULL,
@@ -82,20 +80,15 @@ CREATE TABLE MessageReaction (
 );
 
 CREATE TABLE Notification (
-    id SERIAL PRIMARY KEY,
-    type TypesNotification NOT NULL,
-    title VARCHAR(255) NOT NULL,
-    content TEXT NOT NULL,
-    date DATE DEFAULT CURRENT_DATE,
-    id_event INT NOT NULL,
-    FOREIGN KEY (id_event) REFERENCES Event(id)
+    id SERIAL PRIMARY KEY
 );
 
-CREATE TABLE UserNotifications (
+CREATE TABLE EventNotification (
+    id SERIAL PRIMARY KEY,
     id_user INT NOT NULL,
-    id_notification INT NOT NULL,
-    FOREIGN KEY (id_user) REFERENCES Users(id),
-    FOREIGN KEY (id_notification) REFERENCES Notification(id)
+    id_event INT NOT NULL,
+    FOREIGN KEY (id_user) REFERENCES Authenticated(id_user),
+    FOREIGN KEY (id_event) REFERENCES Event(id)
 );
 
 CREATE TABLE EventParticipants (
@@ -124,15 +117,37 @@ CREATE TABLE EventHashtag (
     FOREIGN KEY (id_hashtag) REFERENCES Hashtag(id)
 );
 
-CREATE TABLE Ticket (
+CREATE TABLE TicketType (
     id SERIAL PRIMARY KEY,
     id_event INT NOT NULL,
-    id_user INT NOT NULL,
-    price DECIMAL(10, 2) NOT NULL,
-    description TEXT,
     title VARCHAR(255) NOT NULL,
-    FOREIGN KEY (id_event) REFERENCES Event(id),
+    price DECIMAL(10, 2) NOT NULL,
+    category TEXT,
+    availability INT NOT NULL
+);
+
+CREATE TABLE Orders (
+    id SERIAL PRIMARY KEY,
+    order_number INT NOT NULL,
+    id_user INT NOT NULL,
     FOREIGN KEY (id_user) REFERENCES Authenticated(id_user)
+);
+
+CREATE TABLE Tickets (
+    id SERIAL PRIMARY KEY,
+    description TEXT NOT NULL,
+    id_order INT NOT NULL,
+    id_ticket_type INT NOT NULL,
+    FOREIGN KEY (id_order) REFERENCES Orders(id),
+    FOREIGN KEY (id_ticket_type) REFERENCES TicketType(id)
+);
+
+
+
+CREATE TABLE OrderDetails (
+    id_order INT NOT NULL,
+    quantity INT NOT NULL,
+    FOREIGN KEY (id_order) REFERENCES Orders(id)
 );
 
 CREATE TABLE Report (
