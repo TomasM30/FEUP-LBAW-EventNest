@@ -137,6 +137,8 @@ CREATE TABLE TicketType (
     price DECIMAL(10, 2) NOT NULL,
     category TEXT,
     availability INT NOT NULL
+    FOREIGN KEY (id_event) REFERENCES Event(id)
+
 );
 
 CREATE TABLE Orders (
@@ -177,8 +179,14 @@ CREATE TABLE File (
     FOREIGN KEY (id_user) REFERENCES Authenticated(id_user),
     FOREIGN KEY (id_message) REFERENCES EventMessage(id),
     FOREIGN KEY (id_report) REFERENCES Report(id),
-    FOREIGN KEY (id_event) REFERENCES Event(id)
+    FOREIGN KEY (id_event) REFERENCES Event(id),
+    CHECK (
+        (id_message IS NOT NULL AND id_event IS NULL AND id_report IS NULL) OR
+        (id_message IS NULL AND id_event IS NOT NULL AND id_report IS NULL) OR
+        (id_message IS NULL AND id_event IS NULL AND id_report IS NOT NULL)
+    )
 );
+
 
 CREATE TABLE Poll (
     id SERIAL PRIMARY KEY,
