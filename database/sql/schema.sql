@@ -136,9 +136,8 @@ CREATE TABLE TicketType (
     title VARCHAR(255) NOT NULL,
     price DECIMAL(10, 2) NOT NULL,
     category TEXT,
-    availability INT NOT NULL
+    availability INT NOT NULL,
     FOREIGN KEY (id_event) REFERENCES Event(id)
-
 );
 
 CREATE TABLE Orders (
