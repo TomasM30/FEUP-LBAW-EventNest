@@ -213,3 +213,4 @@ CREATE TABLE PollVotes (
     FOREIGN KEY (id_user) REFERENCES Authenticated(id_user),
     FOREIGN KEY (id_option) REFERENCES PollOption(id)
 );
+
