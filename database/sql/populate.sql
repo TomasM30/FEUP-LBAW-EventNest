@@ -1,7 +1,7 @@
 -----------------------------------------
 -- Population
 -----------------------------------------
-
+SET search_path TO lbaw23144;
 -- Insert data into the table "users"
 insert into Users (id, email, name, username, password) values (1, 'rkeach0@cmu.edu', 'Reinhard Keach', 'rkeach0', 'zN2=8na_.nA');
 insert into Users (id, email, name, username, password) values (2, 'smacascaidh1@canalblog.com', 'Shela MacAscaidh', 'smacascaidh1', 'eH9/w1_.OTG2NCm');
