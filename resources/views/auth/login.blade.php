@@ -1,7 +1,6 @@
 @extends('layouts.app')
 
 @section('content')
-<link rel="stylesheet" href="{{ asset('css/login.css') }}">
 <form method="POST" action="{{ route('login') }}">
     {{ csrf_field() }}
     <div class="container">
@@ -22,14 +21,34 @@
                 <img id='textlogo' src="{{ asset('images/TextLogoGreen.png') }}" alt="EventNest" class="img-fluid">
                 <h3 id='catch-frase2' class="text-md">Unleash the Power of Community</h3>
 
-                <!-- Differentiate buttons using the name attribute -->
-                <button id='login' type="submit" name="action" value="login" class="btn btn-primary btn-block">Login</button>
-                <button id='register' type="submit" name="action" value="register" class="btn btn-primary btn-block">Register</button>
-                <button id='gmail' type="submit" name="action" value="gmail" class="btn btn-primary btn-block">
-                    <img src="{{ asset('images/Gmail.png') }}" class="img-fluid">
-                </button>
-            </div>
-        </div>
-    </div>
+    <label for="email">E-mail</label>
+    <input id="email" type="email" name="email" value="{{ old('email') }}" required autofocus>
+    @if ($errors->has('email'))
+        <span class="error">
+          {{ $errors->first('email') }}
+        </span>
+    @endif
+
+    <label for="password" >Password</label>
+    <input id="password" type="password" name="password" required>
+    @if ($errors->has('password'))
+        <span class="error">
+            {{ $errors->first('password') }}
+        </span>
+    @endif
+
+    <label>
+        <input type="checkbox" name="remember" {{ old('remember') ? 'checked' : '' }}> Remember Me
+    </label>
+
+    <button type="submit">
+        Login
+    </button>
+    <a class="button button-outline" href="{{ route('register') }}">Register</a>
+    @if (session('success'))
+        <p class="success">
+            {{ session('success') }}
+        </p>
+    @endif
 </form>
 @endsection

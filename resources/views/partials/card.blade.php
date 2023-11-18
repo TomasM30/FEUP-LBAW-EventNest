@@ -9,4 +9,4 @@
     <form class="new_item">
         <input type="text" name="description" placeholder="new item">
     </form>
-</article>/1
+</article>
