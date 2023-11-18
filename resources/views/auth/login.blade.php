@@ -9,7 +9,7 @@
             <div id='left' class='column'>
                 <img src="{{ asset('images/Logo.png') }}" alt="EventNest" class="img-fluid" id='logo'>
                 <p class="text-md" id="catch-frase1">
-                    Unleash the Power of Community: Where Every Passion Finds Its Event. Join, Create, and Thrive with EventNest - Your Gateway to Inclusive Sports Experiences!
+                    Unleash the Power of Community: Where Every Passion Finds Its Event. Join, Create, and Thrive with EventNest. - Your Gateway to Inclusive Sports Experiences!
                 </p>
                 <hr>
                 <p class="text-md" id="information1">
