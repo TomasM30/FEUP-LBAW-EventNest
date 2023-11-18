@@ -19,6 +19,7 @@ DROP TABLE IF EXISTS File CASCADE;
 DROP TABLE IF EXISTS Authenticated CASCADE;
 DROP TABLE IF EXISTS Admin CASCADE;
 DROP TABLE IF EXISTS Event CASCADE;
+DROP TABLE IF EXISTS users CASCADE;
 DROP TABLE IF EXISTS Users CASCADE;
 DROP TABLE IF EXISTS OrderDetail CASCADE;
 DROP TABLE IF EXISTS TicketType CASCADE;
@@ -33,7 +34,7 @@ CREATE TYPE TypesMessage AS ENUM ('chat', 'comment');
 CREATE TYPE TypesNotification AS ENUM ('request_answer', 'invitation');
 
 -- Create tables
-CREATE TABLE Users (
+CREATE TABLE users (
     id SERIAL PRIMARY KEY,
     email VARCHAR(255) UNIQUE NOT NULL,
     name VARCHAR(255) NOT NULL,
@@ -43,14 +44,14 @@ CREATE TABLE Users (
 
 CREATE TABLE Admin (
     id_user INT NOT NULL,
-    FOREIGN KEY (id_user) REFERENCES Users(id)
+    FOREIGN KEY (id_user) REFERENCES users(id)
 );
 
 CREATE TABLE Authenticated (
     id_user INT PRIMARY KEY,
     is_verified BOOLEAN DEFAULT FALSE,
     id_profilepic INT DEFAULT 0,
-    FOREIGN KEY (id_user) REFERENCES Users(id)
+    FOREIGN KEY (id_user) REFERENCES users(id)
 );
 
 CREATE TABLE Event (
@@ -243,8 +244,8 @@ CREATE INDEX orders_user_id ON orders USING hash (id_user);
 
 -- Full-text search indexes
 
--- Add column to Users to store computed ts_vectors.
-ALTER TABLE Users
+-- Add column to users to store computed ts_vectors.
+ALTER TABLE users
 ADD COLUMN tsvectors TSVECTOR;
 
 -- Create a function to automatically update ts_vectors.
@@ -266,7 +267,7 @@ BEGIN
 END $$
 LANGUAGE plpgsql;
 
--- Create a trigger before insert or update on Users
+-- Create a trigger before insert or update on users
 CREATE TRIGGER user_search_update
  BEFORE INSERT OR UPDATE ON users
  FOR EACH ROW
@@ -492,3 +493,4 @@ ORDER BY Event.date ASC;
 -- Commit the second transaction
 END TRANSACTION;
 
+insert into users (id, email, name, username, password) values (1, 'rkeach0@cmu.edu', 'Reinhard Keach', 'rkeach0', 'zN2=8na_.nA');

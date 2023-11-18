@@ -3,7 +3,12 @@
 use Illuminate\Support\Facades\Route;
 
 use App\Http\Controllers\CardController;
+<<<<<<< HEAD
 use App\Http\Controllers\EventController;
+=======
+use App\Http\Controllers\ItemController;
+use App\Http\Controllers\UserController;
+>>>>>>> a6c7a9fec05da22d3b68475dc03a094d77542e72
 
 use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\Auth\RegisterController;
@@ -21,6 +26,11 @@ use App\Http\Controllers\Auth\RegisterController;
 
 // Home
 Route::redirect('/', '/login');
+
+Route::controller(UserController::class)->group(function() {
+    Route::get('/user/findAll', 'findAll');
+});
+
 
 // Cards
 Route::controller(CardController::class)->group(function () {
