@@ -11,6 +11,7 @@ use Illuminate\Support\Facades\Hash;
 use Illuminate\View\View;
 
 use App\Models\User;
+use App\Models\Authenticated;
 
 class RegisterController extends Controller
 {
@@ -34,11 +35,15 @@ class RegisterController extends Controller
             'password' => 'required|min:8|confirmed'
         ]);
 
-        User::create([
+        $user = User::create([
             'name' => $request->name,
             'username' => $request->username,
             'email' => $request->email,
             'password' => Hash::make($request->password)
+        ]);
+
+        Authenticated::create([
+            'id_user' => $user->id
         ]);
 
         //$credentials = $request->only('email', 'password');
