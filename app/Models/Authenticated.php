@@ -26,6 +26,9 @@ class Authenticated extends Model
      */
     protected $primaryKey = 'id_user';
 
+    protected $fillable = ['id_user'];
+
+
     public function user(){
         return $this->belongsTo(User::class, 'id_user');
     }

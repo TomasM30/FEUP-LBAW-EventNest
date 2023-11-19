@@ -25,7 +25,7 @@
                     {{ csrf_field() }}
 
                     <label for="email">E-mail</label>
-                    <input id="email" type="email" name="email" value="{{ old('email') }}" required autofocus>
+                    <input id="email-login" type="email" name="email" value="{{ old('email') }}" required autofocus>
                     @if ($errors->has('email'))
                         <span class="error">
                           {{ $errors->first('email') }}
@@ -33,7 +33,7 @@
                     @endif
 
                     <label for="password" >Password</label>
-                    <input id="password" type="password" name="password" required>
+                    <input id="password-login" type="password" name="password" required>
                     @if ($errors->has('password'))
                         <span class="error">
                             {{ $errors->first('password') }}
@@ -44,7 +44,7 @@
                         <input type="checkbox" name="remember" {{ old('remember') ? 'checked' : '' }}> Remember Me
                     </label>
 
-                    <button id='register-button' type="submit" class="btn btn-primary btn-block">
+                    <button id='login-button' type="submit" class="btn btn-primary btn-block">
                         Login
                     </button>
                     @if (session('success'))
@@ -76,7 +76,7 @@
                     @endif
 
                     <label for="email">E-Mail Address</label>
-                    <input id="email" type="email" name="email" value="{{ old('email') }}" required>
+                    <input id="email-register" type="email" name="email" value="{{ old('email') }}" required>
                     @if ($errors->has('email'))
                       <span class="error">
                           {{ $errors->first('email') }}
@@ -84,7 +84,7 @@
                     @endif
 
                     <label for="password">Password</label>
-                    <input id="password" type="password" name="password" required>
+                    <input id="password-register" type="password" name="password" required>
                     @if ($errors->has('password'))
                       <span class="error">
                           {{ $errors->first('password') }}
@@ -136,52 +136,7 @@ $(document).ready(function() {
         // Enable the fields in the registration form
         $('#registerFormContainer input').prop('disabled', false);
     });
-
-    // Add a submit event listener to the register form
-    // To appear the error withou refreshing the page
-    $('#registerFormContainer form').on('submit', function(e) {
-        e.preventDefault();
-
-        // Get the form data
-        var formData = $(this).serialize();
-
-        // Send the form data using AJAX
-        $.ajax({
-            type: 'POST',
-            url: $(this).attr('action'),
-            data: formData,
-            success: function(response) {
-                // If the registration was successful, show the login form
-                $('#loginFormContainer').show();
-                $('#login').hide();
-                $('#registerFormContainer').hide();
-                $('#register').show();
-
-                // Clear the registration form
-                $('#registerFormContainer form')[0].reset();
-
-                // Disable the fields in the registration form
-                $('#registerFormContainer input').prop('disabled', true);
-                // Enable the fields in the login form
-                $('#loginFormContainer input').prop('disabled', false);
-            },
-            error: function(response) {
-                // If there were validation errors, display them
-                var errors = response.responseJSON.errors;
-
-                // Clear any existing errors
-                $('.error').remove();
-
-                // Display the new errors
-                for (var field in errors) {
-                    var error = errors[field][0];
-                    $('#' + field).after('<span class="error">' + error + '</span>');
-                }
-            }
-        });
-    });
-
-    
 });
+
 </script>
 @endsection
