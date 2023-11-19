@@ -10,7 +10,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class Event extends Model
 {
-    protected $table = 'event';
+    protected $table = 'Event';
     public $timestamps  = false;
 
     protected $fillable = [

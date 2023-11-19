@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use Carbon\Carbon;
 use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -15,20 +16,32 @@ class EventController extends Controller
     /**
      * Creates a new item.
      * @throws AuthorizationException
+     * @throws ValidationException
      */
-    public function create(Request $request): \Illuminate\Http\RedirectResponse
+    public function createEvent(Request $request): \Illuminate\Http\RedirectResponse
     {
         $this->authorize('create', Event::class);
+
+        $this->validate($request, [
+            'title' => 'required|string',
+            'description' => 'required|string',
+            'type' => 'in:public,private,approval',
+            'date' => 'required|date_format:d-m-Y|after_or_equal:today',
+            'capacity' => 'required|integer',
+            'ticket_limit' => 'required|integer',
+            'place' => 'required|string',
+        ]);
 
         $event = new Event();
         $event->title = $request->title;
         $event->description = $request->description;
         $event->type = $request->input('type', 'public');
-        $event->date = date('Y-m-d H:i');
+        $eventDate = Carbon::createFromFormat('d-m-y', $request->date);
+        $event->date = $eventDate->format('d-m-Y');
         $event->capacity = $request->capacity;
         $event->ticket_limit = $request->ticket_limit;
         $event->place = $request->place;
-        $event->User_id = Auth::User()->id;
+        $event->User_id = Auth::user()->id;
         $event->save();
 
         return redirect()->back()->with('success', 'Event successfully created');

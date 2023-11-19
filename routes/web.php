@@ -1,17 +1,16 @@
 <?php
 
+use App\Http\Controllers\EventController;
+use App\Http\Controllers\MainPageController;
 use Illuminate\Support\Facades\Route;
 
 use App\Http\Controllers\CardController;
-<<<<<<< HEAD
-use App\Http\Controllers\EventController;
-=======
 use App\Http\Controllers\ItemController;
 use App\Http\Controllers\UserController;
->>>>>>> a6c7a9fec05da22d3b68475dc03a094d77542e72
 
 use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\Auth\RegisterController;
+
 
 /*
 |--------------------------------------------------------------------------
@@ -46,11 +45,13 @@ Route::controller(CardController::class)->group(function () {
 });
 
 Route::controller(EventController::class)->group(function () {
-    Route::put('/api/cards/{card_id}', 'create');
-    Route::post('/api/item/{id}', 'update');
-    Route::delete('/api/item/{id}', 'delete');
+    Route::put('/create', 'createEvent')->name('createEvent');
+    Route::post('/edit', 'editEvent')->name('editEvent');
 });
 
+Route::controller(MainPageController::class)->group(function () {
+    Route::get('/test', 'showForm')->name('test');
+});
 
 // Authentication
 Route::controller(LoginController::class)->group(function () {
