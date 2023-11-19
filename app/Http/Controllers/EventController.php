@@ -2,27 +2,25 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Controllers\Controller;
 use Carbon\Carbon;
-use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\View\View;
+use Illuminate\Support\Facades\Log;
+
 
 use App\Models\Event;
-use Illuminate\Validation\ValidationException;
 
 class EventController extends Controller
 {
-    /**
-     * Creates a new item.
-     * @throws AuthorizationException
-     * @throws ValidationException
-     */
-    public function createEvent(Request $request): \Illuminate\Http\RedirectResponse
-    {
-        $this->authorize('create', Event::class);
 
-        $this->validate($request, [
+    public function createEvent(Request $request)
+    {
+        Log::info('Request data', $request->all());
+    
+        $request->validate([
             'title' => 'required|string',
             'description' => 'required|string',
             'type' => 'in:public,private,approval',
@@ -31,19 +29,20 @@ class EventController extends Controller
             'ticket_limit' => 'required|integer',
             'place' => 'required|string',
         ]);
-
-        $event = new Event();
-        $event->title = $request->title;
-        $event->description = $request->description;
-        $event->type = $request->input('type', 'public');
-        $eventDate = Carbon::createFromFormat('d-m-y', $request->date);
-        $event->date = $eventDate->format('d-m-Y');
-        $event->capacity = $request->capacity;
-        $event->ticket_limit = $request->ticket_limit;
-        $event->place = $request->place;
-        $event->User_id = Auth::user()->id;
-        $event->save();
-
+    
+        Log::info('Request data', $request->all());
+    
+        $event = Event::create([
+            'title' => $request->title,
+            'description' => $request->description,
+            'type' => $request->input('type', 'public'),
+            'date' => Carbon::createFromFormat('d-m-Y', $request->date)->format('Y-m-d'),
+            'capacity' => $request->capacity,
+            'ticket_limit' => $request->ticket_limit,
+            'place' => $request->place,
+            'id_user' => Auth::user()->id,
+        ]);
+    
         return redirect()->back()->with('success', 'Event successfully created');
     }
 

@@ -10,11 +10,31 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class Event extends Model
 {
-    protected $table = 'Event';
     public $timestamps  = false;
 
+    
     protected $fillable = [
-        'Event_id', 'title', 'description', 'type', 'date', 'capacity', 'ticket_limit', 'place', 'User_id'
+        'title',
+        'description',
+        'type',
+        'date',
+        'capacity',
+        'ticket_limit',
+        'place',
+        'id_user',
     ];
 
+    /**
+     * The table associated with the model.
+     *
+     * @var string
+     */
+    protected $table = 'event';
+
+    /**
+     * The primary key associated with the table.
+     *
+     * @var string
+     */
+    protected $primaryKey = 'id';
 }
