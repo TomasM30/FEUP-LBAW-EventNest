@@ -38,7 +38,15 @@ class LoginController extends Controller
         if (Auth::attempt($credentials, $request->filled('remember'))) {
             $request->session()->regenerate();
  
+<<<<<<< HEAD
             return redirect()->intended('test');
+=======
+            if ($request->user()->isAdmin()) {
+                return redirect()->intended('dashboard');
+            } else {
+                return redirect()->intended('main');
+            }
+>>>>>>> origin/16-admin-delete-event
         }
 
         return back()->withErrors([

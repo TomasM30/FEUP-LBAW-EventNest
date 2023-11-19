@@ -12,7 +12,6 @@ class Event extends Model
 {
     public $timestamps  = false;
 
-    
     protected $fillable = [
         'title',
         'description',
@@ -24,7 +23,8 @@ class Event extends Model
         'id_user',
     ];
 
-    /**
+    use HasFactory;
+        /**
      * The table associated with the model.
      *
      * @var string
@@ -37,4 +37,5 @@ class Event extends Model
      * @var string
      */
     protected $primaryKey = 'id';
+
 }

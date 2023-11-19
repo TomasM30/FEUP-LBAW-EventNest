@@ -15,7 +15,6 @@ use App\Models\Event;
 
 class EventController extends Controller
 {
-
     public function createEvent(Request $request)
     {
         Log::info('Request data', $request->all());

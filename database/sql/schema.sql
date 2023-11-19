@@ -57,7 +57,8 @@ CREATE TABLE users (
 
 CREATE TABLE Admin (
     id_user INT NOT NULL,
-    FOREIGN KEY (id_user) REFERENCES users(id)
+    FOREIGN KEY (id_user) REFERENCES users(id),
+    PRIMARY KEY (id_user)
 );
 
 CREATE TABLE Authenticated (
