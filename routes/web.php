@@ -45,7 +45,7 @@ Route::controller(CardController::class)->group(function () {
 });
 
 Route::controller(EventController::class)->group(function () {
-    Route::put('/create', 'createEvent')->name('createEvent');
+    Route::post('/create', 'createEvent')->name('createEvent');
     Route::post('/edit', 'editEvent')->name('editEvent');
 });
 
