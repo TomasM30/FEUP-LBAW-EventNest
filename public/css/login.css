@@ -1,0 +1,118 @@
+:root {
+    --main-color: #006039;
+    --secondary-color: #D9A300;
+    --background-color: #F4F2DB;
+}
+
+html,
+body {
+    height: 100%;
+    width: 100%;
+    margin: 0;
+    padding: 0;
+}
+
+.container {
+    display: flex;
+    height: 100%;
+    width: 100%;
+    margin: 0;
+    padding: 0;
+    max-width: 100%;
+}
+
+form {
+    height: 100%;
+    width: 100%;
+    margin: 0;
+    padding: 0;
+}
+
+.column {
+    background-color: var(--main-color);
+    float: left;
+    width: 70%;
+}
+
+#right {
+    float: left;
+    width: 30%;
+    background-color: var(--background-color);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    /* Center items vertically */
+}
+
+/* Clearfix to ensure proper layout with floated elements */
+.clearfix::after {
+    content: "";
+    display: table;
+    clear: both;
+}
+
+#logo {
+    margin: 3%;
+    width: auto;
+    height: 15%;
+}
+
+.text-md {
+    margin-left: 3%;
+    margin-right: 3%;
+}
+
+#catch-frase1 {
+    font-size: 2em;
+    font-weight: bold;
+    color: white;
+}
+
+hr {
+    color: var(--secondary-color);
+    background-color: var(--secondary-color);
+    height: 0.6%;
+    margin-left: 3%;
+    margin-right: 3%;
+    opacity: 100%;
+    margin-bottom: 3%;
+}
+
+#information1,
+#information2 {
+    margin-left: 3%;
+    margin-right: 3%;
+    color: white;
+    font-size: larger;
+}
+
+.btn {
+    margin: 1%;
+    width: 80%;
+    --bs-btn-bg: var(--secondary-color);
+    --bs-btn-border-color: var(--secondary-color);
+    --bs-btn-hover-color: #fff;
+    --bs-btn-hover-bg: var(--main-color);
+    --bs-btn-hover-border-color: var(--main-color);
+    --bs-btn-focus-shadow-rgb: 49, 132, 253;
+    --bs-btn-active-color: #fff;
+    --bs-btn-active-bg: var(--secondary-color);
+    --bs-btn-active-border-color: var(--secondary-color);
+    --bs-btn-active-shadow: inset 0 3px 5px rgba(0, 0, 0, 0.125);
+    --bs-btn-disabled-color: #fff;
+    --bs-btn-disabled-bg: var(--secondary-color);
+    --bs-btn-disabled-border-color: var(--secondary-color);
+}
+
+#catch-frase2 {
+    font-size: 1.6em;
+    font-weight: bold;
+    color: var(--main-color);
+    margin-top: 1%;
+}
+
+#textlogo {
+    width: 45%;
+    height: auto;
+}
