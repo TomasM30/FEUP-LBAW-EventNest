@@ -663,7 +663,8 @@ insert into MessageNotification (id, id_user, id_message) values (49, 35, 42);
 insert into MessageNotification (id, id_user, id_message) values (50, 16, 41);
 
 -- Insert data into the table "event_participants"
-ALTER TABLE EventParticipants DISABLE TRIGGER check_organizer_enrollment_trigger;insert into EventParticipants (id_user, id_event) values (38, 34);
+ALTER TABLE EventParticipants DISABLE TRIGGER check_organizer_enrollment_trigger;
+insert into EventParticipants (id_user, id_event) values (38, 34);
 insert into EventParticipants (id_user, id_event) values (15, 31);
 insert into EventParticipants (id_user, id_event) values (35, 6);
 insert into EventParticipants (id_user, id_event) values (35, 28);

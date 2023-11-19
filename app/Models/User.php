@@ -16,8 +16,6 @@ class User extends Authenticatable
 
     // Don't add create and update timestamps in database.
     public $timestamps  = false;
-    
-
 
     protected $fillable = [
         'name',
@@ -46,4 +44,8 @@ class User extends Authenticatable
         'email_verified_at' => 'datetime',
         'password' => 'hashed',
     ];
+
+    public function isAdmin() {
+        return $this->hasOne(Admin::class, 'id_user')->exists();
+    }
 }

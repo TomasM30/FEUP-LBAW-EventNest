@@ -26,14 +26,11 @@ class Authenticated extends Model
      */
     protected $primaryKey = 'id_user';
 
-    /**
-     * The attributes that are mass assignable.
-     *
-     * @var array<int, string>
-     */
-    protected $fillable = [
-        'id_user',
-        'is_verified',
-        'id_profilepic',
-    ];
+    public function user(){
+        return $this->belongsTo(User::class, 'id_user');
+    }
+
+    public function events(){
+        return $this->belongsToMany(Event::class, 'eventparticipants', 'id_user', 'id_event');
+    }
 }
