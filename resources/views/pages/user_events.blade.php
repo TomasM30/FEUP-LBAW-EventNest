@@ -13,9 +13,9 @@
     @foreach ($events as $event)
         <li>
             {{ $event->title }}
-            <form action="{{ route('events.delete', $event->id) }}" method="POST">
-                @csrf
-                @method('DELETE')
+            <form method="POST" action="{{ route('events.delete', $event->id) }}">
+                {{ csrf_field() }}
+                {{ method_field('DELETE') }}
                 <button type="submit">Delete</button>
             </form>
         </li>
