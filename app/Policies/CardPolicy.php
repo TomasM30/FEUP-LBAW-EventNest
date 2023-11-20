@@ -38,11 +38,7 @@ class CardPolicy
     /**
      * Determine if a card can be created by a user.
      */
-    public function create(User $user): bool
-    {
-        // Any user can create a new card.
-        return Auth::check();
-    }
+
 
     /**
      * Determine if a card can be deleted by a user.

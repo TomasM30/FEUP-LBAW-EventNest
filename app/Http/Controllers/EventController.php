@@ -17,8 +17,6 @@ class EventController extends Controller
 {
     public function createEvent(Request $request)
     {
-        Log::info('Request data', $request->all());
-    
         $request->validate([
             'title' => 'required|string',
             'description' => 'required|string',
@@ -28,9 +26,7 @@ class EventController extends Controller
             'ticket_limit' => 'required|integer',
             'place' => 'required|string',
         ]);
-    
-        Log::info('Request data', $request->all());
-    
+
         $event = Event::create([
             'title' => $request->title,
             'description' => $request->description,
@@ -51,8 +47,6 @@ class EventController extends Controller
      */
     public function editEvent (Request $request): \Illuminate\Http\RedirectResponse
     {
-        $this->authorize('edit', Event::class);
-
         $this->validate($request, [
             'title' => 'required|string',
             'description' => 'required|string',
@@ -61,7 +55,7 @@ class EventController extends Controller
             'ticket_limit' => 'required|integer',
         ]);
 
-        $event = Event::find($request->input('id'));
+        $event = Event::find(1);
 
         if (!$event) {
             return redirect()->back()->with('error', 'Event not found');

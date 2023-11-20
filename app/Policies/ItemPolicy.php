@@ -19,20 +19,7 @@ class ItemPolicy
     /**
      * Determine if a user can create an item.
      */
-    public function create(User $user, Event $item): bool
-    {
-        // User can only create items in cards they own.
-        return $user->id === $item->card->user_id;
-    }
 
-    /**
-     * Determine if a user can update an item.
-     */
-    public function update(User $user, Event $item): bool
-    {
-        // User can only update items in cards they own.
-        return $user->id === $item->card->user_id;
-    }
 
     /**
      * Determine if a user can delete an item.

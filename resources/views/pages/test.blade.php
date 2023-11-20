@@ -11,7 +11,7 @@
     </head>
     <body>
     <h1>Create Event</h1>
-    <form method="POST" action="{{ route('createEvent') }}">
+    <form method="POST" action="{{ route('editEvent') }}">
         {{ csrf_field() }}
     
         <label for="title">Title:</label>
