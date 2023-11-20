@@ -5,6 +5,8 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\CardController;
 use App\Http\Controllers\ItemController;
 use App\Http\Controllers\UserController;
+use App\Http\Controllers\AdminController;
+use App\Http\Controllers\AuthenticatedController;
 
 use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\Auth\RegisterController;
@@ -58,4 +60,13 @@ Route::controller(LoginController::class)->group(function () {
 Route::controller(RegisterController::class)->group(function () {
     Route::get('/register', 'showRegistrationForm')->name('register');
     Route::post('/register', 'register');
+});
+
+// Admin Dashboard
+Route::controller(AdminController::class)->group(function () {
+    Route::get('/dashboard', 'showDashboard')->name('dashboard');
+});
+
+Route::controller(AuthenticatedUserController::class)->group(function () {
+    Route::get('/user/{id}/events', 'showUserEvents');
 });

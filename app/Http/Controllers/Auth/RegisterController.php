@@ -11,6 +11,7 @@ use Illuminate\Support\Facades\Hash;
 use Illuminate\View\View;
 
 use App\Models\User;
+use App\Models\AuthenticatedUser;
 
 class RegisterController extends Controller
 {
@@ -29,20 +30,26 @@ class RegisterController extends Controller
     {
         $request->validate([
             'name' => 'required|string|max:250',
+            'username' => 'required|string|max:250|unique:users',
             'email' => 'required|email|max:250|unique:users',
             'password' => 'required|min:8|confirmed'
         ]);
 
-        User::create([
+        $user = User::create([
             'name' => $request->name,
+            'username' => $request->username,
             'email' => $request->email,
             'password' => Hash::make($request->password)
         ]);
 
-        $credentials = $request->only('email', 'password');
-        Auth::attempt($credentials);
-        $request->session()->regenerate();
-        return redirect()->route('cards')
-            ->withSuccess('You have successfully registered & logged in!');
+        AuthenticatedUser::create([
+            'id_user' => $user->id
+        ]);
+
+        //$credentials = $request->only('email', 'password');
+        //Auth::attempt($credentials);
+        //$request->session()->regenerate();
+        return redirect()->route('login');
+         //   ->withSuccess('You have successfully registered & logged in!');
     }
 }

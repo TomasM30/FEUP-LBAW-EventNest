@@ -1,6 +1,7 @@
 DROP SCHEMA IF EXISTS lbaw23144 CASCADE;
 CREATE SCHEMA IF NOT EXISTS lbaw23144;
 SET search_path TO lbaw23144;
+
 DROP TABLE IF EXISTS EventParticipants CASCADE;
 DROP TABLE IF EXISTS FavoriteEvent CASCADE;
 DROP TABLE IF EXISTS EventHashtag CASCADE;
@@ -24,9 +25,20 @@ DROP TABLE IF EXISTS Users CASCADE;
 DROP TABLE IF EXISTS OrderDetail CASCADE;
 DROP TABLE IF EXISTS TicketType CASCADE;
 DROP TABLE IF EXISTS Orders CASCADE;
+
 DROP TYPE IF EXISTS TypesNotification CASCADE;
 DROP TYPE IF EXISTS TypesMessage CASCADE;
 DROP TYPE IF EXISTS TypesEvent CASCADE;
+
+DROP FUNCTION IF EXISTS user_search_update CASCADE;
+DROP FUNCTION IF EXISTS created_search_update CASCADE;
+DROP FUNCTION IF EXISTS event_search_update CASCADE;
+DROP FUNCTION IF EXISTS check_organizer_enrollment CASCADE;
+DROP FUNCTION IF EXISTS verify_user_attendance CASCADE;
+DROP FUNCTION IF EXISTS check_poll_options CASCADE;
+DROP FUNCTION IF EXISTS user_ticket CASCADE;
+DROP FUNCTION IF EXISTS admin_event CASCADE;
+
 
 -- Create types
 CREATE TYPE TypesEvent AS ENUM ('public', 'private', 'approval');
@@ -39,12 +51,14 @@ CREATE TABLE users (
     email VARCHAR(255) UNIQUE NOT NULL,
     name VARCHAR(255) NOT NULL,
     username VARCHAR(255) UNIQUE NOT NULL,
+    remember_token VARCHAR(256) DEFAULT NULL,
     password VARCHAR(255) NOT NULL
 );
 
 CREATE TABLE Admin (
     id_user INT NOT NULL,
-    FOREIGN KEY (id_user) REFERENCES users(id)
+    FOREIGN KEY (id_user) REFERENCES users(id),
+    PRIMARY KEY (id_user)
 );
 
 CREATE TABLE Authenticated (
@@ -284,7 +298,7 @@ ADD COLUMN tsvectors TSVECTOR;
 
 -- Create a function to automatically update ts_vectors.
 -- Create a function to automatically update ts_vectors.
-CREATE FUNCTION Created_search_update() RETURNS TRIGGER AS $$
+CREATE FUNCTION created_search_update() RETURNS TRIGGER AS $$
 BEGIN
  IF TG_OP = 'INSERT' THEN
         NEW.tsvectors = (
@@ -303,10 +317,10 @@ END $$
 LANGUAGE plpgsql;
 
 -- Create a trigger before insert or update on Event
-CREATE TRIGGER Created_search_update
+CREATE TRIGGER created_search_update
  BEFORE INSERT OR UPDATE ON Event
  FOR EACH ROW
- EXECUTE PROCEDURE Created_search_update();
+ EXECUTE PROCEDURE created_search_update();
 
 -- Create a GIN index for ts_vectors.
 CREATE INDEX search_created ON Event USING GIN (tsvectors);
@@ -492,5 +506,3 @@ ORDER BY Event.date ASC;
 
 -- Commit the second transaction
 END TRANSACTION;
-
-insert into users (id, email, name, username, password) values (1, 'rkeach0@cmu.edu', 'Reinhard Keach', 'rkeach0', 'zN2=8na_.nA');
