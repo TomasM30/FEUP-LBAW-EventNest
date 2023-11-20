@@ -54,4 +54,48 @@ class EventController extends Controller
             return response()->json(['message' => 'An error occurred while deleting the event']);
         }
     }
+
+    public function listPublicEvents()
+    {   
+        $events = Event::where('type', 'public')->get();
+        return view('pages.main', ['events' => $events]);
+    }
+
+
+    public function listEventAttendees($id) 
+    {
+        $event = Event::find($id);
+        $attendees = $event->eventparticipants()->get();
+        return response()->json($attendees);
+    }
+
+
+    public function addUserToEvent(Request $request)
+    {
+        $id_user = $request->id_user;
+        $eventId = $request->eventId;
+        $authenticated = Authenticated::find($id_user)->get();
+        $event = Event::find($eventId)->get();
+        
+        DB::BeginTransaction();
+
+        EventParticipants::Insert([
+            'id_user' => $authenticated->id_user,
+            'id_event' => $event->id,
+        ]);
+
+        //TODO: Generates notification
+
+        DB::commit();
+    }
+
+
+    public function details($id)
+    {
+        $event = Event::find($id)->get();
+        $details = $event->only(['title','desciption','type','date','place']);
+
+        return response()->json($details);
+    }
+    
 }
