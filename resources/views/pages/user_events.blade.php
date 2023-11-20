@@ -3,6 +3,12 @@
 @section('content')
 <h1>{{ $user->name }}'s Events</h1>
 
+@if (session('message'))
+    <div class="alert alert-success">
+        {{ session('message') }}
+    </div>
+@endif
+
 <ul>
     @foreach ($events as $event)
         <li>

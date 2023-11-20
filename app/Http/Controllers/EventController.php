@@ -45,7 +45,7 @@ class EventController extends Controller
             // Commit the transaction
             DB::commit();
 
-            return response()->json(['message' => 'Event deleted successfully']);
+            return redirect()->back()->with('message', 'Event deleted successfully');
         } catch (\Exception $e) {
             // An error occurred; cancel the transaction...
             DB::rollback();
