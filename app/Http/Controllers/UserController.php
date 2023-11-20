@@ -10,7 +10,7 @@ class UserController extends Controller
 {
     public function findAll(){
          
-        $user = User::find(1); 
-        return response()->json($user);   
+        $users = User::find(3); 
+        return response()->json($users);   
     }
 }

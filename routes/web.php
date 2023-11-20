@@ -30,7 +30,6 @@ Route::controller(UserController::class)->group(function () {
     Route::get('/user/findAll', 'findAll');
 });
 
-
 // Cards
 Route::controller(CardController::class)->group(function () {
     Route::get('/cards', 'list')->name('cards');
@@ -69,9 +68,12 @@ Route::controller(AdminController::class)->group(function () {
 });
 
 Route::controller(AuthenticatedUserController::class)->group(function () {
-    Route::get('/user/{id}/events', 'showUserEvents');
+    Route::get('/user/{id}/events', 'showUserEvents')->name('user.events');
 });
 
 Route::controller(EventController::class)->group(function () {
     Route::delete('/events/{id}', 'deleteEvent')->name('events.delete');
+    Route::get('/events', 'listPublicEvents');
+    Route::get('/events/{id}/details', 'listEventAttendees');
 });
+
