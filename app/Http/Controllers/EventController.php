@@ -58,7 +58,7 @@ class EventController extends Controller
     public function listPublicEvents()
     {   
         $events = Event::where('type', 'public')->get();
-        return view('pages.main', ['events' => $events]);
+        return view('pages.events', ['events' => $events]);
     }
 
 
@@ -66,11 +66,11 @@ class EventController extends Controller
     {
         $event = Event::find($id);
         $attendees = $event->eventparticipants()->get();
-        return response()->json($attendees);
+        return view('pages.event_details', ['events' => $attendees]);
     }
 
 
-    public function addUserToEvent(Request $request)
+    /*public function addUserToEvent(Request $request)
     {
         $id_user = $request->id_user;
         $eventId = $request->eventId;
@@ -87,15 +87,7 @@ class EventController extends Controller
         //TODO: Generates notification
 
         DB::commit();
-    }
+    }*/
 
-
-    public function details($id)
-    {
-        $event = Event::find($id)->get();
-        $details = $event->only(['title','desciption','type','date','place']);
-
-        return response()->json($details);
-    }
     
 }

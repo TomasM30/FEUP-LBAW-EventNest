@@ -11,7 +11,6 @@ use App\Http\Controllers\EventController;
 
 use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\Auth\RegisterController;
-use App\Http\Controllers\EventController;
 
 /*
 |--------------------------------------------------------------------------
@@ -75,6 +74,6 @@ Route::controller(AuthenticatedUserController::class)->group(function () {
 Route::controller(EventController::class)->group(function () {
     Route::delete('/events/{id}', 'deleteEvent')->name('events.delete');
     Route::get('/events', 'listPublicEvents');
-    Route::get('/event/{id}/atendees', 'listEventAttendees');
+    Route::get('/events/{id}/details', 'listEventAttendees');
 });
 
