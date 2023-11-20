@@ -11,7 +11,7 @@ use Illuminate\Support\Facades\Hash;
 use Illuminate\View\View;
 
 use App\Models\User;
-use App\Models\Authenticated;
+use App\Models\AuthenticatedUser;
 
 class RegisterController extends Controller
 {
@@ -42,7 +42,7 @@ class RegisterController extends Controller
             'password' => Hash::make($request->password)
         ]);
 
-        Authenticated::create([
+        AuthenticatedUser::create([
             'id_user' => $user->id
         ]);
 

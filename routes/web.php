@@ -67,6 +67,6 @@ Route::controller(AdminController::class)->group(function () {
     Route::get('/dashboard', 'showDashboard')->name('dashboard');
 });
 
-Route::controller(AuthenticatedController::class)->group(function () {
-    Route::get('/user/{id}/events', [AuthenticatedController::class, 'showUserEvents']);
+Route::controller(AuthenticatedUserController::class)->group(function () {
+    Route::get('/user/{id}/events', 'showUserEvents');
 });
