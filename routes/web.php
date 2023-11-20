@@ -6,7 +6,8 @@ use App\Http\Controllers\CardController;
 use App\Http\Controllers\ItemController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\AdminController;
-use App\Http\Controllers\AuthenticatedController;
+use App\Http\Controllers\AuthenticatedUserController;
+use App\Http\Controllers\EventController;
 
 use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\Auth\RegisterController;
@@ -69,4 +70,8 @@ Route::controller(AdminController::class)->group(function () {
 
 Route::controller(AuthenticatedUserController::class)->group(function () {
     Route::get('/user/{id}/events', 'showUserEvents');
+});
+
+Route::controller(EventController::class)->group(function () {
+    Route::delete('/events/{id}', 'deleteEvent')->name('events.delete');
 });

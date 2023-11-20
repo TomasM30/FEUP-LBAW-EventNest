@@ -5,7 +5,14 @@
 
 <ul>
     @foreach ($events as $event)
-        <li>{{ $event->title }}</li>
+        <li>
+            {{ $event->title }}
+            <form action="{{ route('events.delete', $event->id) }}" method="POST">
+                @csrf
+                @method('DELETE')
+                <button type="submit">Delete</button>
+            </form>
+        </li>
     @endforeach
 </ul>
 @endsection
