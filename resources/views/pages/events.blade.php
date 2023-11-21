@@ -21,12 +21,6 @@
                     <button type="button" onclick="submitForm({{ $event->id }})">Join</button>
                 </form>
                 @endif
-                <form id="inviteForm{{ $event->id }}" method="POST" action="{{ route('events.invite') }}" enctype="multipart/form-data">
-                    @csrf
-                    <input type="hidden" name="id_user" value="{{ $user->id }}">
-                    <input type="hidden" name="eventId" value="{{ $event->id }}">
-                    <button type="button" onclick="inviteUser({{ $event->id }})">Invite</button>
-                </form>
         </li>
     @endforeach
     <script>
@@ -35,11 +29,6 @@
             form.submit();
         }
 
-        function inviteUser(eventId) {
-            var form = document.getElementById('inviteForm' + eventId);
-            form.submit();
-        }
-    </script>
     </script>
 </ul>
 @endsection
