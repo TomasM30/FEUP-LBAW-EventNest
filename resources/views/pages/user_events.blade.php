@@ -3,22 +3,25 @@
 @section('content')
 <h1>{{ $user->name }}'s Events</h1>
 
-@if (session('message'))
-    <div class="alert alert-success">
-        {{ session('message') }}
+<div id="content">
+    <div id="created">
+        <h2>Created Events</h2>
+        @foreach ($createdEvents as $event)
+            @include('partials.event', ['event' => $event])
+        @endforeach
     </div>
-@endif
+    <div id="joined">
+        <h2>Joined Events</h2>
+        @foreach ($joinedEvents as $event)
+            @include('partials.event', ['event' => $event])
+        @endforeach
+    </div>
+    <div id="favorite">
+        <h2>Favorite Events</h2>
+        @foreach ($favoriteEvents as $event)
+            @include('partials.event', ['event' => $event])
+        @endforeach
+    </div>
+</div>
 
-<ul>
-    @foreach ($events as $event)
-        <li>
-            {{ $event->title }}
-            <form method="POST" action="{{ route('events.delete', $event->id) }}">
-                {{ csrf_field() }}
-                {{ method_field('DELETE') }}
-                <button type="submit">Delete</button>
-            </form>
-        </li>
-    @endforeach
-</ul>
 @endsection

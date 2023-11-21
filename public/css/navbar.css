@@ -1,6 +1,6 @@
 /* Base styles */
 .navbar {
-    height: 10%;
+    height: 15%;
     background-color: var(--main-color);
 }
 
@@ -8,7 +8,7 @@ img {
     max-height: 40%;
     max-width: 40%;
     margin: 5%;
-    /* Adjusted margin for image */
+    margin-left: 15%;
     position: relative;
 }
 

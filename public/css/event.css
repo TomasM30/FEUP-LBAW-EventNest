@@ -1,0 +1,43 @@
+.box {
+    max-height: 20%;
+    max-width: 20%;
+}
+
+.box img {
+    max-height: 90%;
+    max-width: 90%;
+    margin: 5%;
+    margin-top: 0%;
+    margin-bottom: 0%;
+    align-self: center;
+    border-radius: 5%;
+    border: solid var(--background-color);
+}
+
+.card-title {
+    color: var(--background-color);
+}
+
+.card-text {
+    color: var(--background-color);
+}
+
+.card-footer {
+    color: var(--background-color);
+}
+
+.card {
+    background-color: var(--main-color);
+    border-color: var(--main-color);
+}
+
+.like {
+    max-width: 20%;
+    align-self: right;
+}
+
+.tag {
+    align-self: flex-end;
+    margin-top: 4%;
+    margin-right: 4%;
+}
