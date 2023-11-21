@@ -24,7 +24,13 @@
         // See: http://stackoverflow.com/questions/18943276/html-5-autofocus-messes-up-css-loading/18945951#18945951
     </script>
 </head>
+<body>
 
-@yield('content')
+    @include('partials.navbar')
+    @yield('content')
+
+
+</body>
+
 
 </html>
