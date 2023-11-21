@@ -91,11 +91,11 @@ class EventController extends Controller
     }
 
 
-    public function listEventAttendees($id) 
+    public function showEventDetails($id) 
     {
         $event = Event::find($id);
         $attendees = $event->eventparticipants()->get();
-        return view('pages.event_details', ['events' => $attendees]);
+        return view('pages.event_details', ['event' => $event, 'attendees' => $attendees]);
     }
 
 

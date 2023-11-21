@@ -82,6 +82,16 @@ CREATE TABLE Event (
     FOREIGN KEY (id_user) REFERENCES Authenticated(id_user)
 );
 
+CREATE TABLE Invitation(
+    id SERIAL PRIMARY KEY,
+    sender_id INT NOT NULL,
+    receiver_id INT NOT NULL,
+    id_event INT NOT NULL,
+    FOREIGN KEY (sender_id) REFERENCES Authenticated(id_user),
+    FOREIGN KEY (receiver_id) REFERENCES Authenticated(id_user),
+    FOREIGN KEY (id_event) REFERENCES Event(id)
+);
+
 CREATE TABLE EventMessage (
     id SERIAL PRIMARY KEY,
     type TypesMessage NOT NULL,

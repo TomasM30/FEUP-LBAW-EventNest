@@ -35,4 +35,8 @@ class AuthenticatedUserController extends Controller
             'favoriteEvents' => $favoriteEvents,
         ]);
     }
+
+    public function joinEvent($id){
+        
+    }
 }
