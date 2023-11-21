@@ -10,7 +10,6 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\View\View;
 use Illuminate\Support\Facades\Log;
 
-
 use App\Models\Event;
 
 use App\Models\EventParticipant;
@@ -36,7 +35,7 @@ class EventController extends Controller
             'ticket_limit' => 'required|integer',
             'place' => 'required|string',
         ]);
-
+    
         $event = Event::create([
             'title' => $request->title,
             'description' => $request->description,
@@ -47,8 +46,10 @@ class EventController extends Controller
             'place' => $request->place,
             'id_user' => Auth::user()->id,
         ]);
+    
         return redirect()->back()->with('success', 'Event successfully created');
     }
+
     public function deleteEvent($id)
     {
         DB::beginTransaction();
@@ -81,7 +82,7 @@ class EventController extends Controller
             DB::rollback();
 
             // and return an error message
-            return response()->json(['message' => 'An error occurred while deleting the event']);
+            return redirect()->back()->with('message', 'Event deletion failed');
         }
     }
 
@@ -138,12 +139,11 @@ class EventController extends Controller
     DB::commit();
 }*/
 
-
     /**
      * @throws AuthorizationException
      * @throws ValidationException
      */
-    public function editEvent (Request $request): \Illuminate\Http\RedirectResponse
+    public function editEvent (Request $request)
     {
         $this->validate($request, [
             'title' => 'required|string',

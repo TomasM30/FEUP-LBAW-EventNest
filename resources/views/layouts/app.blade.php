@@ -26,7 +26,9 @@
 </head>
 <body>
 
-    @include('partials.navbar')
+    @if(!Route::currentRouteNamed('login'))
+        @include('partials.navbar')
+    @endif
     @yield('content')
 
 
