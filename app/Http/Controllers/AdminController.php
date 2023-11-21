@@ -12,6 +12,7 @@ class AdminController extends Controller
 {
     public function showDashboard()
     {
+        $this->authorize('viewDashboard', Admin::class);
         $authenticatedUsers = AuthenticatedUser::with('user')->get();
         $events = Event::all();
     

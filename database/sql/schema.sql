@@ -82,6 +82,16 @@ CREATE TABLE Event (
     FOREIGN KEY (id_user) REFERENCES Authenticated(id_user)
 );
 
+CREATE TABLE Invitation(
+    id SERIAL PRIMARY KEY,
+    sender_id INT NOT NULL,
+    receiver_id INT NOT NULL,
+    id_event INT NOT NULL,
+    FOREIGN KEY (sender_id) REFERENCES Authenticated(id_user),
+    FOREIGN KEY (receiver_id) REFERENCES Authenticated(id_user),
+    FOREIGN KEY (id_event) REFERENCES Event(id)
+);
+
 CREATE TABLE EventMessage (
     id SERIAL PRIMARY KEY,
     type TypesMessage NOT NULL,
@@ -397,7 +407,7 @@ $BODY$
 BEGIN
     IF EXISTS (
         SELECT *
-        FROM Admin
+        FROM admin
         WHERE NEW.id_user = id_user
     ) THEN
         RAISE EXCEPTION 'Admins can´t enroll in an event.';
@@ -408,7 +418,7 @@ $BODY$
 LANGUAGE plpgsql;
 
 CREATE TRIGGER admin_event
-    BEFORE INSERT OR UPDATE ON event
+    BEFORE INSERT OR UPDATE ON EventParticipants
     FOR EACH ROW
     EXECUTE PROCEDURE admin_event();
 
@@ -440,8 +450,8 @@ CREATE TRIGGER verify_user_attendance
 
 CREATE OR REPLACE FUNCTION check_organizer_enrollment() RETURNS TRIGGER AS $$
 BEGIN
-    IF (SELECT COUNT(*) FROM EventParticipants WHERE id_user = NEW.id_user AND id_event = NEW.id_event) = 0 THEN
-        RAISE EXCEPTION 'The event organizer must be enrolled in the event.';
+    IF (SELECT id_user FROM event WHERE id = NEW.id_event) = NEW.id_user THEN
+        RAISE EXCEPTION 'The organizer can´t enroll in his own event.';
     END IF;
     RETURN NEW;
 END;
