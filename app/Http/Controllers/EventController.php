@@ -100,7 +100,23 @@ class EventController extends Controller
         return view('pages.event_details', ['events' => $attendees]);
     }
 
+    public function deleteUserFromEvent($id_user, $id_event) {
+        $event = Event::find($id_event);
 
+        if (!$event) {
+            // Event not found
+            return false;
+        }
+        $event->participants()->detach($id_user);
+
+        if ($event->wasChanged()) {
+            // User successfully removed from the event
+            return true;
+        } else {
+            // User not found in the event
+            return false;
+        }
+    }
     /*public function addUserToEvent(Request $request)
     {
         $id_user = $request->id_user;
@@ -120,7 +136,7 @@ class EventController extends Controller
         DB::commit();
     }*/
 
-    /*public function deleteUserToEvent(Request $request)
+    /*public function leaveEvent(Request $request)
 {
     $id_user = $request->id_user;
     $eventId = $request->eventId;
@@ -153,7 +169,7 @@ class EventController extends Controller
             'ticket_limit' => 'required|integer',
         ]);
 
-        $event = Event::find(1);
+        $event = Event::find($request->input('id'));
 
         if (!$event) {
             return redirect()->back()->with('error', 'Event not found');
