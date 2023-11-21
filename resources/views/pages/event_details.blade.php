@@ -4,8 +4,10 @@
 <div class="content-container" id="details-content-container">
     <div class="actions">
         <form method="POST" action="{{ route('event.join', $event->id) }}">
-            {{ csrf_field() }}
-            <button type="submit" class="btn btn-primary">Edit</button>
+        {{ csrf_field() }}
+            <input type="hidden" name="id_user" value="{{ Auth::user()->id }}">
+            <input type="hidden" name="eventId" value="{{ $event->id }}">
+            <button type="submit" class="btn btn-primary">Join</button>
         </form>
     </div>
     <div class="info">

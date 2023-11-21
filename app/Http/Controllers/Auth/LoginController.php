@@ -46,7 +46,7 @@ class LoginController extends Controller
             if ($request->user()->isAdmin()) {
                 return redirect()->intended('dashboard');
             } else {
-                return redirect()->intended('events');
+                return redirect()->intended('events')->with('user', $request->user());
             }
         }
 
