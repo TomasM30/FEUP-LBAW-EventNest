@@ -73,7 +73,7 @@ Route::controller(AuthenticatedUserController::class)->group(function () {
 
 Route::controller(EventController::class)->group(function () {
     Route::delete('/events/{id}', 'deleteEvent')->name('events.delete');
-    Route::get('/events', 'listPublicEvents');
-    Route::get('/events/{id}/details', 'listEventAttendees');
+    Route::get('/events', 'listPublicEvents')->name('events');
+    Route::get('/events/{id}/details', 'listEventAttendees')->name('events.details');
 });
 

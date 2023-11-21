@@ -5,21 +5,25 @@
     </button>
     <div class="collapse navbar-collapse" id="navbarNav">
         <ul class="navbar-nav mt-auto">
-            <li class="nav-item">
-                <a class="btn btn-primary btn-block" href="#">Events</a>
-            </li>
-            <li class="nav-item">
-                <a class="btn btn-primary btn-block" href="#">My Events</a>
-            </li>
-            <li class="nav-item">
-                <a class="btn btn-primary btn-block" href="#">Profile</a>
-            </li>
-            <li class="nav-item">
-                <a class="btn btn-primary btn-block" href="#">Dashboard</a>
-            </li>
-            <li class="nav-item">
-                <a class="btn btn-primary btn-block" href="#">Logout</a>
-            </li>
+            @auth
+                <li class="nav-item">
+                    <a class="btn btn-primary btn-block" href="{{ route('events') }}">Events</a>
+                </li>
+                <li class="nav-item">
+                    <a class="btn btn-primary btn-block" href="{{ route('user.events', ['id' => Auth::user()->id]) }}">My Events</a>
+                </li>
+                <li class="nav-item">
+                    <a class="btn btn-primary btn-block" href="#">Profile</a>
+                </li>
+                @if(Auth::user()->isAdmin())
+                    <li class="nav-item">
+                        <a class="btn btn-primary btn-block" href="{{ route('dashboard') }}">Dashboard</a>
+                    </li>
+                @endif
+                <li class="nav-item">
+                    <a class="btn btn-primary btn-block" href="{{ route('logout') }}">Logout</a>
+                </li>
+            @endauth
         </ul>
     </div>
 </nav>
