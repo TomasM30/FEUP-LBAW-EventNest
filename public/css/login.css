@@ -66,7 +66,7 @@ form {
 #catch-frase1 {
     font-size: 2em;
     font-weight: bold;
-    color: white;
+    color: var(--background-color);
 }
 
 hr {
@@ -83,7 +83,7 @@ hr {
 #information2 {
     margin-left: 3%;
     margin-right: 3%;
-    color: white;
+    color: var(--background-color);
     font-size: larger;
 }
 
@@ -115,4 +115,12 @@ hr {
 #textlogo {
     width: 45%;
     height: auto;
+}
+
+form {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    /* Center items vertically */
 }

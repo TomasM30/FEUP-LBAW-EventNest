@@ -8,7 +8,7 @@ use App\Http\Controllers\CardController;
 use App\Http\Controllers\ItemController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\AdminController;
-use App\Http\Controllers\AuthenticatedController;
+use App\Http\Controllers\AuthenticatedUserController;
 
 use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\Auth\RegisterController;
@@ -31,7 +31,6 @@ Route::redirect('/', '/login');
 Route::controller(UserController::class)->group(function () {
     Route::get('/user/findAll', 'findAll');
 });
-
 
 // Cards
 Route::controller(CardController::class)->group(function () {
@@ -71,3 +70,14 @@ Route::controller(AdminController::class)->group(function () {
 Route::controller(AuthenticatedController::class)->group(function () {
     Route::get('/user/{id}/events', [AuthenticatedController::class, 'showUserEvents']);
 });
+
+Route::controller(AuthenticatedUserController::class)->group(function () {
+    Route::get('/user/{id}/events', 'showUserEvents')->name('user.events');
+});
+
+Route::controller(EventController::class)->group(function () {
+    Route::delete('/events/{id}', 'deleteEvent')->name('events.delete');
+    Route::get('/events', 'listPublicEvents');
+    Route::get('/events/{id}/details', 'listEventAttendees');
+});
+
