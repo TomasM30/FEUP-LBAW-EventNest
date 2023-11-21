@@ -184,4 +184,18 @@ class EventController extends Controller
 
         return redirect()->back()->with('success', 'Event successfully updated');
     }
+
+    public function searchEvents(Request $request)
+    {
+        $search = $request->input('search');
+
+        $request->validate([
+            'search' => 'required|string',
+        ]);
+
+        $events = Event::where('title', 'like', '%' . $search . '%')->get();
+
+        return view('search-results', ['events' => $events]);
+    }
+
 }
