@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
+
 // Added to define Eloquent relationships.
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
@@ -46,6 +47,10 @@ class Event extends Model
         return $this->hasMany(EventParticipant::class, 'id_event');
     }
 
+    public function favoriteevent(){
+        return $this->hasMany(FavouriteEvents::class, 'id_event');
+    }
+
     /*
     public function eventmessage(){
         return $this->hasMany(EventMessage::class, 'id_event');
@@ -55,9 +60,7 @@ class Event extends Model
         return $this->hasMany(EventNotification::class, 'id_event');
     }
 
-    public function favoriteevent(){
-        return $this->hasMany(FavoriteEvent::class, 'id_event');
-    }
+
 
     public function eventhashtags(){
         return $this->hasMany(EventHashtag::class, 'id_event');

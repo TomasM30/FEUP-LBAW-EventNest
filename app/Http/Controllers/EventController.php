@@ -6,12 +6,13 @@ use App\Http\Controllers\Controller;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 
 use App\Models\Event;
 use App\Models\EventParticipant;
 // use App\Models\EventMessage;
 // use App\Models\EventNotification;
-// use App\Models\FavoriteEvent;
+use App\Models\FavoriteEvent;
 // use App\Models\EventHashtag;
 // use App\Models\TicketType;
 // use App\Models\Report;
@@ -59,7 +60,7 @@ class EventController extends Controller
             $event->eventparticipants()->delete();
             // $event->eventmessage()->delete();
             // $event->eventnotification()->delete();
-            // $event->favoriteevent()->delete();
+            $event->favoriteevent()->delete();
             // $event->eventhashtags()->delete();
             // $event->tickettype()->delete();
             // $event->report()->delete();
@@ -74,8 +75,9 @@ class EventController extends Controller
 
             return redirect()->back()->with('message', 'Event deleted successfully');
         } catch (\Exception $e) {
-            // An error occurred; cancel the transaction...
             DB::rollback();
+
+            Log::error('Event deletion failed: ' . $e->getMessage());
 
             // and return an error message
             return redirect()->back()->with('message', 'Event deletion failed');
