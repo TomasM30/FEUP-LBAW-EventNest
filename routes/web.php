@@ -51,10 +51,6 @@ Route::controller(EventController::class)->group(function () {
     Route::post('/edit', 'editEvent')->name('editEvent');
 });
 
-Route::controller(MainPageController::class)->group(function () {
-    Route::get('/test', 'showForm')->name('test');
-});
-
 // Authentication
 Route::controller(LoginController::class)->group(function () {
     Route::get('/login', 'showLoginForm')->name('login');
