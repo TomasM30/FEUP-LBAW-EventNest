@@ -4,7 +4,7 @@ namespace App\Policies;
 
 use App\Models\User;
 use App\Models\Card;
-use App\Models\Item;
+use App\Models\Event;
 
 class ItemPolicy
 {
@@ -19,25 +19,12 @@ class ItemPolicy
     /**
      * Determine if a user can create an item.
      */
-    public function create(User $user, Item $item): bool
-    {
-        // User can only create items in cards they own.
-        return $user->id === $item->card->user_id;
-    }
 
-    /**
-     * Determine if a user can update an item.
-     */
-    public function update(User $user, Item $item): bool
-    {
-        // User can only update items in cards they own.
-        return $user->id === $item->card->user_id;
-    }
 
     /**
      * Determine if a user can delete an item.
      */
-    public function delete(User $user, Item $item): bool
+    public function delete(User $user, Event $item): bool
     {
         // User can only delete items in cards they own.
         return $user->id === $item->card->user_id;

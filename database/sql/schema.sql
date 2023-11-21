@@ -306,7 +306,7 @@ BEGIN
         );
  END IF;
  IF TG_OP = 'UPDATE' THEN
-         IF (NEW.username <> OLD.username) THEN
+         IF (NEW.id_user <> OLD.id_user) THEN
            NEW.tsvectors = (
              setweight(to_tsvector('simple', NEW.id_user::text), 'A')
            );

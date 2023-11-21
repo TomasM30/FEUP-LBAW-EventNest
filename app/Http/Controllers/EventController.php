@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Controllers\Controller;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
@@ -18,6 +20,31 @@ use App\Models\EventParticipant;
 
 class EventController extends Controller
 {
+    public function createEvent(Request $request)
+    {
+        $request->validate([
+            'title' => 'required|string',
+            'description' => 'required|string',
+            'type' => 'in:public,private,approval',
+            'date' => 'required|date_format:d-m-Y|after_or_equal:today',
+            'capacity' => 'required|integer',
+            'ticket_limit' => 'required|integer',
+            'place' => 'required|string',
+        ]);
+    
+        $event = Event::create([
+            'title' => $request->title,
+            'description' => $request->description,
+            'type' => $request->input('type', 'public'),
+            'date' => Carbon::createFromFormat('d-m-Y', $request->date)->format('Y-m-d'),
+            'capacity' => $request->capacity,
+            'ticket_limit' => $request->ticket_limit,
+            'place' => $request->place,
+            'id_user' => Auth::user()->id,
+        ]);
+    
+        return redirect()->back()->with('success', 'Event successfully created');
+    }
 
     public function deleteEvent($id)
     {
@@ -51,7 +78,7 @@ class EventController extends Controller
             DB::rollback();
 
             // and return an error message
-            return response()->json(['message' => 'An error occurred while deleting the event']);
+            return redirect()->back()->with('message', 'Event deletion failed');
         }
     }
 
@@ -89,5 +116,33 @@ class EventController extends Controller
         DB::commit();
     }*/
 
-    
+    /**
+     * @throws AuthorizationException
+     * @throws ValidationException
+     */
+    public function editEvent (Request $request)
+    {
+        $this->validate($request, [
+            'title' => 'required|string',
+            'description' => 'required|string',
+            'type' => 'in:public,private',
+            'capacity' => 'required|integer',
+            'ticket_limit' => 'required|integer',
+        ]);
+
+        $event = Event::find(1);
+
+        if (!$event) {
+            return redirect()->back()->with('error', 'Event not found');
+        }
+
+        $event->title = $request->title;
+        $event->description = $request->description;
+        $event->type = $request->input('type', 'public');
+        $event->capacity = $request->capacity;
+        $event->ticket_limit = $request->ticket_limit;
+        $event->save();
+
+        return redirect()->back()->with('success', 'Event successfully updated');
+    }
 }
