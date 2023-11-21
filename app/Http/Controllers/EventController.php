@@ -119,6 +119,25 @@ class EventController extends Controller
         DB::commit();
     }*/
 
+    /*public function deleteUserToEvent(Request $request)
+{
+    $id_user = $request->id_user;
+    $eventId = $request->eventId;
+    $authenticated = Authenticated::find($id_user)->get();
+    $event = Event::find($eventId)->get();
+
+    DB::BeginTransaction();
+
+    EventParticipants::Delete([
+        'id_user' => $authenticated->id_user,
+        'id_event' => $event->id,
+    ]);
+
+    //TODO: Generates notification
+
+    DB::commit();
+}*/
+
 
     /**
      * @throws AuthorizationException
