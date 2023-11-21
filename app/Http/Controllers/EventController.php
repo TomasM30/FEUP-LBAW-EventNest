@@ -8,7 +8,12 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
 use App\Models\Event;
+use App\Models\User;
+
 use App\Models\EventParticipant;
+use App\Models\AuthenticatedUser;
+
+
 // use App\Models\EventMessage;
 // use App\Models\EventNotification;
 // use App\Models\FavoriteEvent;
@@ -85,7 +90,13 @@ class EventController extends Controller
     public function listPublicEvents()
     {   
         $events = Event::where('type', 'public')->get();
-        return view('pages.events', ['events' => $events]);
+        $user = User::where('username','smacascaidh1')->first();
+
+        foreach($events as $event)
+            $event->isJoined = $this->joinedEvent($user,$event);
+
+        return view('pages.events', ['events' => $events,
+                                    'user'=> $user]);
     }
 
 
@@ -96,25 +107,38 @@ class EventController extends Controller
         return view('pages.event_details', ['events' => $attendees]);
     }
 
-
-    /*public function addUserToEvent(Request $request)
-    {
-        $id_user = $request->id_user;
-        $eventId = $request->eventId;
-        $authenticated = Authenticated::find($id_user)->get();
-        $event = Event::find($eventId)->get();
+    public function joinedEvent($user, $event){
         
-        DB::BeginTransaction();
+        return EventParticipant::where('id_user', $user->id)
+                                ->where('id_event', $event->id)
+                                ->exists();
+    }
 
-        EventParticipants::Insert([
-            'id_user' => $authenticated->id_user,
-            'id_event' => $event->id,
-        ]);
+
+    public function addUserToEvent(Request $request)
+    {
+        try {
+            if (!(AuthenticatedUser::where('id_user', $request->id_user)->exists())|| !(Event::where('id', $request->eventId)->exists())) 
+                return redirect()->back()->with('message', 'User or event not found');
+            
+            DB::BeginTransaction();
+
+            EventParticipant::insert([
+            'id_user' => $request->id_user,
+            'id_event' => $request->eventId,
+            ]);
 
         //TODO: Generates notification
 
-        DB::commit();
-    }*/
+            DB::commit();
+
+            } catch (\Exception $e) {
+       
+                DB::rollback(); 
+                return redirect()->back()->with('message', 'User jailed to join event!');
+            }    
+         return redirect ()->route('events');
+    }
 
     /**
      * @throws AuthorizationException
