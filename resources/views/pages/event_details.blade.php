@@ -3,12 +3,21 @@
 @section('content')
 <div class="content-container" id="details-content-container">
     <div class="actions">
-        <form method="POST" action="{{ route('event.join', $event->id) }}">
-        {{ csrf_field() }}
-            <input type="hidden" name="id_user" value="{{ Auth::user()->id }}">
-            <input type="hidden" name="eventId" value="{{ $event->id }}">
-            <button type="submit" class="btn btn-primary">Join</button>
-        </form>
+        @if(!$isParticipant && !$isAdmin)
+            <form method="POST" action="{{ route('event.join', $event->id) }}">
+                {{ csrf_field() }}
+                <input type="hidden" name="id_user" value="{{ Auth::user()->id }}">
+                <input type="hidden" name="eventId" value="{{ $event->id }}">
+                <button type="submit" class="btn btn-primary">Join</button>
+            </form>
+        @elseif($isParticipant && !$isAdmin)
+            <form method="POST" action="{{ route('event.leave', $event->id) }}">
+                {{ csrf_field() }}
+                <input type="hidden" name="id_user" value="{{ Auth::user()->id }}">
+                <input type="hidden" name="eventId" value="{{ $event->id }}">
+                <button type="submit" class="btn btn-primary">Leave</button>
+            </form>
+        @endif    
     </div>
     <div class="info">
         <div class="event-top">

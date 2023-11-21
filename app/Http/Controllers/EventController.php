@@ -6,11 +6,12 @@ use App\Http\Controllers\Controller;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Auth;
 
 
 use App\Models\Event;
 use App\Models\User;
+use App\Models\Admin;
 
 use App\Models\EventParticipant;
 use App\Models\AuthenticatedUser;
@@ -29,6 +30,9 @@ class EventController extends Controller
 {
     public function createEvent(Request $request)
     {
+
+        $this->authorize('create', Event::class);
+
         $request->validate([
             'title' => 'required|string',
             'description' => 'required|string',
@@ -55,6 +59,13 @@ class EventController extends Controller
 
     public function deleteEvent($id)
     {
+        $event = Event::find($request->eventId);
+        if (!$event) {
+            return redirect()->back()->with('message', 'Event not found');
+        }
+
+        $this->authorize('delete', $event);
+
         DB::beginTransaction();
 
         try {
@@ -107,7 +118,10 @@ class EventController extends Controller
     {
         $event = Event::find($id);
         $attendees = $event->eventparticipants()->get();
-        return view('pages.event_details', ['event' => $event, 'attendees' => $attendees]);
+        $participant = $this->joinedEvent(Auth::user(), $event);
+        $admin = Admin::where('id_user', Auth::user()->id)->first();
+
+        return view('pages.event_details', ['event' => $event, 'attendees' => $attendees, 'isParticipant' => $participant, 'isAdmin' => $admin]);
     }
 
     public function joinedEvent($user, $event){
@@ -120,6 +134,14 @@ class EventController extends Controller
 
     public function addUserToEvent(Request $request)
     {
+
+        $event = Event::find($request->eventId);
+        if (!$event) {
+            return redirect()->back()->with('message', 'Event not found');
+        }
+    
+        $this->authorize('joinEvent', $event);
+            
         try {
             if (!(AuthenticatedUser::where('id_user', $request->id_user)->exists())|| !(Event::where('id', $request->eventId)->exists())) 
                 return redirect()->back()->with('message', 'User or event not found');
@@ -140,7 +162,36 @@ class EventController extends Controller
                 Log::error('User jailed to join event: ' . $e->getMessage()); 
                 return redirect()->back()->with('message', 'User jailed to join event!');
             }    
-         return redirect ()->route('events');
+         return redirect ()->route('events.details', $request->eventId);
+    }
+
+    public function removeUserFromEvent(Request $request)
+    {
+        $event = Event::find($request->eventId);
+        if (!$event) {
+            return redirect()->back()->with('message', 'Event not found');
+        }
+    
+        $this->authorize('leaveEvent', $event);
+            
+        try {
+            if (!(AuthenticatedUser::where('id_user', $request->id_user)->exists())|| !(Event::where('id', $request->eventId)->exists())) 
+                return redirect()->back()->with('message', 'User or event not found');
+            
+            DB::BeginTransaction();
+
+            EventParticipant::where('id_user', $request->id_user)
+                            ->where('id_event', $request->eventId)
+                            ->delete();
+            DB::commit();
+
+            } catch (\Exception $e) {
+       
+                DB::rollback();
+                Log::error('User jailed to leave event: ' . $e->getMessage()); 
+                return redirect()->back()->with('message', 'User jailed to leave event!');
+            }
+            return redirect ()->route('events.details', $request->eventId);
     }
 
     /**

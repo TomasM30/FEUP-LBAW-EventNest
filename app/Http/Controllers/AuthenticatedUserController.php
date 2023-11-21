@@ -5,8 +5,11 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Models\AuthenticatedUser;
 use App\Models\Event;
+use App\Models\User;
 use App\Models\EventParticipant;
 use App\Models\FavouriteEvents;
+use Illuminate\Support\Facades\Log;
+
 
 
 class AuthenticatedUserController extends Controller
@@ -14,6 +17,12 @@ class AuthenticatedUserController extends Controller
     public function showUserEvents($id)
     {
         $authenticatedUser = AuthenticatedUser::find($id);
+
+        if (!$authenticatedUser) {
+            return redirect()->back()->with('message', 'User not found');
+        }
+        
+        $this->authorize('userEvents', $authenticatedUser);
     
         // Fetch the events created by the user
         $createdEvents = Event::where('id_user', $authenticatedUser->id_user)->get();
@@ -36,7 +45,4 @@ class AuthenticatedUserController extends Controller
         ]);
     }
 
-    public function joinEvent($id){
-        
-    }
 }
