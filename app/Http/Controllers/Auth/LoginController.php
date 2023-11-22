@@ -23,11 +23,11 @@ class LoginController extends Controller
             if (Auth::user()->isAdmin()) {
                 return redirect()->route('dashboard');
             }
-    
+
             // Otherwise, redirect to the events page
             return redirect()->route('events');
         }
-    
+
         return view('auth.login');
     }
 

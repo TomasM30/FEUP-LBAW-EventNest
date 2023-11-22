@@ -45,8 +45,10 @@ form {
     justify-content: center;
 }
 
-#textlogo, #gmail_image{
-    margin: 5%;
+#textlogo,
+#gmail_image {
+    margin: 0%;
+
 }
 
 /* Clearfix to ensure proper layout with floated elements */
@@ -113,11 +115,12 @@ hr {
     background-color: var(--secondary-color);
     border-color: var(--secondary-color);
     color: #fff;
-    padding: 10px 20px; /* Adjust as needed */
+    padding: 10px 20px;
+    /* Adjust as needed */
     overflow: hidden;
-    display: flex; 
-    justify-content: center; 
-    align-items: center; 
+    display: flex;
+    justify-content: center;
+    align-items: center;
     min-width: 120px;
 }
 

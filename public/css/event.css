@@ -37,9 +37,9 @@
 }
 
 .tag {
-    align-self: flex-end;
+    text-align: right;
     margin-top: 4%;
-    margin-right: 4%;
+    margin-right: 6%;
 }
 
 a:hover {

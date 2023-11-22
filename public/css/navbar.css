@@ -3,14 +3,16 @@
     height: 15%;
     background-color: var(--main-color);
 }
+
 .navbar .btn-custom:hover {
     background-color: #00603a23;
-    color: #00ff99;
-    border: 1px solid #00ff99;
+    color: var(--background-color);
+    border: 1px solid var(--background-color);
 }
-img {
-    max-height: 40%;
-    max-width: 40%;
+
+.navbar img {
+    max-height: 50%;
+    max-width: 50%;
     margin: 5%;
     margin-left: 15%;
     position: relative;

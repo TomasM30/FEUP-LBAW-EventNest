@@ -1,7 +1,7 @@
 <div class="box">
     <a href="{{ route('events.details', ['id' => $event->id]) }}">
         <div class="card shadow-0">
-            <h5 class="card-title tag">dsad</h5>
+            <h5 class="card-title tag">#TAG</h5>
             <div class="bg-image hover-overlay ripple" data-mdb-ripple-color="light">
                 <img src="https://mdbootstrap.com/img/new/standard/nature/111.webp" class="img-fluid" />
             </div>
