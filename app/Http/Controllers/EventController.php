@@ -60,7 +60,7 @@ class EventController extends Controller
 
     public function deleteEvent($id)
     {
-        $event = Event::find($request->eventId);
+        $event = Event::find($id);
         if (!$event) {
             return redirect()->back()->with('message', 'Event not found');
         }
@@ -91,7 +91,7 @@ class EventController extends Controller
             // Commit the transaction
             DB::commit();
 
-            return redirect()->back()->with('message', 'Event deleted successfully');
+            return redirect()->route('events')->with('message', 'Event deletion successful');
         } catch (\Exception $e) {
             DB::rollback();
 
@@ -104,11 +104,9 @@ class EventController extends Controller
 
     public function listPublicEvents()
     {   
-        $events = Event::where('type', 'public')->get();
-        $user = User::where('username','smacascaidh1')->first();
+        $user = Auth::user();
 
-        foreach($events as $event)
-            $event->isJoined = $this->joinedEvent($user,$event);
+        $events = Event::where('type', 'public')->where('id_user', '!=', $user->id)->get();
 
         return view('pages.events', ['events' => $events,
                                     'user'=> $user]);
@@ -164,7 +162,7 @@ class EventController extends Controller
                 Log::error('User jailed to join event: ' . $e->getMessage()); 
                 return redirect()->back()->with('message', 'User jailed to join event!');
             }    
-        return redirect ()->route('events.details', $request->eventId);
+        return redirect()->back()->with('message', 'Added user successfully');
     }
 
     public function removeUser(Request $request)
@@ -192,7 +190,7 @@ class EventController extends Controller
                 Log::error('User jailed to leave event: ' . $e->getMessage()); 
                 return redirect()->back()->with('message', 'User jailed to leave event!');
             }
-        return redirect ()->route('events.details', $request->eventId);
+        return redirect()->back()->with('message', 'Removed user successfully');
     }
 
     public function joinEvent(Request $request)
@@ -225,8 +223,8 @@ class EventController extends Controller
                 Log::error('User jailed to join event: ' . $e->getMessage()); 
                 return redirect()->back()->with('message', 'User jailed to join event!');
             }    
-         return redirect ()->route('events.details', $request->eventId);
-    }
+            return redirect()->back()->with('message', 'Joined event successfully');
+        }
 
     public function leaveEvent(Request $request)
     {
@@ -254,7 +252,7 @@ class EventController extends Controller
                 Log::error('User jailed to leave event: ' . $e->getMessage()); 
                 return redirect()->back()->with('message', 'User jailed to leave event!');
             }
-            return redirect ()->route('events.details', $request->eventId);
+        return redirect()->back()->with('message', 'Left event successfully');
     }
 
     /**

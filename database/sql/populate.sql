@@ -48,9 +48,10 @@ insert into Users (id, email, name, username, password) values (47, 'dpalek1a@sh
 insert into Users (id, email, name, username, password) values (48, 'ccockings1b@mapquest.com', 'Corilla Cockings', 'ccockings1b', 'fD0{ZOkRQ');
 insert into Users (id, email, name, username, password) values (49, 'czanazzi1c@tuttocitta.it', 'Conroy Zanazzi', 'czanazzi1c', 'vS1_>?+s`{d');
 insert into Users (id, email, name, username, password) values (50, 'kstamp1d@4shared.com', 'Kristyn Stamp', 'kstamp1d', 'mV8>N6\(');
+insert into Users (id, email, name, username, password) values (51, 'admin1@example.com', 'admin1', 'admin1', '$2y$10$LpU/dOWOp/u/Vsr5KhrhqOXWJh49lzDa8uo4tqr4fnv6Lm2QEkNFm');
 SELECT setval(pg_get_serial_sequence('users', 'id'), coalesce(max(id),0) + 1, false) FROM users;
 
-insert into Admin (id_user) values (1);
+insert into Admin (id_user) values (51);
 
 -- Insert data into the table "authenticated"
 insert into Authenticated (id_user, is_verified, id_profilepic) values (1, false, 1);

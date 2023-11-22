@@ -3,7 +3,7 @@
 @section('content')
 <div class="content-container" id="details-content-container">
     <div class="actions">
-        @if(!$isParticipant && !$isAdmin)
+        @if(!$isParticipant && !$isAdmin && $event->eventparticipants()->count() < $event->capacity)
             <form method="POST" action="{{ route('event.join', $event->id) }}">
                 {{ csrf_field() }}
                 <input type="hidden" name="id_user" value="{{ Auth::user()->id }}">
@@ -23,6 +23,11 @@
                 $participants = $event->eventparticipants()->pluck('id_user')->toArray();
                 $nonParticipants = App\Models\AuthenticatedUser::whereNotIn('id_user', $participants)->get();
             @endphp
+            <form method="POST" action="{{ route('events.delete', $event->id) }}">
+                {{ csrf_field() }}
+                {{ method_field('DELETE') }}
+                <button type="submit" class="btn btn-custom btn-block">Delete</button>
+            </form>
             @if($event->eventparticipants()->count() > 1)
                 <div class="dropdown">
                     <button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownMenu2" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
@@ -42,7 +47,7 @@
                     </div>
                 </div>
             @endif
-            @if(count($nonParticipants) > 0)
+            @if(count($nonParticipants) > 0 && $event->eventparticipants()->count() < $event->capacity)
                 <div class="dropdown">
                     <button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownMenu2" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                         Add
