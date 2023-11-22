@@ -7,10 +7,13 @@
         <ul class="navbar-nav mt-auto">
             @auth
                 <li class="nav-item">
-                    <a class="btn btn-custom btn-block" href="{{ route('events') }}">Events</a>                </li>
-                <li class="nav-item">
-                    <a class="btn btn-custom btn-block" href="{{ route('user.events', ['id' => Auth::user()->id]) }}">My Events</a>
+                    <a class="btn btn-custom btn-block" href="{{ route('events') }}">Events</a>                
                 </li>
+                @if(!(Auth::user()->isAdmin()))
+                    <li class="nav-item">
+                        <a class="btn btn-custom btn-block" href="{{ route('user.events', ['id' => Auth::user()->id]) }}">My Events</a>
+                    </li>
+                @endif
                 <li class="nav-item">
                     <a class="btn btn-custom btn-block" href="#">Profile</a>
                 </li>
