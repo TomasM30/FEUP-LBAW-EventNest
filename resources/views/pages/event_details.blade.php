@@ -18,6 +18,20 @@
                 <button type="submit" class="btn btn-custom btn-block">Leave</button>
             </form>
         @endif
+        <form method="POST" action="{{ route('events.invite', $event->id) }}">
+            {{ csrf_field() }}
+            <input type="hidden" name="sender_id" value="{{ Auth::user()->id }}">
+            <input type="hidden" name="eventId" value="{{ $event->id }}">
+            <div class="dropdown">
+                <button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Invite</button>
+                    <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+                        <input type="text" class="form-control" name="receiver_username" placeholder="Username" aria-label="Username" aria-describedby="basic-addon2">
+                        <div class="input-group-append">
+                            <button class="btn btn-outline-secondary" type="submit">Send</button>
+                        </div>
+                    </div>
+            </div>
+        </form>
         @if($isAdmin || $isOrganizer)
             @php
                 $participants = $event->eventparticipants()->pluck('id_user')->toArray();

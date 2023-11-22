@@ -16,6 +16,7 @@ use App\Models\Admin;
 
 use App\Models\EventParticipant;
 use App\Models\AuthenticatedUser;
+use App\Models\Invitation;
 
 
 // use App\Models\EventMessage;
@@ -122,13 +123,14 @@ class EventController extends Controller
         $data['isParticipant'] = $this->joinedEvent(Auth::user(), $data['event']);
         $data['isAdmin'] = Admin::where('id_user', Auth::user()->id)->first();
         $data['isOrganizer'] = $data['event']->id_user == Auth::user()->id;
+      
 
         return view('pages.event_details', $data);
     }
 
     public function joinedEvent($user, $event){
         
-        return EventParticipant::where('id_user', $user->id)
+        return EventParticipant::where('id_user', $user->id_user)
                                 ->where('id_event', $event->id)
                                 ->exists();
     }
@@ -285,5 +287,37 @@ class EventController extends Controller
         $event->save();
 
         return redirect()->back()->with('success', 'Event successfully updated');
+    }
+
+    public function inviteUser(Request $request)
+    {
+
+        if( !(Event::where('id',$request->eventId)->exists()) )
+            return redirect()->back()->with('message', 'Event not found');
+
+    
+         $receiver = User::where('username', $request->receiver_username)->first();
+
+        if( !(AuthenticatedUser::where('id_user', $request->sender_id)->exists()) || !(AuthenticatedUser::where('id_user', $receiver->id)->exists()) )
+            return redirect()->back()->with('message', 'Sender or receiver not found');
+
+
+        if(Invitation::where('sender_id',$request->sender_id)->where('receiver_id', $receiver->id)->where('id_event',$request->eventId)->exists())
+            return redirect()->back()->with('message', 'Invitation already sent!');
+        
+        try {
+                DB::BeginTransaction();
+                Invitation::insert([
+                    'sender_id' => $request->sender_id,
+                    'receiver_id'=> $receiver->id,
+                    'id_event'=> $request->eventId,
+                ]);
+
+                DB::commit();
+         } catch (\Exception $e){
+            DB::rollback();
+            return redirect()->back()->with('message', 'Failed to sent invitation!');
+        }
+        return redirect()->back()->with('success', 'Invite successfully sent!');
     }
 }
