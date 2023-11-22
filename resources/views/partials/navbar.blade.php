@@ -7,21 +7,20 @@
         <ul class="navbar-nav mt-auto">
             @auth
                 <li class="nav-item">
-                    <a class="btn btn-primary btn-block" href="{{ route('events') }}">Events</a>
+                    <a class="btn btn-custom btn-block" href="{{ route('events') }}">Events</a>                </li>
+                <li class="nav-item">
+                    <a class="btn btn-custom btn-block" href="{{ route('user.events', ['id' => Auth::user()->id]) }}">My Events</a>
                 </li>
                 <li class="nav-item">
-                    <a class="btn btn-primary btn-block" href="{{ route('user.events', ['id' => Auth::user()->id]) }}">My Events</a>
-                </li>
-                <li class="nav-item">
-                    <a class="btn btn-primary btn-block" href="#">Profile</a>
+                    <a class="btn btn-custom btn-block" href="#">Profile</a>
                 </li>
                 @if(Auth::user()->isAdmin())
                     <li class="nav-item">
-                        <a class="btn btn-primary btn-block" href="{{ route('dashboard') }}">Dashboard</a>
+                        <a class="btn btn-custom btn-block" href="{{ route('dashboard') }}">Dashboard</a>
                     </li>
                 @endif
                 <li class="nav-item">
-                    <a class="btn btn-primary btn-block" href="{{ route('logout') }}">Logout</a>
+                    <a class="btn btn-custom btn-block" href="{{ route('logout') }}">Logout</a>
                 </li>
             @endauth
         </ul>

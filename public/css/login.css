@@ -43,7 +43,10 @@ form {
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    /* Center items vertically */
+}
+
+#textlogo, #gmail_image{
+    margin: 5%;
 }
 
 /* Clearfix to ensure proper layout with floated elements */
@@ -104,6 +107,22 @@ hr {
     --bs-btn-disabled-color: #fff;
     --bs-btn-disabled-bg: var(--secondary-color);
     --bs-btn-disabled-border-color: var(--secondary-color);
+}
+
+.btn-custom {
+    background-color: var(--secondary-color);
+    border-color: var(--secondary-color);
+    color: #fff;
+    padding: 10px 20px; /* Adjust as needed */
+    overflow: hidden;
+    display: flex; 
+    justify-content: center; 
+    align-items: center; 
+    min-width: 120px;
+}
+
+.btn-custom:hover {
+    color: var(--main-color);
 }
 
 #catch-frase2 {
