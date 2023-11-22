@@ -8,16 +8,60 @@
                 {{ csrf_field() }}
                 <input type="hidden" name="id_user" value="{{ Auth::user()->id }}">
                 <input type="hidden" name="eventId" value="{{ $event->id }}">
-                <button type="submit" class="btn btn-primary">Join</button>
+                <button type="submit" class="btn btn-custom btn-block">Join</button>
             </form>
-        @elseif($isParticipant && !$isAdmin)
+        @elseif($isParticipant && !$isAdmin && !$isOrganizer)
             <form method="POST" action="{{ route('event.leave', $event->id) }}">
                 {{ csrf_field() }}
                 <input type="hidden" name="id_user" value="{{ Auth::user()->id }}">
                 <input type="hidden" name="eventId" value="{{ $event->id }}">
-                <button type="submit" class="btn btn-primary">Leave</button>
+                <button type="submit" class="btn btn-custom btn-block">Leave</button>
             </form>
-        @endif    
+        @endif
+        @if($isAdmin || $isOrganizer)
+            @php
+                $participants = $event->eventparticipants()->pluck('id_user')->toArray();
+                $nonParticipants = App\Models\AuthenticatedUser::whereNotIn('id_user', $participants)->get();
+            @endphp
+            @if($event->eventparticipants()->count() > 1)
+                <div class="dropdown">
+                    <button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownMenu2" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                        Remove
+                    </button>
+                    <div class="dropdown-menu" aria-labelledby="dropdownMenu2">
+                        @foreach ($event->eventparticipants()->get() as $attendee)
+                            @if($attendee->user->id != $event->user->id) 
+                                <form method="POST" action="{{ route('events.remove', $event->id) }}">
+                                    {{ csrf_field() }}
+                                    <input type="hidden" name="id_user" value="{{ $attendee->user->id }}">
+                                    <input type="hidden" name="eventId" value="{{ $event->id }}">
+                                    <button type="submit" class="dropdown-item">{{ $attendee->user->name }}</button>
+                                </form>
+                            @endif
+                        @endforeach
+                    </div>
+                </div>
+            @endif
+            @if(count($nonParticipants) > 0)
+                <div class="dropdown">
+                    <button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownMenu2" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                        Add
+                    </button>
+                    <div class="dropdown-menu" aria-labelledby="dropdownMenu2">
+                        @foreach ($nonParticipants as $authUser)
+                            @if($authUser->user->id != $event->user->id) 
+                                <form method="POST" action="{{ route('events.add', $event->id) }}">
+                                    {{ csrf_field() }}
+                                    <input type="hidden" name="id_user" value="{{ $authUser->user->id }}">
+                                    <input type="hidden" name="eventId" value="{{ $event->id }}">
+                                    <button type="submit" class="dropdown-item">{{ $authUser->user->name }}</button>
+                                </form>
+                            @endif
+                        @endforeach
+                    </div>
+                </div>
+            @endif
+        @endif
     </div>
     <div class="info">
         <div class="event-top">
@@ -52,7 +96,7 @@
             </div>
             <div class="attendees-list">
                 <h3>Attendees:</h3>
-                @foreach ($attendees as $attendee)
+                @foreach ($event->eventparticipants()->get() as $attendee)
                     <p>{{ $attendee->user->name }}</p>
                 @endforeach
             </div>

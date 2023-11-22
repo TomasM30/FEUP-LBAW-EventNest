@@ -178,4 +178,34 @@ function addEventListeners() {
   }
   
   addEventListeners();
+
+$(document).ready(function() {
+    // Add a click event listener to the "Login" button
+    $('#login').click(function() {
+        // Toggle the visibility of the login form container
+        $('#loginFormContainer').show();
+        $('#login').hide();
+        $('#registerFormContainer').hide();
+        $('#register').show();
+
+        // Disable the fields in the registration form
+        $('#registerFormContainer input').prop('disabled', true);
+        // Enable the fields in the login form
+        $('#loginFormContainer input').prop('disabled', false);
+    });
+
+    // Add a click event listener to the "Register" button
+    $('#register').click(function() {
+        // Toggle the visibility of the register form container
+        $('#registerFormContainer').show();
+        $('#register').hide();
+        $('#loginFormContainer').hide();
+        $('#login').show();
+
+        // Disable the fields in the login form
+        $('#loginFormContainer input').prop('disabled', true);
+        // Enable the fields in the registration form
+        $('#registerFormContainer input').prop('disabled', false);
+    });
+});
   

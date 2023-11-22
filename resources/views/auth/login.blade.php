@@ -19,7 +19,7 @@
             <img id='textlogo' src="{{ asset('images/TextLogoGreen.png') }}" alt="EventNest" class="img-fluid">
             <h3 id='catch-frase2' class="text-md">Unleash the Power of Community</h3>
             <!-- Differentiate buttons using the name attribute -->
-            <button id='login' type="submit" name="action" value="login" class="btn btn-primary btn-block">Login</button>
+            <button id='login' type="submit" name="action" value="login" class="btn btn-custom btn-block">Login</button>
             <div id="loginFormContainer" style="display: none;">
                 <form method="POST" action="{{ route('login') }}">
                     {{ csrf_field() }}
@@ -44,7 +44,7 @@
                         <input type="checkbox" name="remember" {{ old('remember') ? 'checked' : '' }}> Remember Me
                     </label>
 
-                    <button id='login-button' type="submit" class="btn btn-primary btn-block">
+                    <button id='login-button' type="submit" class="btn btn-custom btn-block">
                         Login
                     </button>
                     @if (session('success'))
@@ -55,7 +55,7 @@
                 </form>
 
             </div>
-            <button id='register' type="submit" name="action" value="register" class="btn btn-primary btn-block">Register</button>
+            <button id='register' type="submit" name="action" value="register" class="btn btn-custom btn-block">Register</button>
             <div id="registerFormContainer" style="display: none;">
                 <form method="POST" action="{{ route('register') }}">
                     {{ csrf_field() }}
@@ -93,50 +93,13 @@
 
                     <label for="password-confirm">Confirm Password</label>
                     <input id="password-confirm" type="password" name="password_confirmation" required>
-                    <button id='register-button' type="submit" class="btn btn-primary btn-block">Register</button>
+                    <button id='register-button' type="submit" class="btn btn-custom btn-block">Register</button>
                 </form>
             </div>
-            <button id='gmail' type="submit" name="action" value="gmail" class="btn btn-primary btn-block">
-                <img src="{{ asset('images/Gmail.png') }}" class="img-fluid">
+            <button id='gmail' type="submit" name="action" value="gmail" class="btn btn-custom btn-block">
+                <img id='gmail_image' src="{{ asset('images/Gmail.png') }}" class="img-fluid">
             </button>
         </div>
     </div>
 </div>
-
-
-
-
-<script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
-<script>
-$(document).ready(function() {
-    // Add a click event listener to the "Login" button
-    $('#login').click(function() {
-        // Toggle the visibility of the login form container
-        $('#loginFormContainer').show();
-        $('#login').hide();
-        $('#registerFormContainer').hide();
-        $('#register').show();
-
-        // Disable the fields in the registration form
-        $('#registerFormContainer input').prop('disabled', true);
-        // Enable the fields in the login form
-        $('#loginFormContainer input').prop('disabled', false);
-    });
-
-    // Add a click event listener to the "Register" button
-    $('#register').click(function() {
-        // Toggle the visibility of the register form container
-        $('#registerFormContainer').show();
-        $('#register').hide();
-        $('#loginFormContainer').hide();
-        $('#login').show();
-
-        // Disable the fields in the login form
-        $('#loginFormContainer input').prop('disabled', true);
-        // Enable the fields in the registration form
-        $('#registerFormContainer input').prop('disabled', false);
-    });
-});
-
-</script>
 @endsection
