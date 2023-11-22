@@ -74,3 +74,9 @@
     margin: 0;
 }
 
+.hashtag {
+    text-decoration: underline;
+    font-size: 85%;
+    margin-right: 0.5%;
+}
+

@@ -51,6 +51,11 @@ class Event extends Model
         return $this->hasMany(FavouriteEvents::class, 'id_event');
     }
 
+    public function hashtags()
+    {
+        return $this->belongsToMany(Hashtag::class, 'eventhashtag', 'id_event', 'id_hashtag');
+    }
+
     /*
     public function eventmessage(){
         return $this->hasMany(EventMessage::class, 'id_event');
@@ -58,12 +63,6 @@ class Event extends Model
 
     public function eventnotification(){
         return $this->hasMany(EventNotification::class, 'id_event');
-    }
-
-
-
-    public function eventhashtags(){
-        return $this->hasMany(EventHashtag::class, 'id_event');
     }
 
     public function tickettype(){

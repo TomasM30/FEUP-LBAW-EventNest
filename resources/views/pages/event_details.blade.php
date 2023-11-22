@@ -86,6 +86,11 @@
 
                 <h4>Description:</h4>
                 <p>{{ $event->description }}</p>
+                <div class="tags">
+                    @foreach($event->hashtags as $hashtag)
+                        <span class="hashtag">#{{ $hashtag->title }}</span>
+                    @endforeach
+                </div>
             </div>
         </div>
         <div class="attendees">
