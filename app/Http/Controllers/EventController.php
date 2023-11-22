@@ -60,7 +60,7 @@ class EventController extends Controller
 
     public function deleteEvent($id)
     {
-        $event = Event::find($request->eventId);
+        $event = Event::find($id);
         if (!$event) {
             return redirect()->back()->with('message', 'Event not found');
         }
@@ -164,7 +164,7 @@ class EventController extends Controller
                 Log::error('User jailed to join event: ' . $e->getMessage()); 
                 return redirect()->back()->with('message', 'User jailed to join event!');
             }    
-        return redirect ()->route('events.details', $request->eventId);
+        return redirect()->back()->with('message', 'Added user successfully');
     }
 
     public function removeUser(Request $request)
@@ -192,7 +192,7 @@ class EventController extends Controller
                 Log::error('User jailed to leave event: ' . $e->getMessage()); 
                 return redirect()->back()->with('message', 'User jailed to leave event!');
             }
-        return redirect ()->route('events.details', $request->eventId);
+        return redirect()->back()->with('message', 'Removed user successfully');
     }
 
     public function joinEvent(Request $request)
@@ -225,8 +225,8 @@ class EventController extends Controller
                 Log::error('User jailed to join event: ' . $e->getMessage()); 
                 return redirect()->back()->with('message', 'User jailed to join event!');
             }    
-         return redirect ()->route('events.details', $request->eventId);
-    }
+            return redirect()->back()->with('message', 'Joined event successfully');
+        }
 
     public function leaveEvent(Request $request)
     {
@@ -254,7 +254,7 @@ class EventController extends Controller
                 Log::error('User jailed to leave event: ' . $e->getMessage()); 
                 return redirect()->back()->with('message', 'User jailed to leave event!');
             }
-            return redirect ()->route('events.details', $request->eventId);
+        return redirect()->back()->with('message', 'Left event successfully');
     }
 
     /**
