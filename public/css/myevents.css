@@ -1,0 +1,54 @@
+/* Assuming you have a general styling file, you can create a new one for this page */
+
+/* Add some basic styling for the page content */
+
+/* Style for the sections (Created, Joined, Favorite) */
+#created,
+#joined,
+#favorite {
+    flex: 1;
+    margin: 0 10px;
+}
+
+/* Style for the headers */
+h1 {
+    text-align: center;
+}
+
+h2 {
+    color: var(--main-color);
+    /* Adjust the color as needed */
+    border-bottom: 2px solid var(--main-color);
+    /* Underline for section headers */
+    padding-bottom: 5px;
+}
+
+/* Style for the individual events */
+
+/* Add hover effect for the events */
+
+.card {
+    width: 100%;
+}
+
+.usertitle {
+    color: var(--main-color);
+}
+
+.myevents {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 20px;
+    justify-content: flex-start;
+    align-items: stretch;
+    /* Make items stretch to the full height */
+}
+
+.myevents .box {
+    flex: 1 0 calc(100% - 40px);
+    /* Adjust the width and gap as needed */
+    max-width: calc(100% - 40px);
+    /* Add this line to limit the width */
+    box-sizing: border-box;
+    margin: 20px;
+}
