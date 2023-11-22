@@ -60,7 +60,7 @@ class EventController extends Controller
 
     public function deleteEvent($id)
     {
-        $event = Event::find($request->eventId);
+        $event = Event::find($id);
         if (!$event) {
             return redirect()->back()->with('message', 'Event not found');
         }
@@ -125,6 +125,14 @@ class EventController extends Controller
 
         return view('pages.event_details', $data);
     }
+
+    public function joinedEvent($user, $event){
+
+        return EventParticipant::where('id_user', $user->id)
+            ->where('id_event', $event->id)
+            ->exists();
+    }
+
 
     public function addUser(Request $request)
     {
@@ -217,7 +225,7 @@ class EventController extends Controller
             Log::error('User jailed to join event: ' . $e->getMessage());
             return redirect()->back()->with('message', 'User jailed to join event!');
         }
-        return redirect ()->route('events.details', $request->eventId);
+        return redirect ()->back();
     }
 
     public function leaveEvent(Request $request)
