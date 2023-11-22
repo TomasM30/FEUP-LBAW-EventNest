@@ -1,11 +1,42 @@
-.form-outline {
-    width: 30%;
-    margin: 0;
+.content-container {
+    max-width: 100%;
+    /* Adjust the max-width as needed */
+    padding: 20px;
 }
 
+.form-outline {
+    margin-bottom: 20px;
+    max-width: 40%;
+    margin-left: 20px;
+}
+
+#main {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 20px;
+    justify-content: flex-start;
+    align-items: stretch;
+    /* Make items stretch to the full height */
+}
+
+.box {
+    flex: 1 0 calc(33.333% - 100px);
+    /* Adjust the width and gap as needed */
+    max-width: calc(33.333% - 100px);
+    /* Add this line to limit the width */
+    box-sizing: border-box;
+    margin: 20px;
+}
+
+.card {
+    height: 100%;
+}
+
+
 .form-control {
+    margin-bottom: 2%;
     background-color: #00603a66;
-    height: 30px;
+    height: 30%;
     border-radius: 8px;
 }
 
@@ -20,25 +51,12 @@
     box-shadow: none;
 }
 
-.content-container {
-    width: 90%;
-    margin: 2% auto;
-    justify-content: left;
-}
-
-#main {
-    margin: 2% auto;
+.filters {
     display: flex;
-    flex-wrap: wrap;
-    justify-content: space-between;
-    gap: 2%;
+    flex-direction: row;
+    width: 60%;
 }
 
-.box {
-    flex: 1 0 calc(33.33% - 2%);
-    margin-bottom: 2%;
-}
-
-a {
-    text-decoration: none;
+.filters .btn {
+    margin-top: 0;
 }
