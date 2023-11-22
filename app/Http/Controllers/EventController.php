@@ -11,11 +11,16 @@ use Illuminate\View\View;
 use Illuminate\Support\Facades\Log;
 
 use App\Models\Event;
+use App\Models\User;
+use App\Models\Admin;
 
 use App\Models\EventParticipant;
+use App\Models\AuthenticatedUser;
+
+
 // use App\Models\EventMessage;
 // use App\Models\EventNotification;
-// use App\Models\FavoriteEvent;
+use App\Models\FavoriteEvent;
 // use App\Models\EventHashtag;
 // use App\Models\TicketType;
 // use App\Models\Report;
@@ -26,6 +31,9 @@ class EventController extends Controller
 {
     public function createEvent(Request $request)
     {
+
+        $this->authorize('create', Event::class);
+
         $request->validate([
             'title' => 'required|string',
             'description' => 'required|string',
@@ -52,6 +60,13 @@ class EventController extends Controller
 
     public function deleteEvent($id)
     {
+        $event = Event::find($request->eventId);
+        if (!$event) {
+            return redirect()->back()->with('message', 'Event not found');
+        }
+
+        $this->authorize('delete', $event);
+
         DB::beginTransaction();
 
         try {
@@ -63,7 +78,7 @@ class EventController extends Controller
             $event->eventparticipants()->delete();
             // $event->eventmessage()->delete();
             // $event->eventnotification()->delete();
-            // $event->favoriteevent()->delete();
+            $event->favoriteevent()->delete();
             // $event->eventhashtags()->delete();
             // $event->tickettype()->delete();
             // $event->report()->delete();
@@ -78,8 +93,9 @@ class EventController extends Controller
 
             return redirect()->back()->with('message', 'Event deleted successfully');
         } catch (\Exception $e) {
-            // An error occurred; cancel the transaction...
             DB::rollback();
+
+            Log::error('Event deletion failed: ' . $e->getMessage());
 
             // and return an error message
             return redirect()->back()->with('message', 'Event deletion failed');
@@ -89,71 +105,149 @@ class EventController extends Controller
     public function listPublicEvents()
     {   
         $events = Event::where('type', 'public')->get();
-        return view('pages.events', ['events' => $events]);
+        $user = User::where('username','smacascaidh1')->first();
+
+        foreach($events as $event)
+            $event->isJoined = $this->joinedEvent($user,$event);
+
+        return view('pages.events', ['events' => $events,
+                                    'user'=> $user]);
     }
 
 
-    public function listEventAttendees($id) 
+    public function showEventDetails($id) 
     {
-        $event = Event::find($id);
-        $attendees = $event->eventparticipants()->get();
-        return view('pages.event_details', ['events' => $attendees]);
+        $data = [];
+        $data['event'] = Event::find($id);
+        $data['isParticipant'] = $this->joinedEvent(Auth::user(), $data['event']);
+        $data['isAdmin'] = Admin::where('id_user', Auth::user()->id)->first();
+        $data['isOrganizer'] = $data['event']->id_user == Auth::user()->id;
+
+        return view('pages.event_details', $data);
     }
 
-    public function deleteUserFromEvent($id_user, $id_event) {
-        $event = Event::find($id_event);
-
+    public function addUser(Request $request)
+    {
+        $event = Event::find($request->eventId);
         if (!$event) {
-            // Event not found
-            return false;
+            return redirect()->back()->with('message', 'Event not found');
         }
-        $event->participants()->detach($id_user);
 
-        if ($event->wasChanged()) {
-            // User successfully removed from the event
-            return true;
-        } else {
-            // User not found in the event
-            return false;
+        $this->authorize('addUser', $event);
+
+        try {
+            if (!(AuthenticatedUser::where('id_user', $request->id_user)->exists())|| !(Event::where('id', $request->eventId)->exists()))
+                return redirect()->back()->with('message', 'User or event not found');
+
+            DB::BeginTransaction();
+
+
+            EventParticipant::insert([
+                'id_user' => $request->id_user,
+                'id_event' => $request->eventId,
+            ]);
+
+
+            DB::commit();
+
+        } catch (\Exception $e) {
+
+            DB::rollback();
+            Log::error('User jailed to join event: ' . $e->getMessage());
+            return redirect()->back()->with('message', 'User jailed to join event!');
         }
+        return redirect ()->route('events.details', $request->eventId);
     }
-    /*public function addUserToEvent(Request $request)
+
+    public function removeUser(Request $request)
     {
-        $id_user = $request->id_user;
-        $eventId = $request->eventId;
-        $authenticated = Authenticated::find($id_user)->get();
-        $event = Event::find($eventId)->get();
-        
-        DB::BeginTransaction();
+        $event = Event::find($request->eventId);
+        if (!$event) {
+            return redirect()->back()->with('message', 'Event not found');
+        }
+        $this->authorize('removeUser', $event);
 
-        EventParticipants::Insert([
-            'id_user' => $authenticated->id_user,
-            'id_event' => $event->id,
-        ]);
+        try {
+            if (!(AuthenticatedUser::where('id_user', $request->id_user)->exists())|| !(Event::where('id', $request->eventId)->exists()))
+                return redirect()->back()->with('message', 'User or event not found');
 
-        //TODO: Generates notification
+            DB::BeginTransaction();
 
-        DB::commit();
-    }*/
+            EventParticipant::where('id_user', $request->id_user)
+                ->where('id_event', $request->eventId)
+                ->delete();
+            DB::commit();
 
-    /*public function leaveEvent(Request $request)
-{
-    $id_user = $request->id_user;
-    $eventId = $request->eventId;
-    $authenticated = Authenticated::find($id_user)->get();
-    $event = Event::find($eventId)->get();
+        } catch (\Exception $e) {
 
-    DB::BeginTransaction();
+            DB::rollback();
+            Log::error('User jailed to leave event: ' . $e->getMessage());
+            return redirect()->back()->with('message', 'User jailed to leave event!');
+        }
+        return redirect ()->route('events.details', $request->eventId);
+    }
 
-    EventParticipants::Delete([
-        'id_user' => $authenticated->id_user,
-        'id_event' => $event->id,
-    ]);
+    public function joinEvent(Request $request)
+    {
 
-    //TODO: Generates notification
+        $event = Event::find($request->eventId);
+        if (!$event) {
+            return redirect()->back()->with('message', 'Event not found');
+        }
 
-    DB::commit();
-}*/
+        $this->authorize('joinEvent', $event);
+
+        try {
+            if (!(AuthenticatedUser::where('id_user', $request->id_user)->exists())|| !(Event::where('id', $request->eventId)->exists()))
+                return redirect()->back()->with('message', 'User or event not found');
+
+            DB::BeginTransaction();
+
+            EventParticipant::insert([
+                'id_user' => $request->id_user,
+                'id_event' => $request->eventId,
+            ]);
+
+
+            DB::commit();
+
+        } catch (\Exception $e) {
+
+            DB::rollback();
+            Log::error('User jailed to join event: ' . $e->getMessage());
+            return redirect()->back()->with('message', 'User jailed to join event!');
+        }
+        return redirect ()->route('events.details', $request->eventId);
+    }
+
+    public function leaveEvent(Request $request)
+    {
+        $event = Event::find($request->eventId);
+        if (!$event) {
+            return redirect()->back()->with('message', 'Event not found');
+        }
+
+        $this->authorize('leaveEvent', $event);
+
+        try {
+            if (!(AuthenticatedUser::where('id_user', $request->id_user)->exists())|| !(Event::where('id', $request->eventId)->exists()))
+                return redirect()->back()->with('message', 'User or event not found');
+
+            DB::BeginTransaction();
+
+            EventParticipant::where('id_user', $request->id_user)
+                ->where('id_event', $request->eventId)
+                ->delete();
+            DB::commit();
+
+        } catch (\Exception $e) {
+
+            DB::rollback();
+            Log::error('User jailed to leave event: ' . $e->getMessage());
+            return redirect()->back()->with('message', 'User jailed to leave event!');
+        }
+        return redirect ()->route('events.details', $request->eventId);
+    }
 
     /**
      * @throws AuthorizationException

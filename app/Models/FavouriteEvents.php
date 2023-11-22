@@ -5,7 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class EventParticipant extends Model
+class FavouriteEvents extends Model
 {
     use HasFactory;
 
@@ -14,7 +14,7 @@ class EventParticipant extends Model
      *
      * @var string
      */
-    protected $table = 'eventparticipants';
+    protected $table = 'favoriteevent';
 
     /**
      * The primary key associated with the table.

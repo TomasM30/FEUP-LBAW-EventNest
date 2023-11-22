@@ -18,6 +18,16 @@ class LoginController extends Controller
      */
     public function showLoginForm()
     {
+        if (Auth::check()) {
+            // If the user is an admin, redirect to the dashboard
+            if (Auth::user()->isAdmin()) {
+                return redirect()->route('dashboard');
+            }
+    
+            // Otherwise, redirect to the events page
+            return redirect()->route('events');
+        }
+    
         return view('auth.login');
     }
 
@@ -37,7 +47,7 @@ class LoginController extends Controller
             if ($request->user()->isAdmin()) {
                 return redirect()->intended('dashboard');
             } else {
-                return redirect()->intended('events');
+                return redirect()->intended('events')->with('user', $request->user());
             }
         }
 

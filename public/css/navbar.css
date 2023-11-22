@@ -1,14 +1,18 @@
 /* Base styles */
 .navbar {
-    height: 10%;
+    height: 15%;
     background-color: var(--main-color);
 }
-
+.navbar .btn-custom:hover {
+    background-color: #00603a23;
+    color: #00ff99;
+    border: 1px solid #00ff99;
+}
 img {
     max-height: 40%;
     max-width: 40%;
     margin: 5%;
-    /* Adjusted margin for image */
+    margin-left: 15%;
     position: relative;
 }
 
