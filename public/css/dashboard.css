@@ -23,13 +23,24 @@
 
 .dashboard-section {
     width: 48%;
-    /* Reduce the width to make space for both tables */
     float: left;
-    /* Float the sections to make them side by side */
-    margin-bottom: 10px;
-    /* Add some space between the sections */
+}
+
+.dashboard-section:first-of-type {
+    margin-left: 1.5%;
 }
 
 .dashboardtitle {
     color: var(--main-color);
+}
+
+.custom-link {
+    color: var(--main-color);
+    text-decoration: none;
+    transition: font-size 0.3s ease;
+}
+
+.custom-link:hover {
+    color: var(--main-color);
+    font-size: 1.05em;
 }

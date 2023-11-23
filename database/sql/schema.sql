@@ -78,6 +78,7 @@ CREATE TABLE Event (
     ticket_limit INT ,
     place VARCHAR(255) NOT NULL,
     id_user INT NOT NULL,
+    closed BOOLEAN DEFAULT FALSE,
     CHECK (ticket_limit <= capacity),
     FOREIGN KEY (id_user) REFERENCES Authenticated(id_user)
 );

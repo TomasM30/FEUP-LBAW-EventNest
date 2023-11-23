@@ -24,16 +24,17 @@ class AuthenticatedUserController extends Controller
         
         $this->authorize('userEvents', $authenticatedUser);
     
-        // Fetch the events created by the user
         $createdEvents = Event::where('id_user', $authenticatedUser->id_user)->get();
     
-        // Fetch the events the user has joined
-        $joinedEvents = Event::whereHas('eventParticipants', function ($query) use ($authenticatedUser) {
+        $joinedEvents = Event::where('closed', false)->whereHas('eventParticipants', function ($query) use ($authenticatedUser) {
             $query->where('id_user', $authenticatedUser->id_user);
         })->get();
     
-        // Fetch the user's favorite events
         $favoriteEvents = Event::whereHas('favoriteEvent', function ($query) use ($authenticatedUser) {
+            $query->where('id_user', $authenticatedUser->id_user);
+        })->get();
+
+        $attendedEvents = Event::where('closed', true)->whereHas('eventParticipants', function ($query) use ($authenticatedUser) {
             $query->where('id_user', $authenticatedUser->id_user);
         })->get();
     
@@ -42,6 +43,7 @@ class AuthenticatedUserController extends Controller
             'createdEvents' => $createdEvents,
             'joinedEvents' => $joinedEvents,
             'favoriteEvents' => $favoriteEvents,
+            'attendedEvents' => $attendedEvents,
         ]);
     }
 

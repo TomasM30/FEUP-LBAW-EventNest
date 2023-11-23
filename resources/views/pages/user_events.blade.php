@@ -22,6 +22,12 @@
             @include('partials.event', ['event' => $event])
         @endforeach
     </div>
+    <div id ="attended">
+        <h2>Attended Events</h2>
+        @foreach ($attendedEvents as $event)
+            @include('partials.event', ['event' => $event])
+        @endforeach
+    </div>
 </div>
 
 @endsection

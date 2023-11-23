@@ -7,14 +7,13 @@
     <table class="user-table table">
         <thead>
             <tr>
-                <th>Username</th>
+                <th>Users</th>
             </tr>
         </thead>
         <tbody>
             @foreach ($users as $authenticatedUser)
-            <tr>
-                <td><a href="{{ url('/user/' . $authenticatedUser->user->id . '/events') }}">{{ $authenticatedUser->user->username }}</a></td>
-            </tr>
+                <tr>
+                <td><a class="custom-link" href="{{ route('user.events', $authenticatedUser->user->id) }}">{{ $authenticatedUser->user->username ." | ". $authenticatedUser->user->name }}</a></td>
             @endforeach
         </tbody>
     </table>
@@ -32,8 +31,8 @@
         <tbody>
             @foreach ($events as $event)
             <tr>
-                <td>{{ $event->title }}</td>
-                <td>{{ $event->date }}</td>
+                <td><a class="custom-link" href="{{ route('events.details', $event->id) }}">{{ $event->title }}</a></td>
+                <td>{{ \Carbon\Carbon::parse($event->date)->format('d/m/y') }}</td>
             </tr>
             @endforeach
         </tbody>

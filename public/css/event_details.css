@@ -80,3 +80,9 @@
     margin-right: 0.5%;
 }
 
+.event-closed-alert {
+    background-color: red;
+    color: white;
+    border: none;  
+}
+

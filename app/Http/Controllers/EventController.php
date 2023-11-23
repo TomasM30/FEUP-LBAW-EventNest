@@ -41,7 +41,7 @@ class EventController extends Controller
                 'description' => 'required|string',
                 'type' => 'in:public,private,approval',
                 'date' => 'required|after_or_equal:today',
-                'capacity' => 'required|integer|min:0',
+                'capacity' => 'required|integer|min:2',
                 'ticket_limit' => [
                     'required',
                     'integer',
@@ -121,12 +121,22 @@ class EventController extends Controller
 
     public function listPublicEvents()
     {   
+        $now = Carbon::now();
+
+        Event::where('date', '<', $now)
+            ->where('closed', false)
+            ->update(['closed' => true]);
+
         $user = Auth::user();
 
-        $events = Event::where('type', 'public')->where('id_user', '!=', $user->id)->get();
+        $events = Event::where('type', 'public')
+                        ->where('id_user', '!=', $user->id)
+                        ->where('closed', false)
+                        ->orderBy('date')
+                        ->get();
+        $now = Carbon::now();
 
-        return view('pages.events', ['events' => $events,
-                                    'user'=> $user]);
+        return view('pages.events', ['events' => $events, 'user'=> $user]);
     }
 
 
