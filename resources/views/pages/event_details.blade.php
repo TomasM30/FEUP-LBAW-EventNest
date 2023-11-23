@@ -8,6 +8,19 @@
             </div>
     @endif
     <div class="actions">
+        @php
+            $participants = $event->eventparticipants()->pluck('id_user')->toArray();
+            $nonParticipants = App\Models\AuthenticatedUser::whereNotIn('id_user', $participants)->get();
+            $invitedUsers = \DB::table('invitation')
+                                ->where('sender_id', Auth::user()->id)
+                                ->where('id_event', $event->id)
+                                ->pluck('receiver_id')
+                        ->toArray();
+
+            $notInvited = App\Models\AuthenticatedUser::whereNotIn('id_user', $participants)
+                        ->whereNotIn('id_user', $invitedUsers)
+                        ->get();
+        @endphp
         @if ($event->closed == false)
             @if(!$isParticipant && !$isAdmin && $event->eventparticipants()->count() < $event->capacity)
                 <form method="POST" action="{{ route('event.join', $event->id) }}">
@@ -24,11 +37,26 @@
                     <button type="submit" class="btn btn-custom btn-block">Leave</button>
                 </form>
             @endif
+            @if(!$isAdmin && $isParticipant)
+                <div class="dropdown">
+                    <button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownMenuInvite" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                        Invite
+                    </button>
+                    <div class="dropdown-menu" aria-labelledby="dropdownMenuInvite">
+                        @foreach ($notInvited as $authUser)
+                            @if($authUser->user->id != $event->user->id) 
+                                <form method="POST" action="{{ route('events.invite', $event->id) }}">
+                                    {{ csrf_field() }}
+                                    <input type="hidden" name="id_user" value="{{ $authUser->user->id }}">
+                                    <input type="hidden" name="eventId" value="{{ $event->id }}">
+                                    <button type="submit" class="dropdown-item">{{ $authUser->user->name }}</button>
+                                </form>
+                            @endif
+                        @endforeach
+                    </div>
+                </div>
+            @endif
             @if($isAdmin || $isOrganizer)
-                @php
-                    $participants = $event->eventparticipants()->pluck('id_user')->toArray();
-                    $nonParticipants = App\Models\AuthenticatedUser::whereNotIn('id_user', $participants)->get();
-                @endphp
                 @if($event->eventparticipants()->count() > 1)
                     <div class="dropdown">
                         <button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownMenu2" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
@@ -70,7 +98,7 @@
                 <button id='edit-button' type="button" class="btn btn-custom btn-block" data-toggle="modal" data-target="#newEventModal">Edit</button>
             @endif
         @endif
-        @if($isAdmin    || $isOrganizer)
+        @if($isAdmin || $isOrganizer)
             <form method="POST" action="{{ route('events.delete', $event->id) }}">
                 {{ csrf_field() }}
                 {{ method_field('DELETE') }}
