@@ -60,3 +60,8 @@
 .filters .btn {
     margin-top: 0;
 }
+
+.dropdown-menu .dropdown-item:hover {
+    background-color: var(--main-color);
+    color: white; /* Change this to whatever color you want the text to be when hovered */
+}

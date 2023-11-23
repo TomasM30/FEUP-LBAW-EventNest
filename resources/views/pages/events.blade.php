@@ -2,6 +2,7 @@
 
 @section('content')
 
+
 <div class="content-container">
     <div class="form-outline" data-mdb-input-init>
         <input type="search" id="form1" class="form-control" placeholder="Search" aria-label="Search" />
@@ -21,6 +22,8 @@
         @endforeach
     </div>
 </div>
+
+<div id="overlay" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0, 0, 0, 0.5); z-index: 1000;"></div>
 
 @include('partials.eventModal', ['formAction' => route('events.create')])
 
