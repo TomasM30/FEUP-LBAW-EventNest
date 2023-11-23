@@ -16,6 +16,7 @@ use App\Models\Admin;
 use App\Models\EventParticipant;
 use App\Models\Eventhashtag;
 use App\Models\AuthenticatedUser;
+use App\Models\Invitation;
 
 
 // use App\Models\EventMessage;
@@ -113,7 +114,6 @@ class EventController extends Controller
 
             return redirect()->route('events')->with('message', 'Event deletion successful');
         } catch (\Exception $e) {
-            log::debug($e);
             DB::rollback();
             // and return an error message
             return redirect()->back()->with('message', 'Event deletion failed');
@@ -143,11 +143,13 @@ class EventController extends Controller
 
     public function showEventDetails($id) 
     {
+        $user = Auth::user();
         $data = [];
         $data['event'] = Event::find($id);
-        $data['isParticipant'] = $this->joinedEvent(Auth::user(), $data['event']);
-        $data['isAdmin'] = Admin::where('id_user', Auth::user()->id)->first();
-        $data['isOrganizer'] = $data['event']->id_user == Auth::user()->id;
+        $data['isParticipant'] = $this->joinedEvent($user, $data['event']);
+        $data['isAdmin'] = Admin::where('id_user', auth()->user()->id)->first();
+        $data['isOrganizer'] = $data['event']->id_user == auth()->user()->id;
+      
 
         return view('pages.event_details', $data);
     }
@@ -204,8 +206,9 @@ class EventController extends Controller
         $this->authorize('removeUser', $event);
             
         try {
-            if (!(AuthenticatedUser::where('id_user', $request->id_user)->exists())|| !(Event::where('id', $request->eventId)->exists())) 
-                return redirect()->back()->with('message', 'User or event not found');
+            if (!(AuthenticatedUser::where('id_user', $request->id_user)->exists())|| !(Event::where('id', $request->eventId)->exists())){
+                return redirect()->back()->with('message', 'User or event not found');  
+            }
             
             DB::BeginTransaction();
 
@@ -234,8 +237,9 @@ class EventController extends Controller
         $this->authorize('joinEvent', $event);
             
         try {
-            if (!(AuthenticatedUser::where('id_user', $request->id_user)->exists())|| !(Event::where('id', $request->eventId)->exists())) 
+            if (!(AuthenticatedUser::where('id_user', $request->id_user)->exists())|| !(Event::where('id', $request->eventId)->exists())){
                 return redirect()->back()->with('message', 'User or event not found');
+            }
             
             DB::BeginTransaction();
 
@@ -274,6 +278,10 @@ class EventController extends Controller
             EventParticipant::where('id_user', $request->id_user)
                             ->where('id_event', $request->eventId)
                             ->delete();
+
+            Invitation::where('sender_id', $request->id_user)
+                        ->where('id_event', $request->eventId)
+                        ->delete();
             DB::commit();
 
             } catch (\Exception $e) {
@@ -360,5 +368,50 @@ class EventController extends Controller
                         ->where('closed', false)
                         ->get();    
         return $this->showSearchEvents($events);
+    }
+
+    public function inviteUser(Request $request)
+    {
+
+        if( !(Event::where('id',$request->eventId)->exists()) ){
+            return redirect()->back()->with('message', 'Event not found');
+        }
+    
+        try {
+            $receiver = User::where('id', $request->id_user)->firstOrFail();
+        } catch (ModelNotFoundException $e) {
+            return redirect()->back()->with('message', 'Receiver not found');
+        }
+
+        $sender = auth()->user();    
+        if (!AuthenticatedUser::where('id_user', $sender->id)->exists()) {
+            return redirect()->back()->with('message', 'Sender not found');
+        }
+    
+        $invitationExists = Invitation::where([
+            ['sender_id', '=', $sender->id],
+            ['receiver_id', '=', $receiver->id],
+            ['id_event', '=', $request->eventId]
+        ])->exists();
+        
+        if ($invitationExists) {
+            return redirect()->back()->with('message', 'Invitation already sent!');
+        }
+        
+        try {
+                DB::BeginTransaction();
+                Invitation::insert([
+                    'sender_id' => $sender->id,
+                    'receiver_id'=> $receiver->id,
+                    'id_event'=> $request->eventId,
+                ]);
+
+                DB::commit();
+         } catch (\Exception $e){
+            DB::rollback();
+            log::error('Failed to sent invitation: ' . $e->getMessage());
+            return redirect()->back()->with('message', 'Failed to sent invitation!');
+        }
+        return redirect()->back()->with('success', 'Invite successfully sent!');
     }
 }
