@@ -79,5 +79,7 @@ Route::controller(EventController::class)->group(function () {
     Route::post('/events/{id}/leave','leaveEvent')->name('event.leave');
     Route::post('/events/{id}/add', 'addUser')->name('events.add');
     Route::post('/events/{id}/remove', 'removeUser')->name('events.remove');
+    Route::get('/events/search', 'searchEvents')->name('search-events');
 });
+
 
