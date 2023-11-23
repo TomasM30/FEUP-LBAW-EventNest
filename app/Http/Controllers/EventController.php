@@ -54,6 +54,11 @@ class EventController extends Controller
             'place' => $request->place,
             'id_user' => Auth::user()->id,
         ]);
+
+        EventParticipant::create([
+            'event_id' => $event->id,
+            'user_id' => Auth::user()->id,
+        ]);
     
         return redirect()->back()->with('success', 'Event successfully created');
     }

@@ -23,9 +23,6 @@ h2 {
     padding-bottom: 5px;
 }
 
-/* Style for the individual events */
-
-/* Add hover effect for the events */
 
 .card {
     width: 100%;
@@ -33,6 +30,8 @@ h2 {
 
 .usertitle {
     color: var(--main-color);
+    margin-top: 1%;
+    margin-bottom: 2%;
 }
 
 .myevents {
