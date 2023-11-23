@@ -1,11 +1,8 @@
-/* Assuming you have a general styling file, you can create a new one for this page */
-
-/* Add some basic styling for the page content */
-
-/* Style for the sections (Created, Joined, Favorite) */
 #created,
 #joined,
 #favorite {
+    display: flex;
+    flex-direction: column;
     flex: 1;
     margin: 0 10px;
 }
@@ -44,8 +41,7 @@ h2 {
 }
 
 .myevents .box {
-    flex: 1 0 calc(100% - 40px);
     max-width: calc(100% - 40px);
     box-sizing: border-box;
-    margin: 20px;
+    margin-bottom: 6%;
 }

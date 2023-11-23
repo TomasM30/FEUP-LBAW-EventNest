@@ -1,5 +1,4 @@
 .box {
-    max-height: 20%;
     max-width: 20%;
 }
 
@@ -24,11 +23,13 @@
 
 .card-footer {
     color: var(--background-color);
+    height: auto;
 }
 
 .card {
     background-color: var(--main-color);
     border-color: var(--main-color);
+    height: min-content;
 }
 
 .like {
