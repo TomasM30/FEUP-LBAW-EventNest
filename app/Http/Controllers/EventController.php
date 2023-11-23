@@ -255,28 +255,19 @@ class EventController extends Controller
         return redirect()->back()->with('message', 'Left event successfully');
     }
 
-    public function searchEvents(Request $request)
+    public function showSearchEvents($events)
     {
-        if ($request->ajax()) {
-            $output = "";
-            $events = DB::table('event')->where('title', 'LIKE', '%' . $request->search . "%")->get();
-            if ($events) {
-                foreach ($events as $key => $event) {
-                    $output .= '<tr>' .
-                        '<td>' . $event->id . '</td>' .
-                        '<td>' . $event->title . '</td>' .
-                        '<td>' . $event->description . '</td>' .
-                        '<td>' . $event->type . '</td>' .
-                        '<td>' . $event->date . '</td>' .
-                        '<td>' . $event->capacity . '</td>' .
-                        '<td>' . $event->ticket_limit . '</td>' .
-                        '<td>' . $event->place . '</td>' .
-                        '<td>' . $event->id_user . '</td>' .
-                        '</tr>';
-                }
-                return Response($output);
-            }
-        }
+        $user = Auth::user();
+        $newEvents = $events->where('id_user', '!=', $user->id);
+        return view('pages.event_lists', ['events' => $newEvents]);
+    }
+
+    public function search(Request $request)
+    {
+        $search = $request->get('search');
+        $events = Event::where('title', 'ILIKE', '%' . $search . '%')->get();
+    
+        return $this->showSearchEvents($events);
     }
 
         /**

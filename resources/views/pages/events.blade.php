@@ -13,28 +13,28 @@
             </div>
         </div>
     </form>
-
     <div id="main">
         @foreach ($events as $event)
-        @include('partials.event', ['event' => $event])
+            @include('partials.event', ['event' => $event])
         @endforeach
     </div>
 </div>
-<script type="text/javascript">
-    $('#search').on('keyup',function(){
-        $value=$(this).val();
+
+<script>
+    $('form').on('submit', function(event) {
+    event.preventDefault();
+    });
+    $('#form1').on('keyup', function() {
+        var value = $(this).val();
         $.ajax({
-            type : 'get',
-            url : '{{URL::to('search')}}',
-            data:{'search':$value},
-            success:function(data){
-                $('tbody').html(data);
+            type: 'get',
+            url: '{{ route('search-events') }}',
+            data: { 'search': value },
+            success: function(data) {
+                $('#main').html(data);
             }
         });
-    })
-</script>
-<script type="text/javascript">
-    $.ajaxSetup({ headers: { 'csrftoken' : '{{ csrf_token() }}' } });
+    });
 </script>
 
 @endsection

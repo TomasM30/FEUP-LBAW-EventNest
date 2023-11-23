@@ -1,14 +1,15 @@
 <?php
 
-use App\Http\Controllers\EventController;
 use App\Http\Controllers\MainPageController;
 use Illuminate\Support\Facades\Route;
 
 use App\Http\Controllers\CardController;
 use App\Http\Controllers\ItemController;
 use App\Http\Controllers\UserController;
+use App\Http\Controllers\EventController;
 use App\Http\Controllers\AdminController;
 use App\Http\Controllers\AuthenticatedUserController;
+
 
 use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\Auth\RegisterController;
@@ -79,7 +80,7 @@ Route::controller(EventController::class)->group(function () {
     Route::post('/events/{id}/leave','leaveEvent')->name('event.leave');
     Route::post('/events/{id}/add', 'addUser')->name('events.add');
     Route::post('/events/{id}/remove', 'removeUser')->name('events.remove');
-    Route::get('/events/search', 'searchEvents')->name('search-events');
+    Route::get('/events/search', 'search')->name('search-events');
 });
 
 
