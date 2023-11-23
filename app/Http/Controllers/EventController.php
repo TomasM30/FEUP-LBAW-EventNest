@@ -343,4 +343,21 @@ class EventController extends Controller
 
         return redirect()->back()->with('success', 'Event successfully updated');
     }
+
+    public function showSearchEvents($events)
+    {
+        $user = Auth::user();
+        $newEvents = $events->where('id_user', '!=', $user->id);
+        return view('pages.event_lists', ['events' => $newEvents]);
+    }
+
+    public function search(Request $request)
+    {
+        $search = $request->get('search');
+        $events = Event::where('title', 'ILIKE', '%' . $search . '%')
+                        ->where('type', 'public')
+                        ->where('closed', false)
+                        ->get();    
+        return $this->showSearchEvents($events);
+    }
 }
