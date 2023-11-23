@@ -25,11 +25,10 @@
     max-width: calc(33.333% - 100px);
     /* Add this line to limit the width */
     box-sizing: border-box;
-    margin: 20px;
 }
 
 .card {
-    height: 100%;
+    height: min-content;
 }
 
 
@@ -63,5 +62,6 @@
 
 .dropdown-menu .dropdown-item:hover {
     background-color: var(--main-color);
-    color: white; /* Change this to whatever color you want the text to be when hovered */
+    color: white;
+    /* Change this to whatever color you want the text to be when hovered */
 }

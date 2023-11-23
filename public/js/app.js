@@ -179,84 +179,99 @@ function addEventListeners() {
   
   addEventListeners();
 
-  document.addEventListener('DOMContentLoaded', function() {
-    let loginButton = document.getElementById('login');
-    let registerButton = document.getElementById('register');
-
-    if (loginButton) {
-        loginButton.addEventListener('click', function() {
-            document.getElementById('loginFormContainer').style.display = 'block';
-            loginButton.style.display = 'none';
-            document.getElementById('registerFormContainer').style.display = 'none';
-            registerButton.style.display = 'block';
-
-            Array.from(document.querySelectorAll('#registerFormContainer input')).forEach(function(input) {
-                input.disabled = true;
-            });
-
-            Array.from(document.querySelectorAll('#loginFormContainer input')).forEach(function(input) {
-                input.disabled = false;
-            });
-        });
-    }
-
-    if (registerButton) {
-        registerButton.addEventListener('click', function() {
-            document.getElementById('registerFormContainer').style.display = 'block';
-            registerButton.style.display = 'none';
-            document.getElementById('loginFormContainer').style.display = 'none';
-            loginButton.style.display = 'block';
-
-            Array.from(document.querySelectorAll('#loginFormContainer input')).forEach(function(input) {
-                input.disabled = true;
-            });
-
-            Array.from(document.querySelectorAll('#registerFormContainer input')).forEach(function(input) {
-                input.disabled = false;
-            });
-        });
-    }
-  });
-
-  window.onload = function() {
-    let tags = document.querySelectorAll('.tag');
-    tags.forEach(function(tag) {
-        let hashtags = tag.querySelectorAll('.hashtag');
-        let fontSize = 20;
-        if (hashtags.length > 3) {
-            fontSize = 15;
-        }
-        tag.style.fontSize = fontSize + 'px';
-    });
-
-    let modal = document.getElementById('newEventModal');
-    let btnNe = document.getElementById('NEvent-button');
-    let btnEe = document.getElementById('edit-button');
-    let overlay = document.getElementById('overlay');
-    let dropdowns = document.getElementsByClassName("dropdown-toggle");
-    let closeModalButton = document.querySelector('#newEventModal .close');
-
-    for (let i = 0; i < dropdowns.length; i++) {
-      dropdowns[i].addEventListener('click', function() {
-          let dropdownContent = this.nextElementSibling;
-          dropdownContent.classList.toggle('show');
+document.addEventListener('DOMContentLoaded', function() {
+  let loginButton = document.getElementById('login');
+  let registerButton = document.getElementById('register');
+  if (loginButton) {
+      loginButton.addEventListener('click', function() {
+          document.getElementById('loginFormContainer').style.display = 'block';
+          loginButton.style.display = 'none';
+          document.getElementById('registerFormContainer').style.display = 'none';
+          registerButton.style.display = 'block';
+          Array.from(document.querySelectorAll('#registerFormContainer input')).forEach(function(input) {
+              input.disabled = true;
+          });
+          Array.from(document.querySelectorAll('#loginFormContainer input')).forEach(function(input) {
+              input.disabled = false;
+          });
       });
   }
-  
-    let btn = btnEe ? btnEe : btnNe;
+  if (registerButton) {
+      registerButton.addEventListener('click', function() {
+          document.getElementById('registerFormContainer').style.display = 'block';
+          registerButton.style.display = 'none';
+          document.getElementById('loginFormContainer').style.display = 'none';
+          loginButton.style.display = 'block';
+          Array.from(document.querySelectorAll('#loginFormContainer input')).forEach(function(input) {
+              input.disabled = true;
+          });
+          Array.from(document.querySelectorAll('#registerFormContainer input')).forEach(function(input) {
+              input.disabled = false;
+          });
+      });
+  }
+});
 
-    if (btn && modal) {
-        btn.addEventListener('click', function() {
-            modal.style.display = 'block';
-            overlay.style.display = 'block';
-            document.body.style.overflow = 'hidden';
-            modal.style.overflow = 'auto';
-        });
+window.onload = function() {
+  let tags = document.querySelectorAll('.tag');
+  tags.forEach(function(tag) {
+      let hashtags = tag.querySelectorAll('.hashtag');
+      let fontSize = 20;
+      if (hashtags.length > 3) {
+          fontSize = 15;
+      }
+      tag.style.fontSize = fontSize + 'px';
+  });
+  let modal = document.getElementById('newEventModal');
+  let btnNe = document.getElementById('NEvent-button');
+  let btnEe = document.getElementById('edit-button');
+  let overlay = document.getElementById('overlay');
+  let dropdowns = document.getElementsByClassName("dropdown-toggle");
+  let closeModalButton = document.querySelector('#newEventModal .close');
+  for (let i = 0; i < dropdowns.length; i++) {
+    dropdowns[i].addEventListener('click', function() {
+        let dropdownContent = this.nextElementSibling;
+        dropdownContent.classList.toggle('show');
+    });
+}
 
-        closeModalButton.addEventListener('click', function() {
-            modal.style.display = 'none';
-            overlay.style.display = 'none';
-            document.body.style.overflow = 'auto';
-        });
-    }
+let btn = btnEe ? btnEe : btnNe;
+if (btn && modal) {
+    btn.addEventListener('click', function() {
+        modal.style.display = 'block';
+        overlay.style.display = 'block';
+        document.body.style.overflow = 'hidden';
+        modal.style.overflow = 'auto';
+    });
+    closeModalButton.addEventListener('click', function() {
+        modal.style.display = 'none';
+        overlay.style.display = 'none';
+        document.body.style.overflow = 'auto';
+    });
+}
 };
+
+document.addEventListener('DOMContentLoaded', function() {
+  let searchForm = document.getElementById('search-form');
+  if(searchForm) {
+      searchForm.addEventListener('submit', function(event) {
+          event.preventDefault();
+      });
+  }
+
+  let form1 = document.getElementById('form1');
+  if(form1) {
+      form1.addEventListener('keyup', function() {
+          var value = this.value;
+          var xhr = new XMLHttpRequest();
+          var url = document.getElementById('search-form').getAttribute('data-url');
+          xhr.open('GET', url + '?search=' + value, true);
+          xhr.onreadystatechange = function() {
+              if (xhr.readyState == 4 && xhr.status == 200) {
+                  document.getElementById('main').innerHTML = xhr.responseText;
+              }
+          }
+          xhr.send();
+      });
+  }
+});

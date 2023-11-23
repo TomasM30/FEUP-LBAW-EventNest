@@ -12,4 +12,10 @@ class EventHashtag extends Model
     protected $primaryKey = ['id_event', 'id_hashtag'];
     public $incrementing = false;
     public $timestamps = false;
+
+    public function event()
+    {
+        return $this->belongsTo(Event::class, 'id_event');
+    }
+    
 }
