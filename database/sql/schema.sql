@@ -447,23 +447,6 @@ CREATE TRIGGER verify_user_attendance
 
 ----------------------------------------------------------
 
-
-CREATE OR REPLACE FUNCTION check_organizer_enrollment() RETURNS TRIGGER AS $$
-BEGIN
-    IF (SELECT id_user FROM event WHERE id = NEW.id_event) = NEW.id_user THEN
-        RAISE EXCEPTION 'The organizer can´t enroll in his own event.';
-    END IF;
-    RETURN NEW;
-END;
-$$ LANGUAGE plpgsql;
-
-CREATE TRIGGER check_organizer_enrollment_trigger
-BEFORE INSERT ON EventParticipants
-FOR EACH ROW
-EXECUTE FUNCTION check_organizer_enrollment();
-
-----------------------------------------------------------
-
 ----------------------------------------------------------
 -- TRASACTIONS
 ----------------------------------------------------------

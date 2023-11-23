@@ -39,6 +39,13 @@ class Event extends Model
      */
     protected $primaryKey = 'id';
 
+    /**
+     * Indicates if the IDs are auto-incrementing.
+     *
+     * @var bool
+     */
+    public $incrementing = true;
+
     
 
     // Define relationship

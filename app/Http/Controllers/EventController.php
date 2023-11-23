@@ -31,36 +31,51 @@ class EventController extends Controller
 {
     public function createEvent(Request $request)
     {
+        try {
+            $this->authorize('create', Event::class);
 
-        $this->authorize('create', Event::class);
-
-        $request->validate([
-            'title' => 'required|string',
-            'description' => 'required|string',
-            'type' => 'in:public,private,approval',
-            'date' => 'required|date_format:d-m-Y|after_or_equal:today',
-            'capacity' => 'required|integer',
-            'ticket_limit' => 'required|integer',
-            'place' => 'required|string',
-        ]);
+            ($request->all());
     
-        $event = Event::create([
-            'title' => $request->title,
-            'description' => $request->description,
-            'type' => $request->input('type', 'public'),
-            'date' => Carbon::createFromFormat('d-m-Y', $request->date)->format('Y-m-d'),
-            'capacity' => $request->capacity,
-            'ticket_limit' => $request->ticket_limit,
-            'place' => $request->place,
-            'id_user' => Auth::user()->id,
-        ]);
+            $request->validate([
+                'title' => 'required|string',
+                'description' => 'required|string',
+                'type' => 'in:public,private,approval',
+                'date' => 'required|after_or_equal:today',
+                'capacity' => 'required|integer|min:0',
+                'ticket_limit' => [
+                    'required',
+                    'integer',
+                    'min:0',
+                    function ($attribute, $value, $fail) use ($request) {
+                        if ($value > $request->capacity) {
+                            $fail($attribute.' must be less than or equal to capacity.');
+                        }
+                    },
+                ],
+                'place' => 'required|string',
+            ]);
+            
+            DB::statement("SELECT setval(pg_get_serial_sequence('event', 'id'), coalesce((SELECT MAX(id) FROM event), 0) + 1, false)");
+            $event = Event::create([
+                'title' => $request->title,
+                'description' => $request->description,
+                'type' => $request->input('type', 'public'),
+                'date' => $request->date,
+                'capacity' => $request->capacity,
+                'ticket_limit' => $request->ticket_limit,
+                'place' => $request->place,
+                'id_user' => Auth::user()->id,
+            ]);
 
-        EventParticipant::create([
-            'event_id' => $event->id,
-            'user_id' => Auth::user()->id,
-        ]);
-    
-        return redirect()->back()->with('success', 'Event successfully created');
+            EventParticipant::insert([
+                'id_user' => Auth::user()->id,
+                'id_event' => $event->id,
+                ]);
+        
+            return redirect()->back()->with('success', 'Event successfully created');
+        } catch (ValidationException $e) {
+            throw $e;
+        }
     }
 
     public function deleteEvent($id)
@@ -99,9 +114,6 @@ class EventController extends Controller
             return redirect()->route('events')->with('message', 'Event deletion successful');
         } catch (\Exception $e) {
             DB::rollback();
-
-            Log::error('Event deletion failed: ' . $e->getMessage());
-
             // and return an error message
             return redirect()->back()->with('message', 'Event deletion failed');
         }
@@ -144,6 +156,8 @@ class EventController extends Controller
             return redirect()->back()->with('message', 'Event not found');
         }
 
+        ($event->id_user == Auth::user()->id);
+
         $this->authorize('addUser', $event);
             
         try {
@@ -164,7 +178,7 @@ class EventController extends Controller
             } catch (\Exception $e) {
        
                 DB::rollback();
-                Log::error('User jailed to join event: ' . $e->getMessage()); 
+                ('User jailed to join event: ' . $e->getMessage()); 
                 return redirect()->back()->with('message', 'User jailed to join event!');
             }    
         return redirect()->back()->with('message', 'Added user successfully');
@@ -192,7 +206,7 @@ class EventController extends Controller
             } catch (\Exception $e) {
        
                 DB::rollback();
-                Log::error('User jailed to leave event: ' . $e->getMessage()); 
+                ('User jailed to leave event: ' . $e->getMessage()); 
                 return redirect()->back()->with('message', 'User jailed to leave event!');
             }
         return redirect()->back()->with('message', 'Removed user successfully');
@@ -225,7 +239,7 @@ class EventController extends Controller
             } catch (\Exception $e) {
        
                 DB::rollback();
-                Log::error('User jailed to join event: ' . $e->getMessage()); 
+                ('User jailed to join event: ' . $e->getMessage()); 
                 return redirect()->back()->with('message', 'User jailed to join event!');
             }    
             return redirect()->back()->with('message', 'Joined event successfully');
@@ -254,37 +268,67 @@ class EventController extends Controller
             } catch (\Exception $e) {
        
                 DB::rollback();
-                Log::error('User jailed to leave event: ' . $e->getMessage()); 
+                ('User jailed to leave event: ' . $e->getMessage()); 
                 return redirect()->back()->with('message', 'User jailed to leave event!');
             }
         return redirect()->back()->with('message', 'Left event successfully');
     }
 
-    /**
-     * @throws AuthorizationException
-     * @throws ValidationException
-     */
-    public function editEvent (Request $request)
+    public function editEvent (Request $request, $id)
     {
-        $this->validate($request, [
-            'title' => 'required|string',
-            'description' => 'required|string',
-            'type' => 'in:public,private',
-            'capacity' => 'required|integer',
-            'ticket_limit' => 'required|integer',
-        ]);
+        $event = Event::find($id);
 
-        $event = Event::find(1);
+        $this->authorize('editEvent', $event);
 
         if (!$event) {
             return redirect()->back()->with('error', 'Event not found');
         }
 
-        $event->title = $request->title;
-        $event->description = $request->description;
-        $event->type = $request->input('type', 'public');
-        $event->capacity = $request->capacity;
-        $event->ticket_limit = $request->ticket_limit;
+        if ($request->has('title') && !empty($request->title)) {
+            $request->validate(['title' => 'string']);
+            $event->title = $request->title;
+        }
+
+        if ($request->has('description') && !empty($request->description)) {
+            $request->validate(['description' => 'string']);
+            $event->description = $request->description;
+        }
+
+        if ($request->has('type') && !empty($request->type)) {
+            $request->validate(['type' => 'in:public,private,approval']);
+            $event->type = $request->type;
+        }
+
+        if ($request->has('date') && !empty($request->date)) {
+            $request->validate(['date' => 'after_or_equal:today']);
+            $event->date = $request->date;
+        }
+
+        if ($request->has('capacity') && !empty($request->capacity)) {
+            $request->validate(['capacity' => 'integer|min:0']);
+            $event->capacity = $request->capacity;
+        }
+
+        if ($request->has('ticket_limit') && !empty($request->ticket_limit)) {
+            $request->validate([
+                'ticket_limit' => [
+                    'integer',
+                    'min:0',
+                    function ($attribute, $value, $fail) use ($request) {
+                        if ($value > $request->capacity) {
+                            $fail($attribute.' must be less than or equal to capacity.');
+                        }
+                    },
+                ],
+            ]);
+            $event->ticket_limit = $request->ticket_limit;
+        }
+
+        if ($request->has('place') && !empty($request->place)) {
+            $request->validate(['place' => 'string']);
+            $event->place = $request->place;
+        }
+
         $event->save();
 
         return redirect()->back()->with('success', 'Event successfully updated');

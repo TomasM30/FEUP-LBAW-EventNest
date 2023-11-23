@@ -19,20 +19,20 @@ class EventPolicy
 
     public function addUser(User $user, Event $event): Response
     {
-        if (!Admin::where('id_user', $user->id)->exists() && $user->id !== $event->user_id) {
-            return Response::deny('You must be an admin or the event organizer to add a user to the event.');
+        if (Admin::where('id_user', $user->id)->exists() || $user->id === $event->id_user) {
+            return Response::allow();
         }
-
-        return Response::allow();
+    
+        return Response::deny('You must be an admin or the event organizer to add a user to the event.');
     }
 
     public function removeUser(User $user, Event $event): Response
     {
-        if (!Admin::where('id_user', $user->id)->exists() && $user->id !== $event->user_id) {
-            return Response::deny('You must be an admin or the event organizer to remove a user from the event.');
+        if (Admin::where('id_user', $user->id)->exists() || $user->id === $event->id_user) {
+            return Response::allow();
         }
     
-        return Response::allow();
+        return Response::deny('You must be an admin or the event organizer to remove a user from the event.');
     }
 
     public function joinEvent(User $user, Event $event): Response
@@ -59,7 +59,16 @@ class EventPolicy
 
     public function delete(User $user, Event $event): Response
     {
-        return $user->id === $event->user_id || Admin::where('id_user', $user->id)->exists()
+
+        return $user->id === $event->id_user || Admin::where('id_user', $user->id)->exists()
+            ? Response::allow()
+            : Response::deny('You must be the organizer of the event or an admin to delete the event.');
+    }
+
+    public function editEvent(User $user, Event $event): Response
+    {
+
+        return $user->id === $event->id_user || Admin::where('id_user', $user->id)->exists()
             ? Response::allow()
             : Response::deny('You must be the organizer of the event or an admin to delete the event.');
     }

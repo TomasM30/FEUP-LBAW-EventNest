@@ -66,6 +66,7 @@
                     </div>
                 </div>
             @endif
+            <button id='edit-button' type="button" class="btn btn-custom btn-block" data-toggle="modal" data-target="#newEventModal">Edit</button>
         @endif
     </div>
     <div class="info">
@@ -113,4 +114,7 @@
         </div>
     </div>
 </div>
+
+@include('partials.eventModal', ['formAction' => route('events.edit', $event->id)])
+
 @endsection

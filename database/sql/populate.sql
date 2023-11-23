@@ -49,7 +49,6 @@ insert into Users (id, email, name, username, password) values (48, 'ccockings1b
 insert into Users (id, email, name, username, password) values (49, 'czanazzi1c@tuttocitta.it', 'Conroy Zanazzi', 'czanazzi1c', 'vS1_>?+s`{d');
 insert into Users (id, email, name, username, password) values (50, 'kstamp1d@4shared.com', 'Kristyn Stamp', 'kstamp1d', 'mV8>N6\(');
 insert into Users (id, email, name, username, password) values (51, 'admin1@example.com', 'admin1', 'admin1', '$2y$10$LpU/dOWOp/u/Vsr5KhrhqOXWJh49lzDa8uo4tqr4fnv6Lm2QEkNFm');
-SELECT setval(pg_get_serial_sequence('users', 'id'), coalesce(max(id),0) + 1, false) FROM users;
 
 insert into Admin (id_user) values (51);
 
@@ -190,7 +189,6 @@ insert into EventHashtag (id_event, id_hashtag) values (3, 4);
 insert into EventHashtag (id_event, id_hashtag) values (3, 5);
 
 -- Insert data into the table "event_participants"
-ALTER TABLE EventParticipants DISABLE TRIGGER check_organizer_enrollment_trigger;
 insert into EventParticipants (id_user, id_event) values (2, 1);
 insert into EventParticipants (id_user, id_event) values (2, 2);
 insert into EventParticipants (id_user, id_event) values (3, 3);
@@ -241,7 +239,6 @@ insert into EventParticipants (id_user, id_event) values (2, 47);
 insert into EventParticipants (id_user, id_event) values (2, 48);
 insert into EventParticipants (id_user, id_event) values (3, 49);
 insert into EventParticipants (id_user, id_event) values (3, 50);
-ALTER TABLE EventParticipants ENABLE TRIGGER check_organizer_enrollment_trigger;
 
 -- Insert data into the table "favorite_event"
 insert into FavoriteEvent (id_user, id_event) values (47, 32);

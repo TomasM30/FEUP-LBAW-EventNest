@@ -72,8 +72,9 @@ Route::controller(AuthenticatedUserController::class)->group(function () {
 });
 
 Route::controller(EventController::class)->group(function () {
-    Route::delete('/events/{id}', 'deleteEvent')->name('events.delete');
     Route::post('/events/create', 'createEvent')->name('events.create');
+    Route::post('/events/edit/{id}', 'editEvent')->name('events.edit');
+    Route::delete('/events/delete/{id}', 'deleteEvent')->name('events.delete');
     Route::get('/events', 'listPublicEvents')->name('events');
     Route::get('/events/{id}/details', 'showEventDetails')->name('events.details');
     Route::post('/events/{id}/join','joinEvent')->name('event.join');

@@ -45,9 +45,7 @@ h2 {
 
 .myevents .box {
     flex: 1 0 calc(100% - 40px);
-    /* Adjust the width and gap as needed */
     max-width: calc(100% - 40px);
-    /* Add this line to limit the width */
     box-sizing: border-box;
     margin: 20px;
 }
