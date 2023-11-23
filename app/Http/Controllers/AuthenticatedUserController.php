@@ -8,7 +8,6 @@ use App\Models\Event;
 use App\Models\User;
 use App\Models\EventParticipant;
 use App\Models\FavouriteEvents;
-use Illuminate\Support\Facades\Log;
 
 
 
