@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use App\Models\AuthenticatedUser;
 use App\Models\Event;
+use Carbon\Carbon;
 
 
 class AdminController extends Controller
@@ -14,6 +15,13 @@ class AdminController extends Controller
     {
         $this->authorize('viewDashboard', Admin::class);
         $authenticatedUsers = AuthenticatedUser::with('user')->get()->sortBy('user.username');
+
+        $now = Carbon::now();
+
+        Event::where('date', '<', $now)
+            ->where('closed', false)
+            ->update(['closed' => true]);
+
         $events = Event::orderBy('date')->get();
     
         return view('pages.admin_dashboard', ['users' => $authenticatedUsers, 'events' => $events]);

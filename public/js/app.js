@@ -235,37 +235,43 @@ window.onload = function() {
     });
 }
 
-  let btn = btnEe ? btnEe : btnNe;
-  if (btn && modal) {
-      btn.addEventListener('click', function() {
-          modal.style.display = 'block';
-          overlay.style.display = 'block';
-          document.body.style.overflow = 'hidden';
-          modal.style.overflow = 'auto';
-      });
-      closeModalButton.addEventListener('click', function() {
-          modal.style.display = 'none';
-          overlay.style.display = 'none';
-          document.body.style.overflow = 'auto';
-      });
-  }
+let btn = btnEe ? btnEe : btnNe;
+if (btn && modal) {
+    btn.addEventListener('click', function() {
+        modal.style.display = 'block';
+        overlay.style.display = 'block';
+        document.body.style.overflow = 'hidden';
+        modal.style.overflow = 'auto';
+    });
+    closeModalButton.addEventListener('click', function() {
+        modal.style.display = 'none';
+        overlay.style.display = 'none';
+        document.body.style.overflow = 'auto';
+    });
+}
 };
 
 document.addEventListener('DOMContentLoaded', function() {
-  document.getElementById('search-form').addEventListener('submit', function(event) {
-      event.preventDefault();
-  });
+  let searchForm = document.getElementById('search-form');
+  if(searchForm) {
+      searchForm.addEventListener('submit', function(event) {
+          event.preventDefault();
+      });
+  }
 
-  document.getElementById('form1').addEventListener('keyup', function() {
-      var value = this.value;
-      var xhr = new XMLHttpRequest();
-      var url = document.getElementById('search-form').getAttribute('data-url');
-      xhr.open('GET', url + '?search=' + value, true);
-      xhr.onreadystatechange = function() {
-          if (xhr.readyState == 4 && xhr.status == 200) {
-              document.getElementById('main').innerHTML = xhr.responseText;
+  let form1 = document.getElementById('form1');
+  if(form1) {
+      form1.addEventListener('keyup', function() {
+          var value = this.value;
+          var xhr = new XMLHttpRequest();
+          var url = document.getElementById('search-form').getAttribute('data-url');
+          xhr.open('GET', url + '?search=' + value, true);
+          xhr.onreadystatechange = function() {
+              if (xhr.readyState == 4 && xhr.status == 200) {
+                  document.getElementById('main').innerHTML = xhr.responseText;
+              }
           }
-      }
-      xhr.send();
-  });
+          xhr.send();
+      });
+  }
 });

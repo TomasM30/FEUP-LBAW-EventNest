@@ -13,8 +13,8 @@ use Illuminate\Support\Facades\Log;
 use App\Models\Event;
 use App\Models\User;
 use App\Models\Admin;
-
 use App\Models\EventParticipant;
+use App\Models\Eventhashtag;
 use App\Models\AuthenticatedUser;
 
 
@@ -94,12 +94,12 @@ class EventController extends Controller
             // Retrieve the event
             $event = Event::findOrFail($id);
 
-            // Delete the related records
             $event->eventparticipants()->delete();
+            $event->favoriteevent()->delete();
+            $event->hashtags()->detach();
             // $event->eventmessage()->delete();
             // $event->eventnotification()->delete();
-            $event->favoriteevent()->delete();
-            // $event->eventhashtags()->delete();
+
             // $event->tickettype()->delete();
             // $event->report()->delete();
             // $event->file()->delete();
@@ -113,6 +113,7 @@ class EventController extends Controller
 
             return redirect()->route('events')->with('message', 'Event deletion successful');
         } catch (\Exception $e) {
+            log::debug($e);
             DB::rollback();
             // and return an error message
             return redirect()->back()->with('message', 'Event deletion failed');
