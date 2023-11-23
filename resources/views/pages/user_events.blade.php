@@ -1,9 +1,9 @@
 @extends('layouts.app')
 
 @section('content')
-<h1>{{ $user->name }}'s Events</h1>
+<h1 class="usertitle">{{ $user->name }}'s Events</h1>
 
-<div id="content">
+<div class="myevents">
     <div id="created">
         <h2>Created Events</h2>
         @foreach ($createdEvents as $event)

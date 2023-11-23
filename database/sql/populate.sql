@@ -49,7 +49,6 @@ insert into Users (id, email, name, username, password) values (48, 'ccockings1b
 insert into Users (id, email, name, username, password) values (49, 'czanazzi1c@tuttocitta.it', 'Conroy Zanazzi', 'czanazzi1c', 'vS1_>?+s`{d');
 insert into Users (id, email, name, username, password) values (50, 'kstamp1d@4shared.com', 'Kristyn Stamp', 'kstamp1d', 'mV8>N6\(');
 insert into Users (id, email, name, username, password) values (51, 'admin1@example.com', 'admin1', 'admin1', '$2y$10$LpU/dOWOp/u/Vsr5KhrhqOXWJh49lzDa8uo4tqr4fnv6Lm2QEkNFm');
-SELECT setval(pg_get_serial_sequence('users', 'id'), coalesce(max(id),0) + 1, false) FROM users;
 
 insert into Admin (id_user) values (51);
 
@@ -109,53 +108,16 @@ insert into Authenticated (id_user, is_verified, id_profilepic) values (50, fals
 insert into Hashtag (id, title) values (1, 'cricket');
 insert into Hashtag (id, title) values (2, 'hockey');
 insert into Hashtag (id, title) values (3, 'baseball');
-insert into Hashtag (id, title) values (4, 'baseball');
-insert into Hashtag (id, title) values (5, 'hockey');
-insert into Hashtag (id, title) values (6, 'hockey');
-insert into Hashtag (id, title) values (7, 'baseball');
-insert into Hashtag (id, title) values (8, 'hockey');
-insert into Hashtag (id, title) values (9, 'hockey');
-insert into Hashtag (id, title) values (10, 'golf');
-insert into Hashtag (id, title) values (11, 'volleyball');
-insert into Hashtag (id, title) values (12, 'cricket');
-insert into Hashtag (id, title) values (13, 'soccer');
-insert into Hashtag (id, title) values (14, 'hockey');
-insert into Hashtag (id, title) values (15, 'football');
-insert into Hashtag (id, title) values (16, 'baseball');
-insert into Hashtag (id, title) values (17, 'hockey');
-insert into Hashtag (id, title) values (18, 'football');
-insert into Hashtag (id, title) values (19, 'football');
-insert into Hashtag (id, title) values (20, 'volleyball');
-insert into Hashtag (id, title) values (21, 'soccer');
-insert into Hashtag (id, title) values (22, 'golf');
-insert into Hashtag (id, title) values (23, 'cricket');
-insert into Hashtag (id, title) values (24, 'basketball');
-insert into Hashtag (id, title) values (25, 'soccer');
-insert into Hashtag (id, title) values (26, 'rugby');
-insert into Hashtag (id, title) values (27, 'soccer');
-insert into Hashtag (id, title) values (28, 'baseball');
-insert into Hashtag (id, title) values (29, 'baseball');
-insert into Hashtag (id, title) values (30, 'soccer');
-insert into Hashtag (id, title) values (31, 'hockey');
-insert into Hashtag (id, title) values (32, 'tennis');
-insert into Hashtag (id, title) values (33, 'golf');
-insert into Hashtag (id, title) values (34, 'hockey');
-insert into Hashtag (id, title) values (35, 'hockey');
-insert into Hashtag (id, title) values (36, 'hockey');
-insert into Hashtag (id, title) values (37, 'cricket');
-insert into Hashtag (id, title) values (38, 'cricket');
-insert into Hashtag (id, title) values (39, 'soccer');
-insert into Hashtag (id, title) values (40, 'soccer');
-insert into Hashtag (id, title) values (41, 'football');
-insert into Hashtag (id, title) values (42, 'baseball');
-insert into Hashtag (id, title) values (43, 'football');
-insert into Hashtag (id, title) values (44, 'hockey');
-insert into Hashtag (id, title) values (45, 'football');
-insert into Hashtag (id, title) values (46, 'rugby');
-insert into Hashtag (id, title) values (47, 'baseball');
-insert into Hashtag (id, title) values (48, 'hockey');
-insert into Hashtag (id, title) values (49, 'rugby');
-insert into Hashtag (id, title) values (50, 'basketball');
+insert into Hashtag (id, title) values (4, 'golf');
+insert into Hashtag (id, title) values (5, 'volleyball');
+insert into Hashtag (id, title) values (6, 'basketball');
+insert into Hashtag (id, title) values (7, 'rugby');
+insert into Hashtag (id, title) values (8, 'tennis');
+insert into Hashtag (id, title) values (9, 'swimming');
+insert into Hashtag (id, title) values (10, 'watchalong');
+insert into Hashtag (id, title) values (11, 'athletics');
+insert into Hashtag (id, title) values (12, 'football');
+
 
 
 -- Insert data into the table "event"
@@ -210,8 +172,23 @@ insert into Event (id, title, description, type, date, capacity, ticket_limit, p
 insert into Event (id, title, description, type, date, capacity, ticket_limit, place, id_user) values (49, 'Let the Fire Burn', 'Volleyball tournament finals', 'approval', '6/16/2023', 76, 5, 'Al Nashmah', 3);
 insert into Event (id, title, description, type, date, capacity, ticket_limit, place, id_user) values (50, 'Breath (Soom)', 'Athletics meet at ABC stadium', 'private', '3/4/2023', 319, 5, 'Rodas', 3);
 
+-- Insert data into the table "event_hashtag"
+insert into EventHashtag (id_event, id_hashtag) values (8, 1);
+insert into EventHashtag (id_event, id_hashtag) values (21, 2);
+insert into EventHashtag (id_event, id_hashtag) values (3, 3);
+insert into EventHashtag (id_event, id_hashtag) values (36, 4);
+insert into EventHashtag (id_event, id_hashtag) values (21, 5);
+insert into EventHashtag (id_event, id_hashtag) values (3, 6);
+insert into EventHashtag (id_event, id_hashtag) values (8, 7);
+insert into EventHashtag (id_event, id_hashtag) values (35, 8);
+insert into EventHashtag (id_event, id_hashtag) values (9, 9);
+insert into EventHashtag (id_event, id_hashtag) values (45, 10);
+insert into EventHashtag (id_event, id_hashtag) values (25, 11);
+insert into EventHashtag (id_event, id_hashtag) values (43, 12);
+insert into EventHashtag (id_event, id_hashtag) values (3, 4);
+insert into EventHashtag (id_event, id_hashtag) values (3, 5);
+
 -- Insert data into the table "event_participants"
-ALTER TABLE EventParticipants DISABLE TRIGGER check_organizer_enrollment_trigger;
 insert into EventParticipants (id_user, id_event) values (2, 1);
 insert into EventParticipants (id_user, id_event) values (2, 2);
 insert into EventParticipants (id_user, id_event) values (3, 3);
@@ -262,7 +239,6 @@ insert into EventParticipants (id_user, id_event) values (2, 47);
 insert into EventParticipants (id_user, id_event) values (2, 48);
 insert into EventParticipants (id_user, id_event) values (3, 49);
 insert into EventParticipants (id_user, id_event) values (3, 50);
-ALTER TABLE EventParticipants ENABLE TRIGGER check_organizer_enrollment_trigger;
 
 -- Insert data into the table "favorite_event"
 insert into FavoriteEvent (id_user, id_event) values (47, 32);
@@ -762,57 +738,6 @@ insert into MessageNotification (id, id_user, id_message) values (47, 34, 44);
 insert into MessageNotification (id, id_user, id_message) values (48, 17, 50);
 insert into MessageNotification (id, id_user, id_message) values (49, 35, 42);
 insert into MessageNotification (id, id_user, id_message) values (50, 16, 41);
-
--- Insert data into the table "event_hashtag"
-insert into EventHashtag (id_event, id_hashtag) values (8, 15);
-insert into EventHashtag (id_event, id_hashtag) values (21, 14);
-insert into EventHashtag (id_event, id_hashtag) values (3, 6);
-insert into EventHashtag (id_event, id_hashtag) values (36, 49);
-insert into EventHashtag (id_event, id_hashtag) values (21, 16);
-insert into EventHashtag (id_event, id_hashtag) values (3, 1);
-insert into EventHashtag (id_event, id_hashtag) values (8, 11);
-insert into EventHashtag (id_event, id_hashtag) values (35, 9);
-insert into EventHashtag (id_event, id_hashtag) values (9, 44);
-insert into EventHashtag (id_event, id_hashtag) values (45, 13);
-insert into EventHashtag (id_event, id_hashtag) values (25, 50);
-insert into EventHashtag (id_event, id_hashtag) values (43, 39);
-insert into EventHashtag (id_event, id_hashtag) values (13, 1);
-insert into EventHashtag (id_event, id_hashtag) values (28, 36);
-insert into EventHashtag (id_event, id_hashtag) values (27, 11);
-insert into EventHashtag (id_event, id_hashtag) values (35, 7);
-insert into EventHashtag (id_event, id_hashtag) values (16, 11);
-insert into EventHashtag (id_event, id_hashtag) values (45, 34);
-insert into EventHashtag (id_event, id_hashtag) values (15, 2);
-insert into EventHashtag (id_event, id_hashtag) values (15, 26);
-insert into EventHashtag (id_event, id_hashtag) values (21, 23);
-insert into EventHashtag (id_event, id_hashtag) values (19, 47);
-insert into EventHashtag (id_event, id_hashtag) values (18, 30);
-insert into EventHashtag (id_event, id_hashtag) values (27, 33);
-insert into EventHashtag (id_event, id_hashtag) values (12, 26);
-insert into EventHashtag (id_event, id_hashtag) values (4, 27);
-insert into EventHashtag (id_event, id_hashtag) values (19, 2);
-insert into EventHashtag (id_event, id_hashtag) values (42, 6);
-insert into EventHashtag (id_event, id_hashtag) values (22, 43);
-insert into EventHashtag (id_event, id_hashtag) values (3, 48);
-insert into EventHashtag (id_event, id_hashtag) values (19, 48);
-insert into EventHashtag (id_event, id_hashtag) values (13, 33);
-insert into EventHashtag (id_event, id_hashtag) values (12, 10);
-insert into EventHashtag (id_event, id_hashtag) values (25, 48);
-insert into EventHashtag (id_event, id_hashtag) values (29, 10);
-insert into EventHashtag (id_event, id_hashtag) values (36, 30);
-insert into EventHashtag (id_event, id_hashtag) values (49, 25);
-insert into EventHashtag (id_event, id_hashtag) values (11, 14);
-insert into EventHashtag (id_event, id_hashtag) values (22, 39);
-insert into EventHashtag (id_event, id_hashtag) values (28, 47);
-insert into EventHashtag (id_event, id_hashtag) values (1, 28);
-insert into EventHashtag (id_event, id_hashtag) values (15, 32);
-insert into EventHashtag (id_event, id_hashtag) values (47, 25);
-insert into EventHashtag (id_event, id_hashtag) values (15, 29);
-insert into EventHashtag (id_event, id_hashtag) values (9, 18);
-insert into EventHashtag (id_event, id_hashtag) values (34, 41);
-insert into EventHashtag (id_event, id_hashtag) values (4, 7);
-insert into EventHashtag (id_event, id_hashtag) values (26, 29);
-insert into EventHashtag (id_event, id_hashtag) values (46, 44);
 
 -- Insert data into the table "report"
 insert into Report (id, title, content, id_user, id_event) values (1, 'Sales Analysis', 'Lorem ipsum dolor sit amet, consectetur adipiscing elit', 8, 18);

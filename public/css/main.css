@@ -33,18 +33,18 @@
 }
 
 
-.form-control {
+#form1 {
     margin-bottom: 2%;
     background-color: #00603a66;
     height: 30%;
     border-radius: 8px;
 }
 
-.form-control::placeholder {
+#form1::placeholder {
     color: var(--main-color);
 }
 
-.form-control:focus {
+#form1:focus {
     background-color: #00603a66;
     color: var(--main-color);
     outline: none;

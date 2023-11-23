@@ -9,13 +9,20 @@
             <button id='location-button' type="submit" class="btn btn-custom btn-block">Location</button>
             <button id='date-button' type="submit" class="btn btn-custom btn-block">Date</button>
             <button id='tag-button' type="submit" class="btn btn-custom btn-block">Tag</button>
+            @if (App\Models\AuthenticatedUser::where('id_user', Auth::user()->id)->exists())
+                <button id='NEvent-button' type="button" class="btn btn-custom btn-block" data-toggle="modal" data-target="#newEventModal">New Event</button>
+            @endif        
         </div>
     </div>
 
     <div id="main">
         @foreach ($events as $event)
-        @include('partials.event', ['event' => $event])
+            @include('partials.event', ['event' => $event])
         @endforeach
     </div>
 </div>
+
+@include('partials.eventModal', ['formAction' => route('events.create')])
+
+
 @endsection

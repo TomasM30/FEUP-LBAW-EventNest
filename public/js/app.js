@@ -208,4 +208,16 @@ $(document).ready(function() {
         $('#registerFormContainer input').prop('disabled', false);
     });
 });
+
+window.onload = function() {
+    let tags = document.querySelectorAll('.tag');
+    tags.forEach(function(tag) {
+        let hashtags = tag.querySelectorAll('.hashtag');
+        let fontSize = 20;
+        if (hashtags.length > 3) {
+            fontSize = 15;
+        }
+        tag.style.fontSize = fontSize + 'px';
+    });
+};
   

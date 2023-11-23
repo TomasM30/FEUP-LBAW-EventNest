@@ -29,6 +29,15 @@ class AuthenticatedUser extends Model
     protected $fillable = ['id_user'];
 
 
+    /**
+     * Indicates if the IDs are auto-incrementing.
+     *
+     * @var bool
+     */
+    public $incrementing = true;
+    
+
+
     public function user(){
         return $this->belongsTo(User::class, 'id_user');
     }

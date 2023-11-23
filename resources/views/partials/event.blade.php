@@ -1,7 +1,15 @@
 <div class="box">
     <a href="{{ route('events.details', ['id' => $event->id]) }}">
         <div class="card shadow-0">
-            <h5 class="card-title tag">#TAG</h5>
+        <h5 class="card-title tag">
+            @if($event->hashtags->isNotEmpty())
+                @foreach($event->hashtags as $hashtag)
+                    <span class="hashtag">#{{ $hashtag->title }}</span>
+                @endforeach
+            @else
+                &nbsp;
+            @endif
+        </h5>
             <div class="bg-image hover-overlay ripple" data-mdb-ripple-color="light">
                 <img src="https://mdbootstrap.com/img/new/standard/nature/111.webp" class="img-fluid" />
             </div>
