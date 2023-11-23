@@ -98,6 +98,7 @@ class EventController extends Controller
             $event->eventparticipants()->delete();
             $event->favoriteevent()->delete();
             $event->hashtags()->detach();
+            Invitation::where('id_event', $id)->delete();
             // $event->eventmessage()->delete();
             // $event->eventnotification()->delete();
 
