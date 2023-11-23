@@ -26,32 +26,12 @@ use App\Http\Controllers\Auth\RegisterController;
 |
 */
 
-// Home
 Route::redirect('/', '/login');
 
 Route::controller(UserController::class)->group(function () {
     Route::get('/user/findAll', 'findAll');
 });
 
-// Cards
-Route::controller(CardController::class)->group(function () {
-    Route::get('/cards', 'list')->name('cards');
-    Route::get('/cards/{id}', 'show');
-});
-
-
-// API
-Route::controller(CardController::class)->group(function () {
-    Route::put('/api/cards', 'create');
-    Route::delete('/api/cards/{card_id}', 'delete');
-});
-
-Route::controller(EventController::class)->group(function () {
-    Route::post('/create', 'createEvent')->name('createEvent');
-    Route::post('/edit', 'editEvent')->name('editEvent');
-});
-
-// Authentication
 Route::controller(LoginController::class)->group(function () {
     Route::get('/login', 'showLoginForm')->name('login');
     Route::post('/login', 'authenticate');
@@ -63,7 +43,6 @@ Route::controller(RegisterController::class)->group(function () {
     Route::post('/register', 'register');
 });
 
-// Admin Dashboard
 Route::controller(AdminController::class)->group(function () {
     Route::get('/dashboard', 'showDashboard')->name('dashboard');
 });

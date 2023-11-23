@@ -7,7 +7,6 @@ use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Log;
 
 
 use App\Models\Event;
@@ -17,11 +16,10 @@ use App\Models\EventParticipant;
 use App\Models\Eventhashtag;
 use App\Models\AuthenticatedUser;
 use App\Models\Invitation;
-
+use App\Models\FavoriteEvent;
 
 // use App\Models\EventMessage;
 // use App\Models\EventNotification;
-use App\Models\FavoriteEvent;
 // use App\Models\EventHashtag;
 // use App\Models\TicketType;
 // use App\Models\Report;
@@ -92,7 +90,6 @@ class EventController extends Controller
 
         try {
 
-            // Retrieve the event
             $event = Event::findOrFail($id);
 
             $event->eventparticipants()->delete();
@@ -110,13 +107,11 @@ class EventController extends Controller
             // Delete the event
             $event->delete();
 
-            // Commit the transaction
             DB::commit();
 
             return redirect()->route('events')->with('message', 'Event deletion successful');
         } catch (\Exception $e) {
             DB::rollback();
-            // and return an error message
             return redirect()->back()->with('message', 'Event deletion failed');
         }
     }
@@ -161,7 +156,6 @@ class EventController extends Controller
                                 ->where('id_event', $event->id)
                                 ->exists();
     }
-
 
     public function addUser(Request $request)
     {
@@ -373,10 +367,12 @@ class EventController extends Controller
 
     public function inviteUser(Request $request)
     {
-
-        if( !(Event::where('id',$request->eventId)->exists()) ){
+        $event = Event::find($request->eventId);
+        if (!$event) {
             return redirect()->back()->with('message', 'Event not found');
         }
+
+        $this->authorize('inviteUser', $event, Event::class);
     
         try {
             $receiver = User::where('id', $request->id_user)->firstOrFail();
@@ -410,7 +406,6 @@ class EventController extends Controller
                 DB::commit();
          } catch (\Exception $e){
             DB::rollback();
-            log::error('Failed to sent invitation: ' . $e->getMessage());
             return redirect()->back()->with('message', 'Failed to sent invitation!');
         }
         return redirect()->back()->with('success', 'Invite successfully sent!');

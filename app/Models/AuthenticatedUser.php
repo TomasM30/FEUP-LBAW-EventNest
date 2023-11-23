@@ -35,8 +35,6 @@ class AuthenticatedUser extends Model
      * @var bool
      */
     public $incrementing = true;
-    
-
 
     public function user(){
         return $this->belongsTo(User::class, 'id_user');

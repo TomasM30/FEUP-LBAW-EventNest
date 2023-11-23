@@ -72,4 +72,17 @@ class EventPolicy
             ? Response::allow()
             : Response::deny('You must be the organizer of the event or an admin to delete the event.');
     }
+
+    public function inviteUser(User $user, Event $event): Response
+    {
+        $isParticipant = EventParticipant::where('id_user', $user->id)
+                                        ->where('id_event', $event->id)
+                                        ->exists();
+
+        $isAdmin = Admin::where('id_user', $user->id)->exists();
+
+        return $isParticipant || $isAdmin
+            ? Response::allow()
+            : Response::deny('You must be a participant of the event or an admin to invite a user to the event.');
+    }
 }
