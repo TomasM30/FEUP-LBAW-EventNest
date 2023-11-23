@@ -146,9 +146,9 @@ class EventController extends Controller
         $user = Auth::user();
         $data = [];
         $data['event'] = Event::find($id);
-        $data['isParticipant'] = $this->joinedEvent($user, $data['event']);
-        $data['isAdmin'] = Admin::where('id_user', auth()->user()->id)->first();
-        $data['isOrganizer'] = $data['event']->id_user == auth()->user()->id;
+        $data['isParticipant'] = $this->joinedEvent(Auth::user(), $data['event']);
+        $data['isAdmin'] = Admin::where('id_user', Auth::user()->id)->first();
+        $data['isOrganizer'] = $data['event']->id_user == Auth::user()->id;
       
 
         return view('pages.event_details', $data);
