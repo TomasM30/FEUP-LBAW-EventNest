@@ -1,6 +1,7 @@
 #created,
 #joined,
-#favorite {
+#favorite,
+#attended {
     display: flex;
     flex-direction: column;
     flex: 1;

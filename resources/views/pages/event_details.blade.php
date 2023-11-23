@@ -34,12 +34,12 @@
                     {{ csrf_field() }}
                     <input type="hidden" name="id_user" value="{{ Auth::user()->id }}">
                     <input type="hidden" name="eventId" value="{{ $event->id }}">
-                    <button type="submit" class="btn btn-custom btn-block">Leave</button>
+                    <button type="submit" class="btn btn-custom btn-block leave">Leave</button>
                 </form>
             @endif
             @if(!$isAdmin && $isParticipant)
                 <div class="dropdown">
-                    <button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownMenuInvite" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                    <button class="btn btn-secondary dropdown-toggle invite" type="button" id="dropdownMenuInvite" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                         Invite
                     </button>
                     <div class="dropdown-menu" aria-labelledby="dropdownMenuInvite">
