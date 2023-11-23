@@ -4,9 +4,6 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-
-
-// Added to define Eloquent relationships.
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class Event extends Model
@@ -25,7 +22,8 @@ class Event extends Model
     ];
 
     use HasFactory;
-        /**
+    
+    /**
      * The table associated with the model.
      *
      * @var string
@@ -45,11 +43,7 @@ class Event extends Model
      * @var bool
      */
     public $incrementing = true;
-
     
-
-    // Define relationship
-
     public function eventparticipants(){
         return $this->hasMany(EventParticipant::class, 'id_event');
     }
@@ -62,6 +56,11 @@ class Event extends Model
     {
         return $this->belongsToMany(Hashtag::class, 'eventhashtag', 'id_event', 'id_hashtag');
     }
+
+    public function user(){
+        return $this->belongsTo(User::class, 'id_user');
+    }
+
 
     /*
     public function eventmessage(){
@@ -88,8 +87,5 @@ class Event extends Model
         return $this->hasMany(Poll::class, 'id_event');
     }*/
 
-    public function user(){
-        return $this->belongsTo(User::class, 'id_user');
-    }
 
 }

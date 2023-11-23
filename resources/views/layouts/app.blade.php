@@ -32,8 +32,8 @@
 <body>
 
     @if(!Route::currentRouteNamed('login'))
-    @include('partials.navbar')
-    @endif
+        @include('partials.navbar')
+        @endif
     @yield('content')
 
 
