@@ -1,4 +1,3 @@
-/* Base styles */
 .navbar {
     height: 15%;
     background-color: var(--main-color);
@@ -29,24 +28,19 @@
     align-items: end;
 }
 
-/* Add space between navbar items */
 .navbar-nav .nav-item {
     margin-right: 15px;
 }
 
-/* Add bottom padding to Bootstrap dropdown items within the dropdown menu */
 .navbar-nav .nav-item {
     padding-bottom: 10px;
-    /* Adjust the value as needed */
 }
 
-/* Media queries for responsive design */
 @media (max-width: 768px) {
     img {
         max-height: 30%;
         max-width: 30%;
         margin: 3%;
-        /* Adjusted margin for image */
     }
 
     .navbar-nav .nav-item {
@@ -59,7 +53,7 @@
         max-height: 20%;
         max-width: 20%;
         margin: 2%;
-        /* Adjusted margin for image */
+
     }
 
     .navbar-nav .nav-item {

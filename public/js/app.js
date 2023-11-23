@@ -179,37 +179,46 @@ function addEventListeners() {
   
   addEventListeners();
 
-$(document).ready(function() {
-    // Add a click event listener to the "Login" button
-    $('#login').click(function() {
-        // Toggle the visibility of the login form container
-        $('#loginFormContainer').show();
-        $('#login').hide();
-        $('#registerFormContainer').hide();
-        $('#register').show();
+  document.addEventListener('DOMContentLoaded', function() {
+    let loginButton = document.getElementById('login');
+    let registerButton = document.getElementById('register');
 
-        // Disable the fields in the registration form
-        $('#registerFormContainer input').prop('disabled', true);
-        // Enable the fields in the login form
-        $('#loginFormContainer input').prop('disabled', false);
-    });
+    if (loginButton) {
+        loginButton.addEventListener('click', function() {
+            document.getElementById('loginFormContainer').style.display = 'block';
+            loginButton.style.display = 'none';
+            document.getElementById('registerFormContainer').style.display = 'none';
+            registerButton.style.display = 'block';
 
-    // Add a click event listener to the "Register" button
-    $('#register').click(function() {
-        // Toggle the visibility of the register form container
-        $('#registerFormContainer').show();
-        $('#register').hide();
-        $('#loginFormContainer').hide();
-        $('#login').show();
+            Array.from(document.querySelectorAll('#registerFormContainer input')).forEach(function(input) {
+                input.disabled = true;
+            });
 
-        // Disable the fields in the login form
-        $('#loginFormContainer input').prop('disabled', true);
-        // Enable the fields in the registration form
-        $('#registerFormContainer input').prop('disabled', false);
-    });
-});
+            Array.from(document.querySelectorAll('#loginFormContainer input')).forEach(function(input) {
+                input.disabled = false;
+            });
+        });
+    }
 
-window.onload = function() {
+    if (registerButton) {
+        registerButton.addEventListener('click', function() {
+            document.getElementById('registerFormContainer').style.display = 'block';
+            registerButton.style.display = 'none';
+            document.getElementById('loginFormContainer').style.display = 'none';
+            loginButton.style.display = 'block';
+
+            Array.from(document.querySelectorAll('#loginFormContainer input')).forEach(function(input) {
+                input.disabled = true;
+            });
+
+            Array.from(document.querySelectorAll('#registerFormContainer input')).forEach(function(input) {
+                input.disabled = false;
+            });
+        });
+    }
+  });
+
+  window.onload = function() {
     let tags = document.querySelectorAll('.tag');
     tags.forEach(function(tag) {
         let hashtags = tag.querySelectorAll('.hashtag');
@@ -219,5 +228,35 @@ window.onload = function() {
         }
         tag.style.fontSize = fontSize + 'px';
     });
-};
+
+    let modal = document.getElementById('newEventModal');
+    let btnNe = document.getElementById('NEvent-button');
+    let btnEe = document.getElementById('edit-button');
+    let overlay = document.getElementById('overlay');
+    let dropdowns = document.getElementsByClassName("dropdown-toggle");
+    let closeModalButton = document.querySelector('#newEventModal .close');
+
+    for (let i = 0; i < dropdowns.length; i++) {
+      dropdowns[i].addEventListener('click', function() {
+          let dropdownContent = this.nextElementSibling;
+          dropdownContent.classList.toggle('show');
+      });
+  }
   
+    let btn = btnEe ? btnEe : btnNe;
+
+    if (btn && modal) {
+        btn.addEventListener('click', function() {
+            modal.style.display = 'block';
+            overlay.style.display = 'block';
+            document.body.style.overflow = 'hidden';
+            modal.style.overflow = 'auto';
+        });
+
+        closeModalButton.addEventListener('click', function() {
+            modal.style.display = 'none';
+            overlay.style.display = 'none';
+            document.body.style.overflow = 'auto';
+        });
+    }
+};
