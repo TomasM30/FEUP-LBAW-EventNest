@@ -1,5 +1,5 @@
 insert into Users (id, email, name, username, password) values (1, 'admin@example.com', 'admin123', 'admin123', '$2y$10$LpU/dOWOp/u/Vsr5KhrhqOXWJh49lzDa8uo4tqr4fnv6Lm2QEkNFm');
-insert into Users (id, email, name, username, password) values (2, 'smacascaidh1@canalblog.com', 'Shela MacAscaidh', 'smacascaidh1', 'eH9/w1_.OTG2NCm');
+insert into Users (id, email, name, username, password) values (2, 'userexample@canalblog.com', 'userexample', 'userexample', '"$2y$10$Sol/1iqICW5Q6.FrQaQ4/u6mOFpb.N.0IXJv5Xm5H9zxjbr6PwPIe"');
 insert into Users (id, email, name, username, password) values (3, 'odykins2@berkeley.edu', 'Ole Dykins', 'odykins2', 'yZ7}(O@xl@"|S');
 insert into Users (id, email, name, username, password) values (4, 'rissacson3@time.com', 'Ross Issacson', 'rissacson3', 'kX7*)3ShR8Q=n');
 insert into Users (id, email, name, username, password) values (5, 'ahendrickx4@gmpg.org', 'Austin Hendrickx', 'ahendrickx4', 'hH8}Nc7F{?StH5');
