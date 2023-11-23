@@ -1,0 +1,328 @@
+openapi: 3.0.0
+
+info:
+  version: "1.0"
+  title: "Event Nest"
+  description: "Your API Description"
+
+servers:
+  - url: http://your-api-base-url.com
+    description: Development server
+
+tags:
+  - name: M01-Authentication and Individual Profile.
+    description:
+      "Web resources associated with user authentication. Includes the following
+      system features: login/logout, registration, view and edit personal
+      profile information."
+  - name: M02-Event.
+    description:
+      "Web resources associated with events. Includes the following system
+      features: view,edit and delete events and add and remove people from the event."
+paths:
+  /login:
+    get:
+      operationId: R01-showLoginForm
+      summary: "Show Login Form"
+      responses:
+        "200":
+          description: "Ok. Show log-in UI"
+      tags:
+        - M01-Authentication and Individual Profile.
+
+    post:
+      operationId: R02-authenticate
+      summary: "Authenticate User"
+      requestBody:
+        required: true
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              type: object
+              properties:
+                email:
+                  type: string
+                password:
+                  type: string
+              required:
+                - email
+                - password
+      responses:
+        "302":
+          description: "Redirect after processing the login credentials."
+          headers:
+            Location:
+              schema:
+                type: string
+              examples:
+                302Success:
+                  description: "Successful authentication. Redirect to user profile."
+                  value: "/users/{id}"
+                302Error:
+                  description: "Failed authentication. Redirect to login form."
+                  value: "/login"
+      tags:
+        - M01-Authentication and Individual Profile.
+
+  /logout:
+    post:
+      operationId: R03-logout
+      summary: "Logout User"
+      responses:
+        "302":
+          description: "Redirect after processing logout."
+          headers:
+            Location:
+              schema:
+                type: string
+              examples:
+                302Success:
+                  description: "Successful logout. Redirect to login form."
+                  value: "/login"
+      tags:
+        - M01-Authentication and Individual Profile.
+
+  /register:
+    get:
+      operationId: R04-showRegistrationForm
+      summary: "Show Registration Form"
+      responses:
+        "200":
+          description: "Ok. Show sign-up UI"
+      tags:
+        - M01-Authentication and Individual Profile.
+
+    post:
+      operationId: R05-register
+      summary: "Register User"
+      requestBody:
+        required: true
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                username:
+                  type: string
+                email:
+                  type: string
+                password:
+                  type: string
+                confirm_password:
+                  type: string
+              required:
+                - name
+                - username
+                - email
+                - password
+                - confirm_password
+      responses:
+        "302":
+          description: "Redirect after processing the new user information."
+          headers:
+            Location:
+              schema:
+                type: string
+              examples:
+                302Success:
+                  description: "Successful registration. Redirect to user profile."
+                  value: "/users/{id}"
+                302Failure:
+                  description: "Failed registration. Redirect to registration form."
+                  value: "/register"
+      tags:
+        - M01-Authentication and Individual Profile.
+
+  /create:
+    post:
+      operationId: R08-createEvent
+      summary: "Create Event"
+      requestBody:
+        required: true
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              type: object
+              properties:
+                title:
+                  type: string
+                description:
+                  type: string
+                type:
+                  type: string
+                date:
+                  type: date
+                  format: date-time
+                capacity:
+                  type: integer
+                ticketlimit:
+                  type: integer
+                place:
+                  type: string
+              required:
+                - title
+                - description
+                - type
+                - date
+                - capacity
+                - ticketlimit
+                - place
+      responses:
+        "200":
+          description: "Ok. Event created successfully."
+      tags:
+        - M02-Event.
+
+  /edit:
+    post:
+      operationId: R09-editEvent
+      summary: "Edit Event"
+      requestBody:
+        required: false
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              type: object
+              properties:
+                id:
+                  type: integer
+                title:
+                  type: string
+                description:
+                  type: string
+                type:
+                  type: string
+                date:
+                  type: date
+                  format: date-time
+                capacity:
+                  type: integer
+                ticketlimit:
+                  type: integer
+                place:
+                  type: string
+              required:
+                - id
+      responses:
+        "200":
+          description: "Ok. Event edited successfully."
+      tags:
+        - M02-Event.
+
+  /events/delete/{id}:
+    delete:
+      operationId: R10-deleteEvent
+      summary: "Delete Event"
+      parameters:
+        - in: path
+          name: id
+          schema:
+            type: integer
+          required: true
+      responses:
+        "200":
+          description: "Ok. Event deleted successfully."
+      tags:
+        - M02-Event.
+
+  /events/{id}/details:
+    get:
+      operationId: R11-showEventDetails
+      summary: "Show Event Details"
+      parameters:
+        - in: path
+          name: id
+          schema:
+            type: integer
+          required: true
+      responses:
+        "200":
+          description: "Ok. Show event details UI"
+      tags:
+        - M02-Event.
+
+  /events/{id}/join:
+    post:
+      operationId: R13-joinEvent
+      summary: "Join Event"
+      parameters:
+        - in: path
+          name: id
+          schema:
+            type: integer
+          required: true
+        - in: query
+          name: userId
+          schema:
+            type: integer
+          required: true
+      responses:
+        "200":
+          description: "Ok. Joined event successfully."
+      tags:
+        - M02-Event.
+
+  /events/{id}/leave:
+    post:
+      operationId: R14-leaveEvent
+      summary: "Leave Event"
+      parameters:
+        - in: path
+          name: id
+          schema:
+            type: integer
+          required: true
+        - in: query
+          name: userId
+          schema:
+            type: integer
+          required: true
+      responses:
+        "200":
+          description: "Ok. Left event successfully."
+      tags:
+        - M02-Event.
+
+  /events/{id}/add:
+    post:
+      operationId: R15-addUserToEvent
+      summary: "Add User to Event"
+      parameters:
+        - in: path
+          name: id
+          schema:
+            type: integer
+          required: true
+        - in: query
+          name: userId
+          schema:
+            type: integer
+          required: true
+      responses:
+        "200":
+          description: "Ok. User added to event successfully."
+      tags:
+        - M02-Event.
+
+  /events/{id}/remove:
+    post:
+      operationId: R16-removeUserFromEvent
+      summary: "Remove User from Event"
+      parameters:
+        - in: path
+          name: id
+          schema:
+            type: integer
+          required: true
+        - in: query
+          name: userId
+          schema:
+            type: integer
+          required: true
+      responses:
+        "200":
+          description: "Ok. User removed from event successfully."
+      tags:
+        - M02-Event.
