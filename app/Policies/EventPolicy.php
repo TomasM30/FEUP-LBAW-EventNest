@@ -62,7 +62,7 @@ class EventPolicy
 
         return $user->id === $event->id_user || Admin::where('id_user', $user->id)->exists()
             ? Response::allow()
-            : Response::deny('You must be the organizer of the event or an admin to delete the event.');
+            : Response::deny('You must an admin to delete the event.');
     }
 
     public function editEvent(User $user, Event $event): Response
