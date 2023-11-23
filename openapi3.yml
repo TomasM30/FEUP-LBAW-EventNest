@@ -3,11 +3,11 @@ openapi: 3.0.0
 info:
   version: "1.0"
   title: "Event Nest"
-  description: "Your API Description"
+  description: "Event Nest is a web application that allows users to create and manage events. It also allows users to join events created by other users and to invite other users to their own events."
 
 servers:
-  - url: http://your-api-base-url.com
-    description: Development server
+  - url: "http://lbaw23144.lbaw.fe.up.pt/"
+    description: "Production server"
 
 tags:
   - name: M01-Authentication and Individual Profile.
@@ -23,7 +23,7 @@ paths:
   /login:
     get:
       operationId: R01-showLoginForm
-      summary: "Show Login Form"
+      summary: "Show Login Form: PUB"
       responses:
         "200":
           description: "Ok. Show log-in UI"
@@ -32,7 +32,7 @@ paths:
 
     post:
       operationId: R02-authenticate
-      summary: "Authenticate User"
+      summary: "Authenticate User: PUB"
       requestBody:
         required: true
         content:
@@ -67,7 +67,7 @@ paths:
   /logout:
     post:
       operationId: R03-logout
-      summary: "Logout User"
+      summary: "Logout User: USER"
       responses:
         "302":
           description: "Redirect after processing logout."
@@ -85,7 +85,7 @@ paths:
   /register:
     get:
       operationId: R04-showRegistrationForm
-      summary: "Show Registration Form"
+      summary: "Show Registration Form: PUB"
       responses:
         "200":
           description: "Ok. Show sign-up UI"
@@ -94,7 +94,7 @@ paths:
 
     post:
       operationId: R05-register
-      summary: "Register User"
+      summary: "Register User: PUB"
       requestBody:
         required: true
         content:
@@ -137,8 +137,8 @@ paths:
 
   /create:
     post:
-      operationId: R08-createEvent
-      summary: "Create Event"
+      operationId: R06-createEvent
+      summary: "Create Event: AUTH"
       requestBody:
         required: true
         content:
@@ -177,8 +177,8 @@ paths:
 
   /edit:
     post:
-      operationId: R09-editEvent
-      summary: "Edit Event"
+      operationId: R07-editEvent
+      summary: "Edit Event: ADM or OWN"
       requestBody:
         required: false
         content:
@@ -213,8 +213,8 @@ paths:
 
   /events/delete/{id}:
     delete:
-      operationId: R10-deleteEvent
-      summary: "Delete Event"
+      operationId: R08-deleteEvent
+      summary: "Delete Event: ADM or OWN"
       parameters:
         - in: path
           name: id
@@ -229,8 +229,8 @@ paths:
 
   /events/{id}/details:
     get:
-      operationId: R11-showEventDetails
-      summary: "Show Event Details"
+      operationId: R09-showEventDetails
+      summary: "Show Event Details: AUTH and ADM"
       parameters:
         - in: path
           name: id
@@ -245,8 +245,8 @@ paths:
 
   /events/{id}/join:
     post:
-      operationId: R13-joinEvent
-      summary: "Join Event"
+      operationId: R10-joinEvent
+      summary: "Join Event: AUTH"
       parameters:
         - in: path
           name: id
@@ -266,8 +266,8 @@ paths:
 
   /events/{id}/leave:
     post:
-      operationId: R14-leaveEvent
-      summary: "Leave Event"
+      operationId: R11-leaveEvent
+      summary: "Leave Event: ATD"
       parameters:
         - in: path
           name: id
@@ -287,8 +287,8 @@ paths:
 
   /events/{id}/add:
     post:
-      operationId: R15-addUserToEvent
-      summary: "Add User to Event"
+      operationId: R12-addUserToEvent
+      summary: "Add User to Event: ADM or OWN"
       parameters:
         - in: path
           name: id
@@ -308,8 +308,8 @@ paths:
 
   /events/{id}/remove:
     post:
-      operationId: R16-removeUserFromEvent
-      summary: "Remove User from Event"
+      operationId: R13-removeUserFromEvent
+      summary: "Remove User from Event: ADM or OWN"
       parameters:
         - in: path
           name: id
@@ -324,5 +324,41 @@ paths:
       responses:
         "200":
           description: "Ok. User removed from event successfully."
+      tags:
+        - M02-Event.
+  /events/search:
+    get:
+      operationId: R14-searchEvents
+      summary: "Search Events: USER"
+      parameters:
+        - in: query
+          name: search
+          required: false
+          schema:
+            type: string
+      responses:
+        "200":
+          description: "A list of matching events"
+      tags:
+        - M02-Event.
+
+  /events/{id}/invite:
+    post:
+      operationId: R15-inviteUserToEvent
+      summary: "Invite User to Event: ATD or OWN"
+      parameters:
+        - in: path
+          name: id
+          schema:
+            type: integer
+          required: true
+        - in: query
+          name: userId
+          schema:
+            type: integer
+          required: true
+      responses:
+        "200":
+          description: "Ok. User invited to event successfully."
       tags:
         - M02-Event.
