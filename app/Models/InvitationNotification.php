@@ -5,13 +5,13 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class Invitation extends Model
+class InvitationNotification extends Model
 {
     public $timestamps = false;
 
     protected $fillable = [
-        'sender_id',
-        'receiver_id',
+        'id',
+        'inviter_id',
         'id_event',
     ];
 
@@ -22,7 +22,7 @@ class Invitation extends Model
      *
      * @var string
      */
-    protected $table = 'invitation';
+    protected $table = 'invitationnotification';
 
     /**
      * The primary key associated with the table.
@@ -31,17 +31,15 @@ class Invitation extends Model
      */
     protected $primaryKey = 'id';
 
-
-    public function sender(){
-        return $this->hasOne(AuthenticatedUser::class, 'id_user', 'sender_id');
+    public function notification(){
+        return $this->belongsTo(Notification::class, 'id');
     }
 
-    public function receiver(){
-        return $this->hasOne(AuthenticatedUser::class, 'id_user', 'receiver_id');
+    public function inviter(){
+        return $this->belongsTo(AuthenticatedUser::class, 'inviter_id');
     }
 
     public function event(){
-        return $this->belongsTo(Event::class, 'id', 'id_event');
+        return $this->belongsTo(Event::class, 'id_event');
     }
-
 }

@@ -15,7 +15,8 @@ use App\Models\Admin;
 use App\Models\EventParticipant;
 use App\Models\Eventhashtag;
 use App\Models\AuthenticatedUser;
-use App\Models\Invitation;
+use App\Models\Notification;
+use App\Models\InvitationNotification;
 use App\Models\FavoriteEvent;
 
 // use App\Models\EventMessage;
@@ -54,7 +55,6 @@ class EventController extends Controller
                 'place' => 'required|string',
             ]);
             
-            DB::statement("SELECT setval(pg_get_serial_sequence('event', 'id'), coalesce((SELECT MAX(id) FROM event), 0) + 1, false)");
             $event = Event::create([
                 'title' => $request->title,
                 'description' => $request->description,
@@ -358,11 +358,25 @@ class EventController extends Controller
     public function search(Request $request)
     {
         $search = $request->get('search');
-        $events = Event::where('title', 'ILIKE', '%' . $search . '%')
-                        ->where('type', 'public')
-                        ->where('closed', false)
-                        ->get();    
-        return $this->showSearchEvents($events);
+    
+        if (empty($search)) {
+            $events = Event::where('type', 'public')
+                           ->where('closed', false)
+                           ->get();
+        } else {
+            $searchTerms = explode(' ', $search);
+    
+            $query = Event::where('type', 'public')
+                          ->where('closed', false);
+    
+            foreach ($searchTerms as $term) {
+                $query = $query->whereRaw("tsvectors @@ plainto_tsquery('portuguese', ?)", [$term]);
+            }
+    
+            $events = $query->get();
+        }
+    
+        return $this->showSearchEvents($events);    
     }
 
     public function inviteUser(Request $request)
@@ -373,7 +387,7 @@ class EventController extends Controller
         }
 
         $this->authorize('inviteUser', $event, Event::class);
-    
+
         try {
             $receiver = User::where('id', $request->id_user)->firstOrFail();
         } catch (ModelNotFoundException $e) {
@@ -384,27 +398,32 @@ class EventController extends Controller
         if (!AuthenticatedUser::where('id_user', $sender->id)->exists()) {
             return redirect()->back()->with('message', 'Sender not found');
         }
-    
-        $invitationExists = Invitation::where([
-            ['sender_id', '=', $sender->id],
-            ['receiver_id', '=', $receiver->id],
-            ['id_event', '=', $request->eventId]
-        ])->exists();
+
+        $invitationExists = Notification::where('id_user', $receiver->id)
+            ->whereHas('invitationnotification', function ($query) use ($sender, $request) {
+                $query->where('inviter_id', $sender->id)
+                    ->where('id_event', $request->eventId);
+            })->exists();
         
         if ($invitationExists) {
             return redirect()->back()->with('message', 'Invitation already sent!');
         }
-        
-        try {
-                DB::BeginTransaction();
-                Invitation::insert([
-                    'sender_id' => $sender->id,
-                    'receiver_id'=> $receiver->id,
-                    'id_event'=> $request->eventId,
-                ]);
 
-                DB::commit();
-         } catch (\Exception $e){
+        try {
+            DB::BeginTransaction();
+            $notification = Notification::create([
+                'type' => 'invitation_received',
+                'id_user' => $receiver->id,
+            ]);
+
+            InvitationNotification::create([
+                'id' => $notification->id,
+                'inviter_id' => $sender->id,
+                'id_event' => $request->eventId,
+            ]);
+
+            DB::commit();
+        } catch (\Exception $e){
             DB::rollback();
             return redirect()->back()->with('message', 'Failed to sent invitation!');
         }

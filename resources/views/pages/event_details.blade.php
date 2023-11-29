@@ -11,12 +11,12 @@
         @php
             $participants = $event->eventparticipants()->pluck('id_user')->toArray();
             $nonParticipants = App\Models\AuthenticatedUser::whereNotIn('id_user', $participants)->get();
-            $invitedUsers = \DB::table('invitation')
-                                ->where('sender_id', Auth::user()->id)
-                                ->where('id_event', $event->id)
-                                ->pluck('receiver_id')
-                        ->toArray();
-
+            $invitedUsers = \DB::table('invitationnotification')
+                                ->join('notification', 'invitationnotification.id', '=', 'notification.id')
+                                ->where('inviter_id', Auth::user()->id)
+                                ->pluck('notification.id_user')
+                                ->toArray();
+                                
             $notInvited = App\Models\AuthenticatedUser::whereNotIn('id_user', $participants)
                         ->whereNotIn('id_user', $invitedUsers)
                         ->get();
