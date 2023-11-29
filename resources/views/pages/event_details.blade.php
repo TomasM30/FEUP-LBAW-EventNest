@@ -98,7 +98,7 @@
                 <button id='edit-button' type="button" class="btn btn-custom btn-block" data-toggle="modal" data-target="#newEventModal">Edit</button>
             @endif
         @endif
-        @if($isAdmin || $isOrganizer)
+        @if($isAdmin)
             <form method="POST" action="{{ route('events.delete', $event->id) }}">
                 {{ csrf_field() }}
                 {{ method_field('DELETE') }}

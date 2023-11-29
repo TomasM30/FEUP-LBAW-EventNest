@@ -64,7 +64,8 @@ CREATE TABLE Admin (
 CREATE TABLE Authenticated (
     id_user INT PRIMARY KEY,
     is_verified BOOLEAN DEFAULT FALSE,
-    id_profilepic INT DEFAULT 0,
+    --id_profilepic INT DEFAULT 1,
+    --FOREIGN KEY (id_profilepic) REFERENCES File(id),
     FOREIGN KEY (id_user) REFERENCES users(id)
 );
 
@@ -205,14 +206,17 @@ CREATE TABLE File (
     id_message INT,
     id_report INT,
     id_event INT,
+    id_profile INT,
     FOREIGN KEY (id_user) REFERENCES Authenticated(id_user),
     FOREIGN KEY (id_message) REFERENCES EventMessage(id),
     FOREIGN KEY (id_report) REFERENCES Report(id),
     FOREIGN KEY (id_event) REFERENCES Event(id),
+    FOREIGN KEY (id_profile) REFERENCES Authenticated(id_user),
     CHECK (
-        (id_message IS NOT NULL AND id_event IS NULL AND id_report IS NULL) OR
-        (id_message IS NULL AND id_event IS NOT NULL AND id_report IS NULL) OR
-        (id_message IS NULL AND id_event IS NULL AND id_report IS NOT NULL)
+        (id_message IS NOT NULL AND id_event IS NULL AND id_report IS NULL AND id_profile IS NULL) OR
+        (id_message IS NULL AND id_event IS NOT NULL AND id_report IS NULL AND id_profile IS NULL) OR
+        (id_message IS NULL AND id_event IS NULL AND id_report IS NOT NULL AND id_profile IS NULL) OR
+        (id_message IS NULL AND id_event IS NULL AND id_report IS NULL AND id_profile IS NOT NULL)
     )
 );
 

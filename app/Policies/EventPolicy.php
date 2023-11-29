@@ -60,7 +60,7 @@ class EventPolicy
     public function delete(User $user, Event $event): Response
     {
 
-        return $user->id === $event->id_user || Admin::where('id_user', $user->id)->exists()
+        return Admin::where('id_user', $user->id)->exists()
             ? Response::allow()
             : Response::deny('You must an admin to delete the event.');
     }
