@@ -64,6 +64,7 @@ Route::controller(EventController::class)->group(function () {
     Route::post('/events/{id}/remove', 'removeUser')->name('events.remove');
     Route::get('/events/search', 'search')->name('search-events');
     Route::post('/events/{id}/invite', 'inviteUser')->name('events.invite');
+    Route::delete('/invite/{userId}/{eventId}/{inviterId}', 'deleteInvite')->name('invite.delete');
 });
 
 

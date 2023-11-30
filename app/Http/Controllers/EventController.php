@@ -7,7 +7,7 @@ use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
-
+use Illuminate\Support\Facades\Log;
 
 use App\Models\Event;
 use App\Models\User;
@@ -95,7 +95,6 @@ class EventController extends Controller
             $event->eventparticipants()->delete();
             $event->favoriteevent()->delete();
             $event->hashtags()->detach();
-            Invitation::where('id_event', $id)->delete();
             // $event->eventmessage()->delete();
             // $event->eventnotification()->delete();
 
@@ -243,17 +242,53 @@ class EventController extends Controller
             'id_event' => $request->eventId,
             ]);
 
+            $notifications = Notification::where('id_user', $request->id_user)
+            ->where('type', 'invitation_received')
+            ->get();
+    
+            foreach ($notifications as $notification) {
+                if ($notification->invitationnotification && $notification->invitationnotification->id_event == $request->eventId) {
+                    $notification->invitationnotification()->delete();
+                    $notification->delete();
+                }
+            }
 
             DB::commit();
 
-            } catch (\Exception $e) {
-       
-                DB::rollback();
-                ('User jailed to join event: ' . $e->getMessage()); 
-                return redirect()->back()->with('message', 'User jailed to join event!');
-            }    
-            return redirect()->back()->with('message', 'Joined event successfully');
+        } catch (\Exception $e) {
+    
+            DB::rollback();
+            ('User jailed to join event: ' . $e->getMessage()); 
+            return redirect()->back()->with('message', 'User jailed to join event!');
+        }    
+        return redirect()->back()->with('message', 'Joined event successfully');
+    }
+
+    public function deleteInvite($userId, $eventId, $inviterId)
+    {
+
+
+        $notification = Notification::where('id_user', $userId)
+            ->where('type', 'invitation_received')
+            ->first();
+        
+    
+        if ($notification) {
+            $invite = InvitationNotification::where('id', $notification->id)
+                ->where('id_event', $eventId)
+                ->where('inviter_id', $inviterId)
+                ->first();
+    
+            if ($invite) {
+                $invite->delete();
+                $notification->delete();
+    
+                return redirect()->back()->with('message', 'Invite deleted successfully');
+            }
         }
+    
+        return redirect()->back()->with('message', 'Invite not found');
+    }
 
     public function leaveEvent(Request $request)
     {
@@ -273,10 +308,6 @@ class EventController extends Controller
             EventParticipant::where('id_user', $request->id_user)
                             ->where('id_event', $request->eventId)
                             ->delete();
-
-            Invitation::where('sender_id', $request->id_user)
-                        ->where('id_event', $request->eventId)
-                        ->delete();
             DB::commit();
 
             } catch (\Exception $e) {

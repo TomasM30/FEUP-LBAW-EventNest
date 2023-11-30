@@ -15,7 +15,7 @@
                     </li>
                 @endif
                 <li class="nav-item">
-                    <a class="btn btn-custom btn-block" href="#">Profile</a>
+                    <a class="btn btn-custom btn-block" href="{{ route('user.notifications', ['id' => auth()->user()->id]) }}">Profile</a>
                 </li>
                 @if(Auth::user()->isAdmin())
                     <li class="nav-item">

@@ -14,6 +14,7 @@
             $invitedUsers = \DB::table('invitationnotification')
                                 ->join('notification', 'invitationnotification.id', '=', 'notification.id')
                                 ->where('inviter_id', Auth::user()->id)
+                                ->where('id_event', $event->id)
                                 ->pluck('notification.id_user')
                                 ->toArray();
                                 
