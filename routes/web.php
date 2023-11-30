@@ -49,6 +49,7 @@ Route::controller(AdminController::class)->group(function () {
 
 Route::controller(AuthenticatedUserController::class)->group(function () {
     Route::get('/user/{id}/events', 'showUserEvents')->name('user.events');
+    Route::get('/user/{id}/notifications', 'showUserNotifications')->name('user.notifications');
 });
 
 Route::controller(EventController::class)->group(function () {

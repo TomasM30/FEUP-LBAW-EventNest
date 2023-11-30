@@ -8,7 +8,8 @@ use App\Models\Event;
 use App\Models\User;
 use App\Models\EventParticipant;
 use App\Models\FavouriteEvents;
-
+use App\Models\Notification;
+use App\Models\InvitationNotification;
 
 
 class AuthenticatedUserController extends Controller
@@ -44,6 +45,24 @@ class AuthenticatedUserController extends Controller
             'favoriteEvents' => $favoriteEvents,
             'attendedEvents' => $attendedEvents,
         ]);
+    }
+
+    public function showUserNotifications($id) {
+
+        $authenticatedUser = AuthenticatedUser::find($id);
+        $userId = $authenticatedUser->id_user;
+
+        if (!$authenticatedUser) {
+            return redirect()->back()->with('message', 'User not found');
+        }
+        
+        $this->authorize('userNotifications', $authenticatedUser);
+
+        $notifications = Notification::where('id_user', $userId)
+            ->with(['invitationnotification', 'invitationnotification.event'])
+            ->get();
+    
+        return view('pages.user_notifications', ['notifications' => $notifications]);
     }
 
 }
