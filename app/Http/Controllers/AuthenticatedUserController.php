@@ -11,8 +11,6 @@ use App\Models\FavouriteEvents;
 use App\Models\Notification;
 use App\Models\InvitationNotification;
 
-use Illuminate\Support\Facades\Log;
-
 
 class AuthenticatedUserController extends Controller
 {
