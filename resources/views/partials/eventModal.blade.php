@@ -17,7 +17,6 @@
                 <form method="POST" action="{{ $formAction }}">
                     {{ csrf_field() }}
                     <fieldset>
-                        <legend class="mt-4">Event Details</legend>
                         <div class="form-group">
                             <label for="title" class="form-label mt-4">Title</label>
                             <input type="text" class="form-control" id="title" name="title" placeholder="Event title" @if($formAction != route('events.edit', $event->id)) required @endif>
