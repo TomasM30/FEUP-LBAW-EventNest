@@ -18,4 +18,13 @@ class AuthenticatedUserPolicy
     
         return Response::deny('You can only view your own events or if you are an admin.');
     }
+
+    public function userNotifications(User $user, AuthenticatedUser $other): Response
+    {
+        if ($user->id === $other->id_user) {
+            return Response::allow();
+        }
+    
+        return Response::deny('You can only view your own notifications.');
+    }
 }

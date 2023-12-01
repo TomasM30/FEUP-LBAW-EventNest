@@ -11,12 +11,13 @@
         @php
             $participants = $event->eventparticipants()->pluck('id_user')->toArray();
             $nonParticipants = App\Models\AuthenticatedUser::whereNotIn('id_user', $participants)->get();
-            $invitedUsers = \DB::table('invitation')
-                                ->where('sender_id', Auth::user()->id)
+            $invitedUsers = \DB::table('invitationnotification')
+                                ->join('notification', 'invitationnotification.id', '=', 'notification.id')
+                                ->where('inviter_id', Auth::user()->id)
                                 ->where('id_event', $event->id)
-                                ->pluck('receiver_id')
-                        ->toArray();
-
+                                ->pluck('notification.id_user')
+                                ->toArray();
+                                
             $notInvited = App\Models\AuthenticatedUser::whereNotIn('id_user', $participants)
                         ->whereNotIn('id_user', $invitedUsers)
                         ->get();
@@ -98,7 +99,7 @@
                 <button id='edit-button' type="button" class="btn btn-custom btn-block" data-toggle="modal" data-target="#newEventModal">Edit</button>
             @endif
         @endif
-        @if($isAdmin || $isOrganizer)
+        @if($isAdmin)
             <form method="POST" action="{{ route('events.delete', $event->id) }}">
                 {{ csrf_field() }}
                 {{ method_field('DELETE') }}
@@ -154,6 +155,6 @@
 
 <div id="overlay" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0, 0, 0, 0.5); z-index: 1000;"></div>
 
-@include('partials.eventModal', ['formAction' => route('events.edit', $event->id)])
+@include('partials.eventModal', ['formAction' => route('events.edit', $event->id), 'hashtags' => $hashtags])
 
 @endsection

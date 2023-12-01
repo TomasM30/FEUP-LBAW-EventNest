@@ -6,9 +6,9 @@ DROP TABLE IF EXISTS EventParticipants CASCADE;
 DROP TABLE IF EXISTS FavoriteEvent CASCADE;
 DROP TABLE IF EXISTS EventHashtag CASCADE;
 DROP TABLE IF EXISTS PollVotes CASCADE;
-DROP TABLE IF EXISTS MessageNotification CASCADE;
-DROP TABLE IF EXISTS EventNotification CASCADE;
 DROP TABLE IF EXISTS Notification CASCADE;
+DROP TABLE IF EXISTS InvitationNotification CASCADE;
+DROP TABLE IF EXISTS AccessPermittedNotification CASCADE;
 DROP TABLE IF EXISTS MessageReaction CASCADE;
 DROP TABLE IF EXISTS EventMessage CASCADE;
 DROP TABLE IF EXISTS Ticket CASCADE;
@@ -43,7 +43,7 @@ DROP FUNCTION IF EXISTS admin_event CASCADE;
 -- Create types
 CREATE TYPE TypesEvent AS ENUM ('public', 'private', 'approval');
 CREATE TYPE TypesMessage AS ENUM ('chat', 'comment');
-CREATE TYPE TypesNotification AS ENUM ('request_answer', 'invitation');
+CREATE TYPE TypesNotification AS ENUM ('request_answer', 'invitation', 'invitation_received', 'access_permitted');
 
 -- Create tables
 CREATE TABLE users (
@@ -52,7 +52,8 @@ CREATE TABLE users (
     name VARCHAR(255) NOT NULL,
     username VARCHAR(255) UNIQUE NOT NULL,
     remember_token VARCHAR(256) DEFAULT NULL,
-    password VARCHAR(255) NOT NULL
+    password VARCHAR(255),
+    google_id VARCHAR(255)
 );
 
 CREATE TABLE Admin (
@@ -64,7 +65,8 @@ CREATE TABLE Admin (
 CREATE TABLE Authenticated (
     id_user INT PRIMARY KEY,
     is_verified BOOLEAN DEFAULT FALSE,
-    id_profilepic INT DEFAULT 0,
+    id_profilepic INT DEFAULT 1,
+    --FOREIGN KEY (id_profilepic) REFERENCES File(id),
     FOREIGN KEY (id_user) REFERENCES users(id)
 );
 
@@ -81,16 +83,6 @@ CREATE TABLE Event (
     closed BOOLEAN DEFAULT FALSE,
     CHECK (ticket_limit <= capacity),
     FOREIGN KEY (id_user) REFERENCES Authenticated(id_user)
-);
-
-CREATE TABLE Invitation(
-    id SERIAL PRIMARY KEY,
-    sender_id INT NOT NULL,
-    receiver_id INT NOT NULL,
-    id_event INT NOT NULL,
-    FOREIGN KEY (sender_id) REFERENCES Authenticated(id_user),
-    FOREIGN KEY (receiver_id) REFERENCES Authenticated(id_user),
-    FOREIGN KEY (id_event) REFERENCES Event(id)
 );
 
 CREATE TABLE EventMessage (
@@ -113,27 +105,27 @@ CREATE TABLE MessageReaction (
 );
 
 CREATE TABLE Notification (
-    id SERIAL PRIMARY KEY
+    id SERIAL PRIMARY KEY,
+    type TypesNotification NOT NULL,
+    id_user INT NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (id_user) REFERENCES Authenticated(id_user)
 );
 
-CREATE TABLE EventNotification (
-    id INT NOT NULL,
-    id_user INT NOT NULL,
+CREATE TABLE InvitationNotification (
+    id INT PRIMARY KEY,
+    inviter_id INT NOT NULL,
     id_event INT NOT NULL,
-    FOREIGN KEY (id_user) REFERENCES Authenticated(id_user),
-    FOREIGN KEY (id_event) REFERENCES Event(id),
     FOREIGN KEY (id) REFERENCES Notification(id),
-    PRIMARY KEY (id)
+    FOREIGN KEY (inviter_id) REFERENCES Authenticated(id_user),
+    FOREIGN KEY (id_event) REFERENCES Event(id)
 );
 
-CREATE TABLE MessageNotification (
-    id INT NOT NULL,
-    id_user INT NOT NULL,
-    id_message INT NOT NULL,
-    FOREIGN KEY (id_user) REFERENCES Authenticated(id_user),
-    FOREIGN KEY (id_message) REFERENCES EventMessage(id),
+CREATE TABLE AccessPermittedNotification (
+    id INT PRIMARY KEY,
+    id_event INT NOT NULL,
     FOREIGN KEY (id) REFERENCES Notification(id),
-    PRIMARY KEY (id)
+    FOREIGN KEY (id_event) REFERENCES Event(id)
 );
 
 CREATE TABLE EventParticipants (
@@ -215,14 +207,17 @@ CREATE TABLE File (
     id_message INT,
     id_report INT,
     id_event INT,
+    id_profile INT,
     FOREIGN KEY (id_user) REFERENCES Authenticated(id_user),
     FOREIGN KEY (id_message) REFERENCES EventMessage(id),
     FOREIGN KEY (id_report) REFERENCES Report(id),
     FOREIGN KEY (id_event) REFERENCES Event(id),
+    FOREIGN KEY (id_profile) REFERENCES Authenticated(id_user),
     CHECK (
-        (id_message IS NOT NULL AND id_event IS NULL AND id_report IS NULL) OR
-        (id_message IS NULL AND id_event IS NOT NULL AND id_report IS NULL) OR
-        (id_message IS NULL AND id_event IS NULL AND id_report IS NOT NULL)
+        (id_message IS NOT NULL AND id_event IS NULL AND id_report IS NULL AND id_profile IS NULL) OR
+        (id_message IS NULL AND id_event IS NOT NULL AND id_report IS NULL AND id_profile IS NULL) OR
+        (id_message IS NULL AND id_event IS NULL AND id_report IS NOT NULL AND id_profile IS NULL) OR
+        (id_message IS NULL AND id_event IS NULL AND id_report IS NULL AND id_profile IS NOT NULL)
     )
 );
 
@@ -307,8 +302,7 @@ CREATE INDEX search_user ON users USING GIN (tsvectors);
 ALTER TABLE Event
 ADD COLUMN tsvectors TSVECTOR;
 
--- Create a function to automatically update ts_vectors.
--- Create a function to automatically update ts_vectors.
+
 CREATE FUNCTION created_search_update() RETURNS TRIGGER AS $$
 BEGIN
  IF TG_OP = 'INSERT' THEN
@@ -355,7 +349,6 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql;
 
--- Create a trigger to call the event_search_update function before INSERT or UPDATE on the Event table
 CREATE TRIGGER event_search_update
 BEFORE INSERT OR UPDATE ON Event
 FOR EACH ROW

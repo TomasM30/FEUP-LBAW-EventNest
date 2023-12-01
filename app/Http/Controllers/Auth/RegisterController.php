@@ -36,7 +36,6 @@ class RegisterController extends Controller
             'password' => 'required|min:8|confirmed'
         ]);
 
-        DB::statement("SELECT setval(pg_get_serial_sequence('users', 'id'), coalesce((SELECT MAX(id) FROM users), 0) + 1, false)");
 
         $user = User::create([
             'name' => $request->name,

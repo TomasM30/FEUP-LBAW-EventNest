@@ -7,7 +7,10 @@ use App\Models\User;
 use App\Models\AuthenticatedUser;
 use App\Models\EventParticipant;
 use App\Models\Admin;
+use App\Models\InvitationNotification;
+use App\Models\Notification;
 use Illuminate\Auth\Access\Response;
+
 
 class EventPolicy
 {
@@ -60,7 +63,7 @@ class EventPolicy
     public function delete(User $user, Event $event): Response
     {
 
-        return $user->id === $event->id_user || Admin::where('id_user', $user->id)->exists()
+        return Admin::where('id_user', $user->id)->exists()
             ? Response::allow()
             : Response::deny('You must an admin to delete the event.');
     }

@@ -95,10 +95,11 @@
                     <input id="password-confirm" type="password" name="password_confirmation" required>
                     <button id='register-button' type="submit" class="btn btn-custom btn-block">Register</button>
                 </form>
+
             </div>
-            <button id='gmail' type="submit" name="action" value="gmail" class="btn btn-custom btn-block">
+            <a id='gmail' href="{{ route('google-auth') }}" class="btn btn-custom btn-block">
                 <img id='gmail_image' src="{{ asset('images/Gmail.png') }}" class="img-fluid">
-            </button>
+            </a>
         </div>
     </div>
 </div>
