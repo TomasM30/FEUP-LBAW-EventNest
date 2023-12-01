@@ -9,6 +9,7 @@ use App\Http\Controllers\UserController;
 use App\Http\Controllers\EventController;
 use App\Http\Controllers\AdminController;
 use App\Http\Controllers\AuthenticatedUserController;
+use App\Http\Controllers\GoogleController;
 
 
 use App\Http\Controllers\Auth\LoginController;
@@ -65,6 +66,11 @@ Route::controller(EventController::class)->group(function () {
     Route::get('/events/search', 'search')->name('search-events');
     Route::post('/events/{id}/invite', 'inviteUser')->name('events.invite');
     Route::delete('/invite/{userId}/{eventId}/{inviterId}', 'deleteInvite')->name('invite.delete');
+});
+
+Route::controller(GoogleController::class)->group(function () {
+    Route::get('auth/google', 'redirect')->name('google-auth');
+    Route::get('auth/google/call-back', 'callbackGoogle')->name('google-call-back');
 });
 
 

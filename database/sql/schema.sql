@@ -52,7 +52,8 @@ CREATE TABLE users (
     name VARCHAR(255) NOT NULL,
     username VARCHAR(255) UNIQUE NOT NULL,
     remember_token VARCHAR(256) DEFAULT NULL,
-    password VARCHAR(255) NOT NULL
+    password VARCHAR(255),
+    google_id VARCHAR(255)
 );
 
 CREATE TABLE Admin (
@@ -64,7 +65,7 @@ CREATE TABLE Admin (
 CREATE TABLE Authenticated (
     id_user INT PRIMARY KEY,
     is_verified BOOLEAN DEFAULT FALSE,
-    --id_profilepic INT DEFAULT 1,
+    id_profilepic INT DEFAULT 1,
     --FOREIGN KEY (id_profilepic) REFERENCES File(id),
     FOREIGN KEY (id_user) REFERENCES users(id)
 );
