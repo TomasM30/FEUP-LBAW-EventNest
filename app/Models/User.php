@@ -7,6 +7,8 @@ use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Laravel\Sanctum\HasApiTokens;
 
+use App\Models\AuthenticatedUser;
+
 // Added to define Eloquent relationships.
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
@@ -46,5 +48,9 @@ class User extends Authenticatable
 
     public function isAdmin() {
         return $this->hasOne(Admin::class, 'id_user')->exists();
+    }
+
+    public function authenticated(){
+        return $this->hasOne(AuthenticatedUser::class, 'id_user');
     }
 }

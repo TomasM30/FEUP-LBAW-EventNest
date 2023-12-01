@@ -13,7 +13,8 @@ use App\Models\Event;
 use App\Models\User;
 use App\Models\Admin;
 use App\Models\EventParticipant;
-use App\Models\Eventhashtag;
+use App\Models\EventHashtag;
+use App\Models\Hashtag;
 use App\Models\AuthenticatedUser;
 use App\Models\Notification;
 use App\Models\InvitationNotification;
@@ -43,9 +44,8 @@ class EventController extends Controller
                 'date' => 'required|after_or_equal:today',
                 'capacity' => 'required|integer|min:2',
                 'ticket_limit' => [
-                    'required',
                     'integer',
-                    'min:0',
+                    'min:1',
                     function ($attribute, $value, $fail) use ($request) {
                         if ($value > $request->capacity) {
                             $fail($attribute.' must be less than or equal to capacity.');
@@ -53,6 +53,8 @@ class EventController extends Controller
                     },
                 ],
                 'place' => 'required|string',
+                'hashtags' => 'array',
+                'hashtags.*' => 'exists:hashtag,id',
             ]);
             
             $event = Event::create([
@@ -61,10 +63,17 @@ class EventController extends Controller
                 'type' => $request->input('type', 'public'),
                 'date' => $request->date,
                 'capacity' => $request->capacity,
-                'ticket_limit' => $request->ticket_limit,
+                'ticket_limit' => $request->ticket_limit ? $request->ticket_limit : $request->capacity,
                 'place' => $request->place,
                 'id_user' => Auth::user()->id,
             ]);
+
+            foreach ($request->hashtags as $hashtagId) {
+                EventHashtag::create([
+                    'id_event' => $event->id,
+                    'id_hashtag' => $hashtagId,
+                ]);
+            }
 
             EventParticipant::insert([
                 'id_user' => Auth::user()->id,
@@ -132,19 +141,22 @@ class EventController extends Controller
                         ->get();
         $now = Carbon::now();
 
-        return view('pages.events', ['events' => $events, 'user'=> $user]);
+        $hashtags = Hashtag::all();
+
+        return view('pages.events', ['events' => $events, 'user'=> $user, 'hashtags' => $hashtags]);
     }
 
 
     public function showEventDetails($id) 
     {
         $user = Auth::user();
+        $hashtags = Hashtag::all();
         $data = [];
         $data['event'] = Event::find($id);
         $data['isParticipant'] = $this->joinedEvent(Auth::user(), $data['event']);
         $data['isAdmin'] = Admin::where('id_user', Auth::user()->id)->first();
         $data['isOrganizer'] = $data['event']->id_user == Auth::user()->id;
-      
+        $data['hashtags'] = $hashtags;
 
         return view('pages.event_details', $data);
     }
@@ -372,6 +384,22 @@ class EventController extends Controller
         if ($request->has('place') && !empty($request->place)) {
             $request->validate(['place' => 'string']);
             $event->place = $request->place;
+        }
+
+        if ($request->has('hashtags')) {
+            $request->validate([
+                'hashtags' => 'array',
+                'hashtags.*' => 'exists:hashtag,id',
+            ]);
+
+            $event->hashtags()->detach();
+
+            foreach ($request->hashtags as $hashtagId) {
+                EventHashtag::create([
+                    'id_event' => $event->id,
+                    'id_hashtag' => $hashtagId,
+                ]);
+            }
         }
 
         $event->save();
