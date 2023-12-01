@@ -262,9 +262,9 @@ document.addEventListener('DOMContentLoaded', function() {
   let form1 = document.getElementById('form1');
   if(form1) {
       form1.addEventListener('keyup', function() {
-          var value = this.value;
-          var xhr = new XMLHttpRequest();
-          var url = document.getElementById('search-form').getAttribute('data-url');
+          let value = this.value;
+          let xhr = new XMLHttpRequest();
+          let url = document.getElementById('search-form').getAttribute('data-url');
           xhr.open('GET', url + '?search=' + value, true);
           xhr.onreadystatechange = function() {
               if (xhr.readyState == 4 && xhr.status == 200) {
@@ -275,3 +275,17 @@ document.addEventListener('DOMContentLoaded', function() {
       });
   }
 });
+
+function orderEvents() {
+  let dateButton = document.getElementById('date-button');
+  let orderDirection = dateButton.getAttribute('data-direction') === 'asc' ? 'desc' : 'asc';
+  let url = `/events/order?orderBy=date&direction=${orderDirection}`;
+  dateButton.setAttribute('data-direction', orderDirection);
+  dateButton.innerText = `Date ${orderDirection === 'desc' ? '↓' : '↑'}`;
+  fetch(url)
+      .then(response => response.text())
+      .then(data => {
+          document.getElementById('main').innerHTML = data;
+      })
+      .catch(error => console.error('Error:', error));
+}

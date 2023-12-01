@@ -460,4 +460,12 @@ class EventController extends Controller
         }
         return redirect()->back()->with('success', 'Invite successfully sent!');
     }
+
+    public function order(Request $request)
+    {
+        $orderBy = $request->get('orderBy');
+        $direction = $request->get('direction', 'asc');
+        $events = Event::orderBy($orderBy, $direction)->get();
+        return view('pages.event_lists', ['events' => $events]);
+    }
 }
