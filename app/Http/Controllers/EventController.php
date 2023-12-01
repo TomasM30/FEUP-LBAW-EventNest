@@ -261,7 +261,7 @@ class EventController extends Controller
             ('User jailed to join event: ' . $e->getMessage()); 
             return redirect()->back()->with('message', 'User jailed to join event!');
         }    
-        return redirect()->back()->with('message', 'Joined event successfully');
+        return redirect()->route('events.details', ['id' => $request->eventId]);
     }
 
     public function deleteInvite($userId, $eventId, $inviterId)
