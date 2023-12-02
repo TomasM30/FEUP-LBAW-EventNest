@@ -61,6 +61,11 @@ class Event extends Model
         return $this->belongsTo(User::class, 'id_user');
     }
 
+    public static function getUniquePlaces()
+    {
+        return self::select('place')->distinct()->get();
+    }
+
 
     /*
     public function eventmessage(){

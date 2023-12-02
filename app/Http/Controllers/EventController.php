@@ -141,9 +141,10 @@ class EventController extends Controller
                         ->get();
         $now = Carbon::now();
 
-        $hashtags = Hashtag::all();
+        $hashtags = Hashtag::orderBy('title')->get();
+        $places = Event::getUniquePlaces()->sortBy('place');
 
-        return view('pages.events', ['events' => $events, 'user'=> $user, 'hashtags' => $hashtags]);
+        return view('pages.events', ['events' => $events, 'user'=> $user, 'hashtags' => $hashtags, 'places' => $places]);
     }
 
 
@@ -407,36 +408,6 @@ class EventController extends Controller
         return redirect()->back()->with('success', 'Event successfully updated');
     }
 
-    public function showSearchEvents($events)
-    {
-        $user = Auth::user();
-        $newEvents = $events->where('id_user', '!=', $user->id);
-        return view('pages.event_lists', ['events' => $newEvents]);
-    }
-
-    public function search(Request $request)
-    {
-        $search = $request->get('search');
-    
-        if (empty($search)) {
-            $events = Event::where('type', 'public')
-                           ->where('closed', false)
-                           ->get();
-        } else {
-            $searchTerms = explode(' ', $search);
-    
-            $query = Event::where('type', 'public')
-                          ->where('closed', false);
-    
-            foreach ($searchTerms as $term) {
-                $query = $query->whereRaw("tsvectors @@ plainto_tsquery('portuguese', ?)", [$term]);
-            }
-    
-            $events = $query->get();
-        }
-    
-        return $this->showSearchEvents($events);    
-    }
 
     public function inviteUser(Request $request)
     {
@@ -487,5 +458,83 @@ class EventController extends Controller
             return redirect()->back()->with('message', 'Failed to sent invitation!');
         }
         return redirect()->back()->with('success', 'Invite successfully sent!');
+    }
+
+    public function search(Request $request)
+    {
+        $search = $request->get('search');
+    
+        if (empty($search)) {
+            $events = Event::where('type', 'public')
+                           ->where('closed', false)
+                           ->get();
+        } else {
+            $searchTerms = explode(' ', $search);
+    
+            $query = Event::where('type', 'public')
+                          ->where('closed', false);
+    
+            foreach ($searchTerms as $term) {
+                $query = $query->whereRaw("tsvectors @@ plainto_tsquery('portuguese', ?)", [$term]);
+            }
+    
+            $events = $query->get();
+        }
+    
+        return $this->showSearchEvents($events);    
+    }
+
+    public function showSearchEvents($events)
+    {
+        $user = Auth::user();
+        $newEvents = $events->where('id_user', '!=', $user->id);
+        return view('pages.event_lists', ['events' => $newEvents]);
+    }
+
+
+    public function order(Request $request)
+    {
+        $orderBy = $request->input('orderBy');
+        $direction = $request->input('direction', 'asc');
+        $eventIds = $request->input('events');
+        log::info($eventIds);
+    
+        if (empty($eventIds)) {
+            $events = Event::orderBy($orderBy, $direction)->get();
+        } else {
+            $events = Event::whereIn('id', $eventIds)->orderBy($orderBy, $direction)->get();
+        }
+    
+        return view('pages.event_lists', ['events' => $events]);
+    }
+
+    public function filter(Request $request)
+    {
+        $hashtags = $request->input('hashtags');
+        $places = $request->input('places');
+    
+        $events = Event::where('type', 'public')
+                       ->where('closed', false)
+                       ->when($hashtags, function ($query, $hashtags) {
+                           return $query->whereHas('hashtags', function ($query) use ($hashtags) {
+                               $query->whereIn('id', $hashtags);
+                           });
+                       })
+                       ->when($places, function ($query, $places) {
+                           return $query->whereIn('place', $places);
+                       })
+                       ->get();
+    
+        $user = Auth::user();
+        $newEvents = $events->where('id_user', '!=', $user->id);
+    
+        $filteredEventsHtml = view('pages.event_lists', ['events' => $newEvents])->render();
+        $filteredEventIds = $newEvents->pluck('id')->all();
+    
+        return response()->json([
+            'html' => $filteredEventsHtml,
+            'ids' => $filteredEventIds,
+        ]);
+
     }
 }

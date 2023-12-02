@@ -66,6 +66,8 @@ Route::controller(EventController::class)->group(function () {
     Route::get('/events/search', 'search')->name('search-events');
     Route::post('/events/{id}/invite', 'inviteUser')->name('events.invite');
     Route::delete('/invite/{userId}/{eventId}/{inviterId}', 'deleteInvite')->name('invite.delete');
+    Route::post('/events/order', 'order')->name('events.order');
+    Route::post('/events/filter', 'filter')->name('events.filter');
 });
 
 Route::controller(GoogleController::class)->group(function () {
