@@ -268,7 +268,7 @@ document.addEventListener('DOMContentLoaded', function() {
           xhr.open('GET', url + '?search=' + value, true);
           xhr.onreadystatechange = function() {
               if (xhr.readyState == 4 && xhr.status == 200) {
-                  document.getElementById('main').innerHTML = xhr.responseText;
+                  document.getElementById('container').innerHTML = xhr.responseText;
               }
           }
           xhr.send();
@@ -276,16 +276,88 @@ document.addEventListener('DOMContentLoaded', function() {
   }
 });
 
-function orderEvents() {
+let filteredEvents = [];
+
+document.addEventListener('DOMContentLoaded', function() {
+  let acc = document.getElementsByClassName("accordion-button");
+  for (let i = 0; i < acc.length; i++) {
+      acc[i].addEventListener("click", function() {
+          this.classList.toggle("active");
+          let panel = this.parentNode.nextElementSibling;
+          if (panel.style.display === "block") {
+              panel.style.display = "none";
+          } else {
+              panel.style.display = "block";
+          }
+      });
+  }
+});
+
+function filterEvents() {
+  let selectedHashtags = Array.from(document.querySelectorAll('input[name="hashtags[]"]:checked')).map(input => input.value);
+  let selectedPlaces = Array.from(document.querySelectorAll('input[name^="places"]:checked')).map(input => input.value);
+
+  let url = `/events/filter`;
+  let data = { hashtags: selectedHashtags, places: selectedPlaces };
+
+  console.log(data);
+  fetch(url, {
+      method: 'POST',
+      headers: {
+          'Content-Type': 'application/json',
+          'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
+      },
+      body: JSON.stringify(data)
+  })
+  .then(response => response.json())
+  .then(data => {
+      document.getElementById('container').innerHTML = data.html;
+      filteredEvents = data.ids;
+  })
+  .catch(error => console.error('Error:', error));
+}
+
+function orderEventsByDate() {
   let dateButton = document.getElementById('date-button');
   let orderDirection = dateButton.getAttribute('data-direction') === 'asc' ? 'desc' : 'asc';
-  let url = `/events/order?orderBy=date&direction=${orderDirection}`;
+  let url = `/events/order`;
   dateButton.setAttribute('data-direction', orderDirection);
   dateButton.innerText = `Date ${orderDirection === 'desc' ? '↓' : '↑'}`;
-  fetch(url)
-      .then(response => response.text())
-      .then(data => {
-          document.getElementById('main').innerHTML = data;
-      })
-      .catch(error => console.error('Error:', error));
+  fetch(url, {
+      method: 'POST',
+      headers: {
+          'Content-Type': 'application/json',
+          'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
+      },
+      body: JSON.stringify({ events: filteredEvents, orderBy: 'date', direction: orderDirection })
+  })
+  .then(response => response.text())
+  .then(data => {
+      document.getElementById('container').innerHTML = data;
+  })
+  .catch(error => console.error('Error:', error));
 }
+
+function orderEventsByTitle() {
+  let titleButton = document.getElementById('title-button');
+  let orderDirection = titleButton.getAttribute('data-direction') === 'asc' ? 'desc' : 'asc';
+  let url = `/events/order`;
+  titleButton.setAttribute('data-direction', orderDirection);
+  titleButton.innerText = `Title ${orderDirection === 'desc' ? '↓' : '↑'}`;
+  fetch(url, {
+      method: 'POST',
+      headers: {
+          'Content-Type': 'application/json',
+          'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
+      },
+      body: JSON.stringify({ events: filteredEvents, orderBy: 'title', direction: orderDirection })
+  })
+  .then(response => response.text())
+  .then(data => {
+      document.getElementById('container').innerHTML = data;
+  })
+  .catch(error => console.error('Error:', error));
+}
+
+
+

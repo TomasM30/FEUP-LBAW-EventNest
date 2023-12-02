@@ -13,7 +13,8 @@ use App\Models\Event;
 use App\Models\User;
 use App\Models\Admin;
 use App\Models\EventParticipant;
-use App\Models\Eventhashtag;
+use App\Models\EventHashtag;
+use App\Models\Hashtag;
 use App\Models\AuthenticatedUser;
 use App\Models\Notification;
 use App\Models\InvitationNotification;
@@ -43,9 +44,8 @@ class EventController extends Controller
                 'date' => 'required|after_or_equal:today',
                 'capacity' => 'required|integer|min:2',
                 'ticket_limit' => [
-                    'required',
                     'integer',
-                    'min:0',
+                    'min:1',
                     function ($attribute, $value, $fail) use ($request) {
                         if ($value > $request->capacity) {
                             $fail($attribute.' must be less than or equal to capacity.');
@@ -53,6 +53,8 @@ class EventController extends Controller
                     },
                 ],
                 'place' => 'required|string',
+                'hashtags' => 'array',
+                'hashtags.*' => 'exists:hashtag,id',
             ]);
             
             $event = Event::create([
@@ -61,10 +63,17 @@ class EventController extends Controller
                 'type' => $request->input('type', 'public'),
                 'date' => $request->date,
                 'capacity' => $request->capacity,
-                'ticket_limit' => $request->ticket_limit,
+                'ticket_limit' => $request->ticket_limit ? $request->ticket_limit : $request->capacity,
                 'place' => $request->place,
                 'id_user' => Auth::user()->id,
             ]);
+
+            foreach ($request->hashtags as $hashtagId) {
+                EventHashtag::create([
+                    'id_event' => $event->id,
+                    'id_hashtag' => $hashtagId,
+                ]);
+            }
 
             EventParticipant::insert([
                 'id_user' => Auth::user()->id,
@@ -132,19 +141,23 @@ class EventController extends Controller
                         ->get();
         $now = Carbon::now();
 
-        return view('pages.events', ['events' => $events, 'user'=> $user]);
+        $hashtags = Hashtag::orderBy('title')->get();
+        $places = Event::getUniquePlaces()->sortBy('place');
+
+        return view('pages.events', ['events' => $events, 'user'=> $user, 'hashtags' => $hashtags, 'places' => $places]);
     }
 
 
     public function showEventDetails($id) 
     {
         $user = Auth::user();
+        $hashtags = Hashtag::all();
         $data = [];
         $data['event'] = Event::find($id);
         $data['isParticipant'] = $this->joinedEvent(Auth::user(), $data['event']);
         $data['isAdmin'] = Admin::where('id_user', Auth::user()->id)->first();
         $data['isOrganizer'] = $data['event']->id_user == Auth::user()->id;
-      
+        $data['hashtags'] = $hashtags;
 
         return view('pages.event_details', $data);
     }
@@ -374,41 +387,27 @@ class EventController extends Controller
             $event->place = $request->place;
         }
 
+        if ($request->has('hashtags')) {
+            $request->validate([
+                'hashtags' => 'array',
+                'hashtags.*' => 'exists:hashtag,id',
+            ]);
+
+            $event->hashtags()->detach();
+
+            foreach ($request->hashtags as $hashtagId) {
+                EventHashtag::create([
+                    'id_event' => $event->id,
+                    'id_hashtag' => $hashtagId,
+                ]);
+            }
+        }
+
         $event->save();
 
         return redirect()->back()->with('success', 'Event successfully updated');
     }
 
-    public function showSearchEvents($events)
-    {
-        $user = Auth::user();
-        $newEvents = $events->where('id_user', '!=', $user->id);
-        return view('pages.event_lists', ['events' => $newEvents]);
-    }
-
-    public function search(Request $request)
-    {
-        $search = $request->get('search');
-    
-        if (empty($search)) {
-            $events = Event::where('type', 'public')
-                           ->where('closed', false)
-                           ->get();
-        } else {
-            $searchTerms = explode(' ', $search);
-    
-            $query = Event::where('type', 'public')
-                          ->where('closed', false);
-    
-            foreach ($searchTerms as $term) {
-                $query = $query->whereRaw("tsvectors @@ plainto_tsquery('portuguese', ?)", [$term]);
-            }
-    
-            $events = $query->get();
-        }
-    
-        return $this->showSearchEvents($events);    
-    }
 
     public function inviteUser(Request $request)
     {
@@ -461,11 +460,81 @@ class EventController extends Controller
         return redirect()->back()->with('success', 'Invite successfully sent!');
     }
 
+    public function search(Request $request)
+    {
+        $search = $request->get('search');
+    
+        if (empty($search)) {
+            $events = Event::where('type', 'public')
+                           ->where('closed', false)
+                           ->get();
+        } else {
+            $searchTerms = explode(' ', $search);
+    
+            $query = Event::where('type', 'public')
+                          ->where('closed', false);
+    
+            foreach ($searchTerms as $term) {
+                $query = $query->whereRaw("tsvectors @@ plainto_tsquery('portuguese', ?)", [$term]);
+            }
+    
+            $events = $query->get();
+        }
+    
+        return $this->showSearchEvents($events);    
+    }
+
+    public function showSearchEvents($events)
+    {
+        $user = Auth::user();
+        $newEvents = $events->where('id_user', '!=', $user->id);
+        return view('pages.event_lists', ['events' => $newEvents]);
+    }
+
+
     public function order(Request $request)
     {
-        $orderBy = $request->get('orderBy');
-        $direction = $request->get('direction', 'asc');
-        $events = Event::orderBy($orderBy, $direction)->get();
+        $orderBy = $request->input('orderBy');
+        $direction = $request->input('direction', 'asc');
+        $eventIds = $request->input('events');
+        log::info($eventIds);
+    
+        if (empty($eventIds)) {
+            $events = Event::orderBy($orderBy, $direction)->get();
+        } else {
+            $events = Event::whereIn('id', $eventIds)->orderBy($orderBy, $direction)->get();
+        }
+    
         return view('pages.event_lists', ['events' => $events]);
+    }
+
+    public function filter(Request $request)
+    {
+        $hashtags = $request->input('hashtags');
+        $places = $request->input('places');
+    
+        $events = Event::where('type', 'public')
+                       ->where('closed', false)
+                       ->when($hashtags, function ($query, $hashtags) {
+                           return $query->whereHas('hashtags', function ($query) use ($hashtags) {
+                               $query->whereIn('id', $hashtags);
+                           });
+                       })
+                       ->when($places, function ($query, $places) {
+                           return $query->whereIn('place', $places);
+                       })
+                       ->get();
+    
+        $user = Auth::user();
+        $newEvents = $events->where('id_user', '!=', $user->id);
+    
+        $filteredEventsHtml = view('pages.event_lists', ['events' => $newEvents])->render();
+        $filteredEventIds = $newEvents->pluck('id')->all();
+    
+        return response()->json([
+            'html' => $filteredEventsHtml,
+            'ids' => $filteredEventIds,
+        ]);
+
     }
 }
