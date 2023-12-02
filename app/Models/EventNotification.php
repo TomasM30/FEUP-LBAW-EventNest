@@ -5,7 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class InvitationNotification extends Model
+class EventNotification extends Model
 {
     public $timestamps = false;
 
@@ -22,7 +22,7 @@ class InvitationNotification extends Model
      *
      * @var string
      */
-    protected $table = 'invitationnotification';
+    protected $table = 'eventnotification';
 
     /**
      * The primary key associated with the table.

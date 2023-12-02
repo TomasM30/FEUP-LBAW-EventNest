@@ -7,7 +7,7 @@ use App\Models\User;
 use App\Models\AuthenticatedUser;
 use App\Models\EventParticipant;
 use App\Models\Admin;
-use App\Models\InvitationNotification;
+use App\Models\EventNotification;
 use App\Models\Notification;
 use Illuminate\Auth\Access\Response;
 

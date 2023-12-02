@@ -34,7 +34,7 @@ class Notification extends Model
         return $this->belongsTo(AuthenticatedUser::class, 'id_user');
     }
 
-    public function invitationnotification(){
-        return $this->hasOne(InvitationNotification::class, 'id');
+    public function eventnotification(){
+        return $this->hasOne(EventNotification::class, 'id');
     }
 }

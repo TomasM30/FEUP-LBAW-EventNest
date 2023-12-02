@@ -11,8 +11,8 @@
         @php
             $participants = $event->eventparticipants()->pluck('id_user')->toArray();
             $nonParticipants = App\Models\AuthenticatedUser::whereNotIn('id_user', $participants)->get();
-            $invitedUsers = \DB::table('invitationnotification')
-                                ->join('notification', 'invitationnotification.id', '=', 'notification.id')
+            $invitedUsers = \DB::table('eventnotification')
+                                ->join('notification', 'eventnotification.id', '=', 'notification.id')
                                 ->where('inviter_id', Auth::user()->id)
                                 ->where('id_event', $event->id)
                                 ->pluck('notification.id_user')
@@ -21,15 +21,27 @@
             $notInvited = App\Models\AuthenticatedUser::whereNotIn('id_user', $participants)
                         ->whereNotIn('id_user', $invitedUsers)
                         ->get();
+
+
+                        
         @endphp
         @if ($event->closed == false)
             @if(!$isParticipant && !$isAdmin && $event->eventparticipants()->count() < $event->capacity)
-                <form method="POST" action="{{ route('event.join', $event->id) }}">
-                    {{ csrf_field() }}
-                    <input type="hidden" name="id_user" value="{{ Auth::user()->id }}">
-                    <input type="hidden" name="eventId" value="{{ $event->id }}">
-                    <button type="submit" class="btn btn-custom btn-block">Join</button>
-                </form>
+                @if($event->type == 'public')
+                    <form method="POST" action="{{ route('event.join', $event->id) }}">
+                        {{ csrf_field() }}
+                        <input type="hidden" name="id_user" value="{{ Auth::user()->id }}">
+                        <input type="hidden" name="eventId" value="{{ $event->id }}">
+                        <button type="submit" class="btn btn-custom btn-block">Join</button>
+                    </form>
+                @elseif($event->type == 'approval')
+                    <form method="POST" action="{{ route('events.notification', $event->id) }}">
+                        {{ csrf_field() }}
+                        <input type="hidden" name="id_user" value="{{ Auth::user()->id }}">
+                        <input type="hidden" name="eventId" value="{{ $event->id }}">
+                        <button type="submit" class="btn btn-custom btn-block">Request</button>
+                    </form>
+                @endif
             @elseif($isParticipant && !$isAdmin && !$isOrganizer)
                 <form method="POST" action="{{ route('event.leave', $event->id) }}">
                     {{ csrf_field() }}
@@ -46,7 +58,7 @@
                     <div class="dropdown-menu" aria-labelledby="dropdownMenuInvite">
                         @foreach ($notInvited as $authUser)
                             @if($authUser->user->id != $event->user->id) 
-                                <form method="POST" action="{{ route('events.invite', $event->id) }}">
+                                <form method="POST" action="{{ route('events.notification', $event->id) }}">
                                     {{ csrf_field() }}
                                     <input type="hidden" name="id_user" value="{{ $authUser->user->id }}">
                                     <input type="hidden" name="eventId" value="{{ $event->id }}">
