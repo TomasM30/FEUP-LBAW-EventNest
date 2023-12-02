@@ -157,6 +157,7 @@ class EventController extends Controller
         $hashtags = Hashtag::all();
         $data = [];
         $data['event'] = Event::find($id);
+        $this->authorize('view', $data['event']);
         $data['isParticipant'] = $this->joinedEvent(Auth::user(), $data['event']);
         $data['isAdmin'] = Admin::where('id_user', Auth::user()->id)->first();
         $data['isOrganizer'] = $data['event']->id_user == Auth::user()->id;
