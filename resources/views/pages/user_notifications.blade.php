@@ -52,7 +52,6 @@
                 @endif
             </button>
         </form>
-        <p>{{ \Carbon\Carbon::parse($notification->created_at)->format('Y-m-d') }}</p>
-    @endforeach
+        <p>{{ \Carbon\Carbon::parse($notification->created_at)->format('d-m-Y H:i') }}</p>    @endforeach
 </div>
 @endsection

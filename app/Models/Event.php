@@ -61,36 +61,12 @@ class Event extends Model
         return $this->belongsTo(User::class, 'id_user');
     }
 
+    public function eventnotification(){
+        return $this->hasOne(EventNotification::class, 'id_event');
+    }
+
     public static function getUniquePlaces()
     {
         return self::select('place')->distinct()->get();
     }
-
-
-    /*
-    public function eventmessage(){
-        return $this->hasMany(EventMessage::class, 'id_event');
-    }
-
-    public function eventnotification(){
-        return $this->hasMany(EventNotification::class, 'id_event');
-    }
-
-    public function tickettype(){
-        return $this->hasMany(TicketType::class, 'id_event');
-    }
-
-    public function report(){
-        return $this->hasMany(Report::class, 'id_event');
-    }
-
-    public function file(){
-        return $this->hasMany(File::class, 'id_event');
-    }
-
-    public function poll(){
-        return $this->hasMany(Poll::class, 'id_event');
-    }*/
-
-
 }

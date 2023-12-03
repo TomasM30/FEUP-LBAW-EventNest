@@ -104,18 +104,15 @@ class EventController extends Controller
 
             $event = Event::findOrFail($id);
 
+            if ($event->eventnotification) {
+                $event->eventnotification()->delete();
+                $event->eventnotification->notification()->delete();
+            }
+
             $event->eventparticipants()->delete();
             $event->favoriteevent()->delete();
             $event->hashtags()->detach();
-            // $event->eventmessage()->delete();
-            // $event->eventnotification()->delete();
 
-            // $event->tickettype()->delete();
-            // $event->report()->delete();
-            // $event->file()->delete();
-            // $event->poll()->delete();
-
-            // Delete the event
             $event->delete();
 
             DB::commit();
@@ -123,11 +120,13 @@ class EventController extends Controller
             return redirect()->route('events')->with('message', 'Event deletion successful');
         } catch (\Exception $e) {
             DB::rollback();
+            log::info($e->getMessage());
             return redirect()->back()->with('message', 'Event deletion failed');
         }
     }
+    
 
-    public function listPublicEvents()
+    public function listEvents()
     {   
         $now = Carbon::now();
 
@@ -137,11 +136,12 @@ class EventController extends Controller
 
         $user = Auth::user();
 
-        $events = Event::where('type', 'public')
+        $events = Event::whereIn('type', ['public', 'approval'])
                         ->where('id_user', '!=', $user->id)
                         ->where('closed', false)
                         ->orderBy('date')
                         ->get();
+                        
         $now = Carbon::now();
 
         $hashtags = Hashtag::orderBy('title')->get();

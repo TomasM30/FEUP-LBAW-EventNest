@@ -8,7 +8,6 @@ DROP TABLE IF EXISTS EventHashtag CASCADE;
 DROP TABLE IF EXISTS PollVotes CASCADE;
 DROP TABLE IF EXISTS Notification CASCADE;
 DROP TABLE IF EXISTS EventNotification CASCADE;
-DROP TABLE IF EXISTS AccessPermittedNotification CASCADE;
 DROP TABLE IF EXISTS MessageReaction CASCADE;
 DROP TABLE IF EXISTS EventMessage CASCADE;
 DROP TABLE IF EXISTS Ticket CASCADE;
@@ -123,12 +122,6 @@ CREATE TABLE EventNotification (
     FOREIGN KEY (id_event) REFERENCES Event(id)
 );
 
-CREATE TABLE AccessPermittedNotification (
-    id INT PRIMARY KEY,
-    id_event INT NOT NULL,
-    FOREIGN KEY (id) REFERENCES Notification(id),
-    FOREIGN KEY (id_event) REFERENCES Event(id)
-);
 
 CREATE TABLE EventParticipants (
     id_user INT NOT NULL,
