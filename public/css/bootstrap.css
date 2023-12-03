@@ -11933,3 +11933,13 @@ th {
   max-height: 200px;
   overflow-y: auto;
 }
+
+.bluredPic {
+  background: no-repeat center center fixed;
+  -webkit-background-size: cover;
+  -moz-background-size: cover;
+  -o-background-size: cover;
+  background-size: cover;
+  filter: blur(15px);
+  z-index: -1;
+}
