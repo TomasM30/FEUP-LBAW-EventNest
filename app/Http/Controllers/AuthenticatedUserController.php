@@ -8,7 +8,8 @@ use App\Models\Event;
 use App\Models\User;
 use App\Models\EventParticipant;
 use App\Models\FavouriteEvents;
-
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Hash;
 
 
 class AuthenticatedUserController extends Controller
@@ -44,6 +45,39 @@ class AuthenticatedUserController extends Controller
             'favoriteEvents' => $favoriteEvents,
             'attendedEvents' => $attendedEvents,
         ]);
+    }
+
+    public function editAccount (Request $request) {
+        $user = Auth::user();
+
+        $this -> authorize('editAccount', $user);
+
+        if(!$user) {
+            return redirect()->back()->with('error','User not found');
+        }
+        if($request->has('name') && !empty($request->name)){
+            $request->validate(['name' => 'required|string|max:250']);
+            $user->name = $request->name;
+        }
+        if($request->has('username') && !empty($request->username)){
+            $request->validate(['username' => 'required|string|max:250|unique:users']);
+            $user->username = $request->username;
+        }
+        if($request->has('email') && !empty($request->email)){
+            $request->validate(['email' => 'required|email|max:250|unique:users']);
+            $user->email = $request->email;
+        }
+        if($request->has('newPassword') && !empty($request->newPassword)){
+            $request->validate(['newPassword' => 'required|min:8|confirmed']);
+        }
+        if($request->has('repeatPassword') && !empty($request->repeatPassword) && ($request->repeatPassword == $request->newPassword)){
+            $request->validate(['repeatPassword' => 'required|min:8|confirmed']);
+            $user->password = Hash::make($request->newPassword);
+        }
+
+        $user->save();
+
+        return redirect()->back()->with('success', 'Account successfully updated');
     }
 
 }
