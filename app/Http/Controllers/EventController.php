@@ -65,7 +65,7 @@ class EventController extends Controller
                 'date' => $request->date,
                 'capacity' => $request->capacity,
                 'ticket_limit' => $request->ticket_limit ? $request->ticket_limit : $request->capacity,
-                'place' => $request->place,
+                'place' => ucfirst($request->place),
                 'id_user' => Auth::user()->id,
             ]);
 
@@ -157,6 +157,7 @@ class EventController extends Controller
         $hashtags = Hashtag::all();
         $data = [];
         $data['event'] = Event::find($id);
+        $this->authorize('viewEvent', $data['event']);
         $data['isParticipant'] = $this->joinedEvent(Auth::user(), $data['event']);
         $data['isAdmin'] = Admin::where('id_user', Auth::user()->id)->first();
         $data['isOrganizer'] = $data['event']->id_user == Auth::user()->id;
@@ -194,7 +195,7 @@ class EventController extends Controller
             ]);
 
             $notification = Notification::find($request->notificationId);
-
+            $action = $request->action;
             
             if ($notification) {
                 $notification->eventnotification()->delete();
@@ -203,8 +204,14 @@ class EventController extends Controller
 
             $receiverId = $request->id_user;
 
-            if (!$this->createNotification('request_accepted', $receiverId, null, $request->eventId)) {
-                return redirect()->back()->with('message', 'Failed to create notification!');
+            if($action == 'request'){
+                if (!$this->createNotification('request_accepted', $receiverId, null, $request->eventId)) {
+                    return redirect()->back()->with('message', 'Failed to create notification!');
+                }
+            } else {
+                if (!$this->createNotification('added_to_event', $receiverId, null, $request->eventId)) {
+                    return redirect()->back()->with('message', 'Failed to create notification!');
+                }
             }
 
             DB::commit();
@@ -389,7 +396,7 @@ class EventController extends Controller
 
         if ($request->has('place') && !empty($request->place)) {
             $request->validate(['place' => 'string']);
-            $event->place = $request->place;
+            $event->place = ucfirst($request->place);
         }
 
         if ($request->has('hashtags')) {
@@ -489,15 +496,14 @@ class EventController extends Controller
             return redirect()->back()->with('message', 'Receiver not found');
         }
 
-        log::info('action: ' . $action);
 
-        if ($event->type == 'public' || ($event->type == 'approval' && $action == 'invitation')) {
+        if ($event->type == 'public' || ($event->type == 'approval' && $action == 'invitation') || ($event->type == 'private' && $action == 'invitation')) {
             $notificationType = 'invitation_received';
-            //$this->authorize('inviteUser', $event, Event::class);
+            $this->authorize('inviteUser', $event);
         } 
         elseif ($event->type == 'approval' && $action == 'request') {
             $notificationType = 'request';
-            //$this->authorize('requestToJoin', $event, Event::class);
+            $this->authorize('requestToJoin', $event);
         }
     
         try {

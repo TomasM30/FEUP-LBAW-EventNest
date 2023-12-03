@@ -44,7 +44,8 @@ DROP FUNCTION IF EXISTS admin_event CASCADE;
 CREATE TYPE TypesEvent AS ENUM ('public', 'private', 'approval');
 CREATE TYPE TypesMessage AS ENUM ('chat', 'comment');
 CREATE TYPE TypesNotification AS ENUM ('invitation_received', 'request', 'invitation_accepted', 
-                                        'invitation_rejected', 'request_rejected', 'request_accepted', 'removed_from_event');
+                                        'invitation_rejected', 'request_rejected', 'request_accepted',
+                                        'removed_from_event', 'added_to_event');
 
 -- Create tables
 CREATE TABLE users (
