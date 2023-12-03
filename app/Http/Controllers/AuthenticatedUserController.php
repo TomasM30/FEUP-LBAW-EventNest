@@ -9,6 +9,7 @@ use App\Models\User;
 use App\Models\EventParticipant;
 use App\Models\FavouriteEvents;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 
 
@@ -50,7 +51,7 @@ class AuthenticatedUserController extends Controller
     public function editAccount (Request $request) {
         $user = Auth::user();
 
-        $this -> authorize('editAccount', $user);
+        $this -> authorize('edit', $user);
 
         if(!$user) {
             return redirect()->back()->with('error','User not found');
@@ -78,6 +79,44 @@ class AuthenticatedUserController extends Controller
         $user->save();
 
         return redirect()->back()->with('success', 'Account successfully updated');
+    }
+
+    public function deleteAccount($id) {
+        $user = User::find($id);
+        if(!$user) {
+            return redirect()->back()->with('message','User not authenticated');
+        }
+
+        $this -> authorize('delete', $user);
+
+        DB::beginTransaction();
+
+        try {
+            $user = User::findOrFail($id);
+
+            $user->admin()->delete();
+            $user->authenticated()->delete();
+            $user->event()->delete();
+            //$user->eventmessage()->delete();
+            Invitation::where('id_user', $id)->delete();
+            //$user->messagereaction()->delete();
+            //$user->eventparticipants()->delete();
+            $user->favouriteevent()->delete();
+            //$user->order()->delete();
+            //$user->report()->delete();
+            //$user->file()->delete();
+            //$user->poll()->delete();
+            //$user->pollvotes();
+
+            $user->delete();
+
+            DB::commit();
+
+            return redirect()->route('login')->with('message','Account deleted successfully!');
+        } catch(\Exception $e) {
+            DB::rollBack();
+            return redirect()->back()->with('message', 'Account deletion failed');
+        }
     }
 
 }
