@@ -24,6 +24,8 @@
                             Your request to join the event has been accepted.
                         @elseif($notification->type == 'removed_from_event')
                             You have been removed from the event.
+                        @elseif($notification->type == 'added_to_event')
+                            You have been added to the event.
                         @endif
                     </p>
                     @if($notification->type == 'invitation_received' || $notification->type == 'request')
@@ -32,6 +34,7 @@
                             <input type="hidden" name="id_user" value="{{ $notification->type == 'invitation_received' ? Auth::user()->id : $notification->eventnotification->inviter->user->id }}">
                             <input type="hidden" name="eventId" value="{{ $notification->eventnotification->event->id }}">
                             <input type="hidden" name="notificationId" value="{{ $notification->id }}">
+                            <input type="hidden" name="action" value="{{ $notification->type == 'invitation_received' ? 'invitation' : 'request' }}">
                             <button type="submit">{{ $notification->type == 'invitation_received' ? 'Accept' : 'Approve' }}</button>
                         </form>
                     @endif

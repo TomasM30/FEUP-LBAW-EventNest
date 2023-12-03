@@ -27,7 +27,7 @@
         @endphp
         @if ($event->closed == false)
             @if(!$isParticipant && !$isAdmin && $event->eventparticipants()->count() < $event->capacity)
-                @if($event->type == 'public')
+                @if($event->type == 'public' || $event->type == 'private')
                     <form method="POST" action="{{ route('event.join', $event->id) }}">
                         {{ csrf_field() }}
                         <input type="hidden" name="id_user" value="{{ Auth::user()->id }}">
