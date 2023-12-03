@@ -37,8 +37,9 @@
                 @elseif($event->type == 'approval')
                     <form method="POST" action="{{ route('events.notification', $event->id) }}">
                         {{ csrf_field() }}
-                        <input type="hidden" name="id_user" value="{{ Auth::user()->id }}">
+                        <input type="hidden" name="id_user" value="{{ $event->id_user }}">
                         <input type="hidden" name="eventId" value="{{ $event->id }}">
+                        <input type="hidden" name="action" value="request">
                         <button type="submit" class="btn btn-custom btn-block">Request</button>
                     </form>
                 @endif
@@ -62,6 +63,7 @@
                                     {{ csrf_field() }}
                                     <input type="hidden" name="id_user" value="{{ $authUser->user->id }}">
                                     <input type="hidden" name="eventId" value="{{ $event->id }}">
+                                    <input type="hidden" name="action" value="invitation">
                                     <button type="submit" class="dropdown-item">{{ $authUser->user->name }}</button>
                                 </form>
                             @endif
