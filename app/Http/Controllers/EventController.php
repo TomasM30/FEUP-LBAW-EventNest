@@ -417,6 +417,12 @@ class EventController extends Controller
 
         $event->save();
 
+        $participants = $event->eventparticipants()->where('id_user', '!=', $event->id_user)->get();
+        foreach ($participants as $participant) {
+            log::info($participant->id_user);
+            $this->createNotification('event_edited', $participant->id_user, null, $event->id);
+        }
+
         return redirect()->back()->with('success', 'Event successfully updated');
     }
 
@@ -439,6 +445,7 @@ class EventController extends Controller
     
             DB::commit();
         } catch (\Exception $e){
+            log::info($e->getMessage());
             DB::rollback();
             return false;
         }
@@ -607,5 +614,21 @@ class EventController extends Controller
 
     }
 
+    public function cancelEvent(Request $request){
+        $event = Event::find($request->eventId);
+        if (!$event) {
+            return redirect()->back()->with('message', 'Event not found');
+        }
 
+        $this->authorize('cancelEvent', $event);
+        $event->update(['closed' => true]);
+
+        $participants = $event->eventparticipants()->where('id_user', '!=', $event->id_user)->get();
+
+        foreach ($participants as $participant) {
+            $this->createNotification('event_canceled', $participant->id_user, null, $event->id);
+        }
+
+        return redirect()->back()->with('message', 'Event cancelled successfully');
+    }
 }

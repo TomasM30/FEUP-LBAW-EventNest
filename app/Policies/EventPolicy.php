@@ -122,4 +122,11 @@ class EventPolicy
             return Response::allow();
         }
     }
+
+    public function cancelEvent(User $user, Event $event): Response
+    {
+        return $user->id === $event->id_user || Admin::where('id_user', $user->id)->exists()
+            ? Response::allow()
+            : Response::deny('You must be the organizer of the event or an admin to cancel the event.');
+    }
 }
