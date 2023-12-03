@@ -9,7 +9,7 @@ use App\Models\User;
 use App\Models\EventParticipant;
 use App\Models\FavouriteEvents;
 use App\Models\Notification;
-use App\Models\InvitationNotification;
+use App\Models\EventNotification;
 
 
 class AuthenticatedUserController extends Controller
@@ -59,7 +59,7 @@ class AuthenticatedUserController extends Controller
         $this->authorize('userNotifications', $authenticatedUser);
 
         $notifications = Notification::where('id_user', $userId)
-            ->with(['invitationnotification', 'invitationnotification.event'])
+            ->with(['eventnotification', 'eventnotification.event'])
             ->get();
     
         return view('pages.user_notifications', ['notifications' => $notifications]);
