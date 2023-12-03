@@ -1,7 +1,7 @@
 @extends('layouts.app')
 
 @section('content')
-<h1 class="usertitle">{{ $user->name }}'s Events</h1>
+<h1 class="usertitle">{{ $user->username }}'s Events</h1>
 
 <div class="myevents">
     <div id="created">

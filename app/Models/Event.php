@@ -19,6 +19,7 @@ class Event extends Model
         'ticket_limit',
         'place',
         'id_user',
+        'closed',
     ];
 
     use HasFactory;

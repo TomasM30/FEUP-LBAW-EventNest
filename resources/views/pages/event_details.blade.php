@@ -4,9 +4,9 @@
 <div class="d-flex justify-content-center">
     <div class="col-9 content-container m-3" id="details-content-container">
         @if($event->closed)
-        <div class="alert alert-info event-closed-alert">
-            This event has already happened
-        </div>
+            <div class="alert alert-info event-closed-alert">
+                This event was cancelled or already happened.
+            </div>
         @endif
 
         <div class="text-center position-relative overflow-hidden">
@@ -132,25 +132,25 @@
                             </div>
                             @endif
 
-                            @if($isAdmin || $isOrganizer)
+                        @if($isAdmin || $isOrganizer)
                             @if($event->eventparticipants()->count() > 1)
-                            <div class="dropdown">
-                                <button class="btn btn-primary m-3  dropdown-toggle remove" type="button" id="dropdownMenuRemove" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                                    Remove
-                                </button>
-                                <div class="dropdown-menu" aria-labelledby="dropdownMenu2">
-                                    @foreach ($event->eventparticipants()->get() as $attendee)
-                                    @if($attendee->user->id != $event->user->id)
-                                    <form method="POST" action="{{ route('events.remove', $event->id) }}">
-                                        {{ csrf_field() }}
-                                        <input type="hidden" name="id_user" value="{{ $attendee->user->id }}">
-                                        <input type="hidden" name="eventId" value="{{ $event->id }}">
-                                        <button type="submit" class="dropdown-item">{{ $attendee->user->name }}</button>
-                                    </form>
-                                    @endif
-                                    @endforeach
+                                <div class="dropdown">
+                                    <button class="btn btn-primary m-3  dropdown-toggle remove" type="button" id="dropdownMenuRemove" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                        Remove
+                                    </button>
+                                    <div class="dropdown-menu" aria-labelledby="dropdownMenu2">
+                                        @foreach ($event->eventparticipants()->get() as $attendee)
+                                        @if($attendee->user->id != $event->user->id)
+                                        <form method="POST" action="{{ route('events.remove', $event->id) }}">
+                                            {{ csrf_field() }}
+                                            <input type="hidden" name="id_user" value="{{ $attendee->user->id }}">
+                                            <input type="hidden" name="eventId" value="{{ $event->id }}">
+                                            <button type="submit" class="dropdown-item">{{ $attendee->user->name }}</button>
+                                        </form>
+                                        @endif
+                                        @endforeach
+                                    </div>
                                 </div>
-                            </div>
                             @endif
 
                             @if(count($nonParticipants) > 0 && $event->eventparticipants()->count() < $event->capacity)
@@ -173,19 +173,28 @@
                                 </div>
                             @endif
 
+                            <form method="POST" action="{{ route('events.cancel', $event->id) }}">
+                                {{ csrf_field() }}
+                                <input type="hidden" name="id_user" value="{{ Auth::user()->id }}">
+                                <input type="hidden" name="eventId" value="{{ $event->id }}">
+                                <div class="btn-group">
+                                    <button type="submit" class="btn btn-primary m-3 ">Cancel</button>
+                                </div>
+                            </form>
+
                             <div class="btn-group">
                                 <button id='edit-button' type="button" class="btn btn-primary m-3 " data-toggle="modal" data-target="#newEventModal">Edit</button>
                             </div>
-                            @endif
-                            @endif
-                            @if($isAdmin)
-                            <form method="POST" action="{{ route('events.delete', $event->id) }}">
-                                {{ csrf_field() }}
-                                {{ method_field('DELETE') }}
-                                <div class="btn-group">
-                                    <button type="submit" class="btn btn-primary m-3 ">Delete</button>
-                                </div>
-                            </form>
+                        @endif
+                    @endif
+                    @if($isAdmin)
+                        <form method="POST" action="{{ route('events.delete', $event->id) }}">
+                            {{ csrf_field() }}
+                            {{ method_field('DELETE') }}
+                            <div class="btn-group">
+                                <button type="submit" class="btn btn-primary m-3 ">Delete</button>
+                            </div>
+                        </form>
                     @endif
                 </div>
             </div>
@@ -193,10 +202,6 @@
     </div>
 </div>
 
-
-
-    <div id="overlay" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0, 0, 0, 0.5); z-index: 1000;"></div>
-
-    @include('partials.eventModal', ['formAction' => route('events.edit', $event->id), 'hashtags' => $hashtags])
-
-    @endsection
+<div id="overlay" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0, 0, 0, 0.5); z-index: 1000;"></div>
+@include('partials.eventModal', ['formAction' => route('events.edit', $event->id), 'hashtags' => $hashtags])
+@endsection

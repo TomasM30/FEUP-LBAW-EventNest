@@ -359,5 +359,22 @@ function orderEventsByTitle() {
   .catch(error => console.error('Error:', error));
 }
 
+document.addEventListener('DOMContentLoaded', function () {
+  document.getElementById('navbarToggler').addEventListener('click', function () {
+      let navbarCollapse = document.getElementById('navbarColor01');
+      if (navbarCollapse.classList.contains('show')) {
+          navbarCollapse.classList.remove('show');
+          navbarCollapse.classList.add('collapsing');
+          setTimeout(function () {
+              navbarCollapse.classList.remove('collapsing');
+              navbarCollapse.style = '';
+          }, 350);
+      } else {
+          navbarCollapse.classList.remove('collapsing');
+          navbarCollapse.classList.add('show');
+          navbarCollapse.style = 'display: block;';
+      }
+  });
+});
 
 

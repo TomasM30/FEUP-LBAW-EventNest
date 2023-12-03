@@ -57,6 +57,7 @@ Route::controller(EventController::class)->group(function () {
     Route::post('/events/create', 'createEvent')->name('events.create');
     Route::post('/events/edit/{id}', 'editEvent')->name('events.edit');
     Route::delete('/events/delete/{id}', 'deleteEvent')->name('events.delete');
+    Route::post('/events/cancel/{id}', 'cancelEvent')->name('events.cancel');
     Route::get('/events', 'listEvents')->name('events');
     Route::get('/events/{id}/details', 'showEventDetails')->name('events.details');
     Route::post('/events/{id}/leave','leaveEvent')->name('event.leave');

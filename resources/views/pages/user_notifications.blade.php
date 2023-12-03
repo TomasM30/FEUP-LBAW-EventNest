@@ -26,7 +26,12 @@
                             You have been removed from the event.
                         @elseif($notification->type == 'added_to_event')
                             You have been added to the event.
+                        @elseif($notification->type == 'event_canceled')
+                            The event has been cancelled.
+                        @elseif($notification->type == 'event_edited')
+                            The event information has been edited.
                         @endif
+
                     </p>
                     @if($notification->type == 'invitation_received' || $notification->type == 'request')
                         <form method="POST" action="{{ route($notification->type == 'invitation_received' ? 'event.join' : 'events.add', $notification->eventnotification->event->id) }}">
