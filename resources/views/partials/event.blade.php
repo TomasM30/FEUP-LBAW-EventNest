@@ -6,7 +6,7 @@
             <h4 class="card-title">{{ $event->title }}</h4>
         </div>
         <div class=" card-body">
-            <p class="card-text">{{ $event->place }}</p>
+            <p class=" card-text">{{ $event->place }}</p>
             <p class="card-text">{{ \Carbon\Carbon::parse($event->date)->format('d/m/y') }}</p>
         </div>
         <div class="card-header">

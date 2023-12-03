@@ -26,12 +26,11 @@
                 </li>
                 @endif
                 <li class="nav-item">
-                    <a class="nav-link" href="{{ route('logout') }}">logout</a>
                 </li>
             </ul>
-            <form class="d-flex">
-                <input class="form-control me-sm-2" type="search" placeholder="Search" style="color:black">
-            </form>
+            <div class="nav-item">
+                <a class="nav-link" href="{{ route('logout') }}" style="color: white;">logout</a>
+            </div>
         </div>
     </div>
 </nav>
