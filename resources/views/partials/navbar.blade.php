@@ -1,4 +1,4 @@
-<nav class="navbar navbar-expand-lg bg-primary" data-bs-theme="dark">
+<nav class="navbar navbar-expand-lg bg-primary sticky-top" data-bs-theme="dark" style="top: 0; z-index: 100;">
     <div class="container-fluid">
         <a class="navbar-brand" href="#">EventNest</a>
         <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarColor01" aria-controls="navbarColor01" aria-expanded="false" aria-label="Toggle navigation">
@@ -26,12 +26,11 @@
                 </li>
                 @endif
                 <li class="nav-item">
-                    <a class="nav-link" href="{{ route('logout') }}">logout</a>
                 </li>
             </ul>
-            <form class="d-flex">
-                <input class="form-control me-sm-2" type="search" placeholder="Search" style="color:black">
-            </form>
+            <div class="nav-item">
+                <a class="nav-link" href="{{ route('logout') }}" style="color: white;">logout</a>
+            </div>
         </div>
     </div>
 </nav>
