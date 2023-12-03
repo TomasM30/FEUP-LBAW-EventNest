@@ -476,25 +476,34 @@ class EventController extends Controller
         if (!$event) {
             return redirect()->back()->with('message', 'Event not found');
         }
-    
-        $sender = auth()->user();    
+        
+        $sender = auth()->user();   
+        $receiverId = $request->id_user; 
+        $action = $request->action;
+
         if (!AuthenticatedUser::where('id_user', $sender->id)->exists()) {
             return redirect()->back()->with('message', 'Sender not found');
         }
-    
-        if  ($event->type == 'public'){
-            $receiverId = $request->id_user;
+
+        if (!AuthenticatedUser::where('id_user', $receiverId)->exists()) {
+            return redirect()->back()->with('message', 'Receiver not found');
+        }
+
+        log::info('action: ' . $action);
+
+        if ($event->type == 'public' || ($event->type == 'approval' && $action == 'invitation')) {
             $notificationType = 'invitation_received';
-            $this->authorize('inviteUser', $event, Event::class);
+            //$this->authorize('inviteUser', $event, Event::class);
         } 
-        elseif ($event->type == 'approval') {
-            $receiverId = $event->id_user;
+        elseif ($event->type == 'approval' && $action == 'request') {
             $notificationType = 'request';
+            //$this->authorize('requestToJoin', $event, Event::class);
         }
     
         try {
             $receiver = User::where('id', $receiverId)->firstOrFail();
         } catch (ModelNotFoundException $e) {
+            log::info($e->getMessage());
             return redirect()->back()->with('message', 'Receiver not found');
         }
     
