@@ -35,7 +35,7 @@
                     </div>
                 </div>
             </div>
-            <div class="col-md-6">
+            <div class="col-md-6 ">
                 <div class="accordion m-4" id="accordionExample">
                     <div class="accordion-item">
                         <h2 class="accordion-header" id="headingTwo">
@@ -45,7 +45,7 @@
                         </h2>
                         <div id="collapseTwo" class="accordion-collapse collapse" aria-labelledby="headingTwo" data-bs-parent="#accordionExample">
                             <div class="accordion-body row">
-                                <div class="col-md-6">
+                                <div class="col-md-6 mb-3">
                                     <h5>Hashtags</h5>
                                     <div class="card-body hashtags-body">
                                         @foreach ($hashtags as $hashtag)
