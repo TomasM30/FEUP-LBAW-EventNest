@@ -252,6 +252,7 @@ if (btn && modal) {
 };
 
 let filteredEvents = [];
+let searchTerm = '';
 
 document.addEventListener('DOMContentLoaded', function() {
   let acc = document.getElementsByClassName("accordion-button");
@@ -273,7 +274,7 @@ function filterEvents() {
   let selectedPlaces = Array.from(document.querySelectorAll('input[name^="places"]:checked')).map(input => input.value);
 
   let url = `/events/filter`;
-  let data = { hashtags: selectedHashtags, places: selectedPlaces };
+  let data = { hashtags: selectedHashtags, places: selectedPlaces, search: searchTerm  };
 
   console.log(data);
   fetch(url, {
@@ -303,6 +304,7 @@ document.addEventListener('DOMContentLoaded', function() {
   let form1 = document.getElementById('form1');
   if(form1) {
     form1.addEventListener('keyup', function() {
+        searchTerm = this.value;
         let value = this.value;
         let url = document.getElementById('search-form').getAttribute('data-url');
         let data = { search: value, events: filteredEvents };
@@ -337,7 +339,7 @@ function orderEventsByDate() {
           'Content-Type': 'application/json',
           'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
       },
-      body: JSON.stringify({ events: filteredEvents, orderBy: 'date', direction: orderDirection })
+      body: JSON.stringify({ events: filteredEvents, orderBy: 'date', direction: orderDirection, search: searchTerm  })
   })
   .then(response => response.text())
   .then(data => {
@@ -358,7 +360,7 @@ function orderEventsByTitle() {
           'Content-Type': 'application/json',
           'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
       },
-      body: JSON.stringify({ events: filteredEvents, orderBy: 'title', direction: orderDirection })
+      body: JSON.stringify({ events: filteredEvents, orderBy: 'title', direction: orderDirection, search: searchTerm  })
   })
   .then(response => response.text())
   .then(data => {
