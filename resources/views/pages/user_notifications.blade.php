@@ -3,33 +3,60 @@
 @section('content')
 <div>
     @foreach ($notifications as $notification)
-        @if($notification->invitationnotification)
+        @if($notification->eventnotification)
             <div>
                 <div>
                     <h2>
-                        <a href="{{ route('events.details', $notification->invitationnotification->event->id) }}">{{ $notification->invitationnotification->event->title }}</a>
+                        <a href="{{ route('events.details', $notification->eventnotification->event->id) }}">{{ $notification->eventnotification->event->title }}</a>
                     </h2>
-                    @if($notification->type == 'invitation_received')
-                        <p>Invitation by: {{ $notification->invitationnotification->inviter->user->username}}</p>
-                        <form method="POST" action="{{ route('event.join', $notification->invitationnotification->event->id) }}">
-                            {{ csrf_field() }}
-                            <input type="hidden" name="id_user" value="{{ Auth::user()->id }}">
-                            <input type="hidden" name="eventId" value="{{ $notification->invitationnotification->event->id }}">
-                            <button type="submit">Accept</button>
-                        </form>
-                        <form method="POST" action="{{ route('invite.delete', ['userId' => Auth::user()->id, 'eventId' => $notification->invitationnotification->event->id, 'inviterId' => $notification->invitationnotification->inviter_id]) }}">
-                            {{ csrf_field() }}
-                            {{ method_field('DELETE') }}
-                            <input type="hidden" name="inviterId" value="{{ $notification->invitationnotification->inviter_id }}">
-                            <button type="submit">Reject</button>
-                        </form>
-        
-                    @endif
-                    <p>{{ \Carbon\Carbon::parse($notification->created_at)->format('Y-m-d') }}</p>
+                    <p>
+                        @if($notification->type == 'invitation_received')
+                            {{ $notification->eventnotification->inviter->user->username}} invited you to join the event.
+                        @elseif($notification->type == 'request')
+                            {{ $notification->eventnotification->inviter->user->username}} requested to join the event.
+                        @elseif($notification->type == 'invitation_accepted')
+                            {{ $notification->eventnotification->inviter->user->username}} has accepted your invite.
+                        @elseif($notification->type == 'invitation_rejected')
+                            {{ $notification->eventnotification->inviter->user->username}} has rejected your invite.
+                        @elseif($notification->type == 'request_rejected')
+                            Your request to join the event has been rejected.
+                        @elseif($notification->type == 'request_accepted')
+                            Your request to join the event has been accepted.
+                        @elseif($notification->type == 'removed_from_event')
+                            You have been removed from the event.
+                        @elseif($notification->type == 'added_to_event')
+                            You have been added to the event.
+                        @elseif($notification->type == 'event_canceled')
+                            The event has been cancelled.
+                        @elseif($notification->type == 'event_edited')
+                            The event information has been edited.
+                        @endif
 
+                    </p>
+                    @if($notification->type == 'invitation_received' || $notification->type == 'request')
+                        <form method="POST" action="{{ route($notification->type == 'invitation_received' ? 'event.join' : 'events.add', $notification->eventnotification->event->id) }}">
+                            {{ csrf_field() }}
+                            <input type="hidden" name="id_user" value="{{ $notification->type == 'invitation_received' ? Auth::user()->id : $notification->eventnotification->inviter->user->id }}">
+                            <input type="hidden" name="eventId" value="{{ $notification->eventnotification->event->id }}">
+                            <input type="hidden" name="notificationId" value="{{ $notification->id }}">
+                            <input type="hidden" name="action" value="{{ $notification->type == 'invitation_received' ? 'invitation' : 'request' }}">
+                            <button type="submit">{{ $notification->type == 'invitation_received' ? 'Accept' : 'Approve' }}</button>
+                        </form>
+                    @endif
                 </div>
             </div>
         @endif
-    @endforeach
+        <form method="POST" action="{{ route('notification.delete', $notification->id) }}">
+            {{ csrf_field() }}
+            {{ method_field('DELETE') }}
+            <button type="submit">
+                @if($notification->type == 'invitation_received' || $notification->type == 'request')
+                    Reject
+                @else
+                    Remove
+                @endif
+            </button>
+        </form>
+        <p>{{ \Carbon\Carbon::parse($notification->created_at)->format('d-m-Y H:i') }}</p>    @endforeach
 </div>
 @endsection

@@ -57,15 +57,18 @@ Route::controller(EventController::class)->group(function () {
     Route::post('/events/create', 'createEvent')->name('events.create');
     Route::post('/events/edit/{id}', 'editEvent')->name('events.edit');
     Route::delete('/events/delete/{id}', 'deleteEvent')->name('events.delete');
-    Route::get('/events', 'listPublicEvents')->name('events');
+    Route::post('/events/cancel/{id}', 'cancelEvent')->name('events.cancel');
+    Route::get('/events', 'listEvents')->name('events');
     Route::get('/events/{id}/details', 'showEventDetails')->name('events.details');
-    Route::post('/events/{id}/join','joinEvent')->name('event.join');
     Route::post('/events/{id}/leave','leaveEvent')->name('event.leave');
+    Route::post('/events/{id}/join','joinEvent')->name('event.join');
     Route::post('/events/{id}/add', 'addUser')->name('events.add');
     Route::post('/events/{id}/remove', 'removeUser')->name('events.remove');
     Route::get('/events/search', 'search')->name('search-events');
-    Route::post('/events/{id}/invite', 'inviteUser')->name('events.invite');
-    Route::delete('/invite/{userId}/{eventId}/{inviterId}', 'deleteInvite')->name('invite.delete');
+    Route::post('/events/{id}/invite', 'addNotification')->name('events.notification');
+    Route::delete('/notifications/{notificationId}/delete', 'deleteNotification')->name('notification.delete');
+    Route::post('/events/order', 'order')->name('events.order');
+    Route::post('/events/filter', 'filter')->name('events.filter');
 });
 
 Route::controller(GoogleController::class)->group(function () {

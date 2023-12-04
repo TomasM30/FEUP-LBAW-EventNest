@@ -7,8 +7,7 @@ DROP TABLE IF EXISTS FavoriteEvent CASCADE;
 DROP TABLE IF EXISTS EventHashtag CASCADE;
 DROP TABLE IF EXISTS PollVotes CASCADE;
 DROP TABLE IF EXISTS Notification CASCADE;
-DROP TABLE IF EXISTS InvitationNotification CASCADE;
-DROP TABLE IF EXISTS AccessPermittedNotification CASCADE;
+DROP TABLE IF EXISTS EventNotification CASCADE;
 DROP TABLE IF EXISTS MessageReaction CASCADE;
 DROP TABLE IF EXISTS EventMessage CASCADE;
 DROP TABLE IF EXISTS Ticket CASCADE;
@@ -43,7 +42,10 @@ DROP FUNCTION IF EXISTS admin_event CASCADE;
 -- Create types
 CREATE TYPE TypesEvent AS ENUM ('public', 'private', 'approval');
 CREATE TYPE TypesMessage AS ENUM ('chat', 'comment');
-CREATE TYPE TypesNotification AS ENUM ('request_answer', 'invitation', 'invitation_received', 'access_permitted');
+CREATE TYPE TypesNotification AS ENUM ('invitation_received', 'request', 'invitation_accepted', 
+                                        'invitation_rejected', 'request_rejected', 'request_accepted',
+                                        'removed_from_event', 'added_to_event', 'event_canceled',
+                                        'event_edited');
 
 -- Create tables
 CREATE TABLE users (
@@ -112,21 +114,15 @@ CREATE TABLE Notification (
     FOREIGN KEY (id_user) REFERENCES Authenticated(id_user)
 );
 
-CREATE TABLE InvitationNotification (
+CREATE TABLE EventNotification (
     id INT PRIMARY KEY,
-    inviter_id INT NOT NULL,
+    inviter_id INT,
     id_event INT NOT NULL,
     FOREIGN KEY (id) REFERENCES Notification(id),
     FOREIGN KEY (inviter_id) REFERENCES Authenticated(id_user),
     FOREIGN KEY (id_event) REFERENCES Event(id)
 );
 
-CREATE TABLE AccessPermittedNotification (
-    id INT PRIMARY KEY,
-    id_event INT NOT NULL,
-    FOREIGN KEY (id) REFERENCES Notification(id),
-    FOREIGN KEY (id_event) REFERENCES Event(id)
-);
 
 CREATE TABLE EventParticipants (
     id_user INT NOT NULL,

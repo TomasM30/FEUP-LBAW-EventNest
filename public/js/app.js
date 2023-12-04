@@ -262,16 +262,119 @@ document.addEventListener('DOMContentLoaded', function() {
   let form1 = document.getElementById('form1');
   if(form1) {
       form1.addEventListener('keyup', function() {
-          var value = this.value;
-          var xhr = new XMLHttpRequest();
-          var url = document.getElementById('search-form').getAttribute('data-url');
+          let value = this.value;
+          let xhr = new XMLHttpRequest();
+          let url = document.getElementById('search-form').getAttribute('data-url');
           xhr.open('GET', url + '?search=' + value, true);
           xhr.onreadystatechange = function() {
               if (xhr.readyState == 4 && xhr.status == 200) {
-                  document.getElementById('main').innerHTML = xhr.responseText;
+                  document.getElementById('container').innerHTML = xhr.responseText;
               }
           }
           xhr.send();
       });
   }
 });
+
+let filteredEvents = [];
+
+document.addEventListener('DOMContentLoaded', function() {
+  let acc = document.getElementsByClassName("accordion-button");
+  for (let i = 0; i < acc.length; i++) {
+      acc[i].addEventListener("click", function() {
+          this.classList.toggle("active");
+          let panel = this.parentNode.nextElementSibling;
+          if (panel.style.display === "block") {
+              panel.style.display = "none";
+          } else {
+              panel.style.display = "block";
+          }
+      });
+  }
+});
+
+function filterEvents() {
+  let selectedHashtags = Array.from(document.querySelectorAll('input[name="hashtags[]"]:checked')).map(input => input.value);
+  let selectedPlaces = Array.from(document.querySelectorAll('input[name^="places"]:checked')).map(input => input.value);
+
+  let url = `/events/filter`;
+  let data = { hashtags: selectedHashtags, places: selectedPlaces };
+
+  console.log(data);
+  fetch(url, {
+      method: 'POST',
+      headers: {
+          'Content-Type': 'application/json',
+          'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
+      },
+      body: JSON.stringify(data)
+  })
+  .then(response => response.json())
+  .then(data => {
+      document.getElementById('container').innerHTML = data.html;
+      filteredEvents = data.ids;
+  })
+  .catch(error => console.error('Error:', error));
+}
+
+function orderEventsByDate() {
+  let dateButton = document.getElementById('date-button');
+  let orderDirection = dateButton.getAttribute('data-direction') === 'asc' ? 'desc' : 'asc';
+  let url = `/events/order`;
+  dateButton.setAttribute('data-direction', orderDirection);
+  dateButton.innerText = `Date ${orderDirection === 'desc' ? '↓' : '↑'}`;
+  fetch(url, {
+      method: 'POST',
+      headers: {
+          'Content-Type': 'application/json',
+          'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
+      },
+      body: JSON.stringify({ events: filteredEvents, orderBy: 'date', direction: orderDirection })
+  })
+  .then(response => response.text())
+  .then(data => {
+      document.getElementById('container').innerHTML = data;
+  })
+  .catch(error => console.error('Error:', error));
+}
+
+function orderEventsByTitle() {
+  let titleButton = document.getElementById('title-button');
+  let orderDirection = titleButton.getAttribute('data-direction') === 'asc' ? 'desc' : 'asc';
+  let url = `/events/order`;
+  titleButton.setAttribute('data-direction', orderDirection);
+  titleButton.innerText = `Title ${orderDirection === 'desc' ? '↓' : '↑'}`;
+  fetch(url, {
+      method: 'POST',
+      headers: {
+          'Content-Type': 'application/json',
+          'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
+      },
+      body: JSON.stringify({ events: filteredEvents, orderBy: 'title', direction: orderDirection })
+  })
+  .then(response => response.text())
+  .then(data => {
+      document.getElementById('container').innerHTML = data;
+  })
+  .catch(error => console.error('Error:', error));
+}
+
+document.addEventListener('DOMContentLoaded', function () {
+  document.getElementById('navbarToggler').addEventListener('click', function () {
+      let navbarCollapse = document.getElementById('navbarColor01');
+      if (navbarCollapse.classList.contains('show')) {
+          navbarCollapse.classList.remove('show');
+          navbarCollapse.classList.add('collapsing');
+          setTimeout(function () {
+              navbarCollapse.classList.remove('collapsing');
+              navbarCollapse.style = '';
+          }, 350);
+      } else {
+          navbarCollapse.classList.remove('collapsing');
+          navbarCollapse.classList.add('show');
+          navbarCollapse.style = 'display: block;';
+      }
+  });
+});
+
+
