@@ -64,7 +64,7 @@ Route::controller(EventController::class)->group(function () {
     Route::post('/events/{id}/join','joinEvent')->name('event.join');
     Route::post('/events/{id}/add', 'addUser')->name('events.add');
     Route::post('/events/{id}/remove', 'removeUser')->name('events.remove');
-    Route::get('/events/search', 'search')->name('search-events');
+    Route::post('/events/search', 'search')->name('search-events');
     Route::post('/events/{id}/invite', 'addNotification')->name('events.notification');
     Route::delete('/notifications/{notificationId}/delete', 'deleteNotification')->name('notification.delete');
     Route::post('/events/order', 'order')->name('events.order');
