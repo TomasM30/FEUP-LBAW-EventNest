@@ -7,8 +7,7 @@ DROP TABLE IF EXISTS FavoriteEvent CASCADE;
 DROP TABLE IF EXISTS EventHashtag CASCADE;
 DROP TABLE IF EXISTS PollVotes CASCADE;
 DROP TABLE IF EXISTS Notification CASCADE;
-DROP TABLE IF EXISTS InvitationNotification CASCADE;
-DROP TABLE IF EXISTS AccessPermittedNotification CASCADE;
+DROP TABLE IF EXISTS EventNotification CASCADE;
 DROP TABLE IF EXISTS MessageReaction CASCADE;
 DROP TABLE IF EXISTS EventMessage CASCADE;
 DROP TABLE IF EXISTS Ticket CASCADE;
@@ -43,7 +42,10 @@ DROP FUNCTION IF EXISTS admin_event CASCADE;
 -- Create types
 CREATE TYPE TypesEvent AS ENUM ('public', 'private', 'approval');
 CREATE TYPE TypesMessage AS ENUM ('chat', 'comment');
-CREATE TYPE TypesNotification AS ENUM ('request_answer', 'invitation', 'invitation_received', 'access_permitted');
+CREATE TYPE TypesNotification AS ENUM ('invitation_received', 'request', 'invitation_accepted', 
+                                        'invitation_rejected', 'request_rejected', 'request_accepted',
+                                        'removed_from_event', 'added_to_event', 'event_canceled',
+                                        'event_edited');
 
 -- Create tables
 CREATE TABLE users (
@@ -52,7 +54,8 @@ CREATE TABLE users (
     name VARCHAR(255) NOT NULL,
     username VARCHAR(255) UNIQUE NOT NULL,
     remember_token VARCHAR(256) DEFAULT NULL,
-    password VARCHAR(255) NOT NULL
+    password VARCHAR(255),
+    google_id VARCHAR(255)
 );
 
 CREATE TABLE Admin (
@@ -64,7 +67,8 @@ CREATE TABLE Admin (
 CREATE TABLE Authenticated (
     id_user INT PRIMARY KEY,
     is_verified BOOLEAN DEFAULT FALSE,
-    id_profilepic INT DEFAULT 0,
+    id_profilepic INT DEFAULT 1,
+    --FOREIGN KEY (id_profilepic) REFERENCES File(id),
     FOREIGN KEY (id_user) REFERENCES users(id)
 );
 
@@ -110,21 +114,15 @@ CREATE TABLE Notification (
     FOREIGN KEY (id_user) REFERENCES Authenticated(id_user)
 );
 
-CREATE TABLE InvitationNotification (
+CREATE TABLE EventNotification (
     id INT PRIMARY KEY,
-    inviter_id INT NOT NULL,
+    inviter_id INT,
     id_event INT NOT NULL,
     FOREIGN KEY (id) REFERENCES Notification(id),
     FOREIGN KEY (inviter_id) REFERENCES Authenticated(id_user),
     FOREIGN KEY (id_event) REFERENCES Event(id)
 );
 
-CREATE TABLE AccessPermittedNotification (
-    id INT PRIMARY KEY,
-    id_event INT NOT NULL,
-    FOREIGN KEY (id) REFERENCES Notification(id),
-    FOREIGN KEY (id_event) REFERENCES Event(id)
-);
 
 CREATE TABLE EventParticipants (
     id_user INT NOT NULL,
@@ -205,14 +203,17 @@ CREATE TABLE File (
     id_message INT,
     id_report INT,
     id_event INT,
+    id_profile INT,
     FOREIGN KEY (id_user) REFERENCES Authenticated(id_user),
     FOREIGN KEY (id_message) REFERENCES EventMessage(id),
     FOREIGN KEY (id_report) REFERENCES Report(id),
     FOREIGN KEY (id_event) REFERENCES Event(id),
+    FOREIGN KEY (id_profile) REFERENCES Authenticated(id_user),
     CHECK (
-        (id_message IS NOT NULL AND id_event IS NULL AND id_report IS NULL) OR
-        (id_message IS NULL AND id_event IS NOT NULL AND id_report IS NULL) OR
-        (id_message IS NULL AND id_event IS NULL AND id_report IS NOT NULL)
+        (id_message IS NOT NULL AND id_event IS NULL AND id_report IS NULL AND id_profile IS NULL) OR
+        (id_message IS NULL AND id_event IS NOT NULL AND id_report IS NULL AND id_profile IS NULL) OR
+        (id_message IS NULL AND id_event IS NULL AND id_report IS NOT NULL AND id_profile IS NULL) OR
+        (id_message IS NULL AND id_event IS NULL AND id_report IS NULL AND id_profile IS NOT NULL)
     )
 );
 

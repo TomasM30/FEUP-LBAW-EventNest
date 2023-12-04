@@ -5,6 +5,11 @@ namespace App\Providers;
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Support\Facades\URL;
 
+use App\Models\AuthenticatedUser;
+use App\Models\Notification;
+use App\Models\User;
+
+
 class AppServiceProvider extends ServiceProvider
 {
     /**
@@ -28,5 +33,10 @@ class AppServiceProvider extends ServiceProvider
             $schema = explode(':', $app_url)[0];
             URL::forceScheme($schema);
         }
+
+        view()->composer('partials.navbar', function ($view) {
+            $notificationsCount = auth()->user()->authenticated->notifications->count();
+            $view->with('notificationsCount', $notificationsCount);
+        });
     }
 }

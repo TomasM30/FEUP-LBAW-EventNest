@@ -7,7 +7,12 @@ use App\Models\User;
 use App\Models\AuthenticatedUser;
 use App\Models\EventParticipant;
 use App\Models\Admin;
+use App\Models\EventNotification;
+use App\Models\Notification;
 use Illuminate\Auth\Access\Response;
+use Illuminate\Support\Facades\DB;
+
+
 
 class EventPolicy
 {
@@ -60,9 +65,9 @@ class EventPolicy
     public function delete(User $user, Event $event): Response
     {
 
-        return $user->id === $event->id_user || Admin::where('id_user', $user->id)->exists()
+        return Admin::where('id_user', $user->id)->exists()
             ? Response::allow()
-            : Response::deny('You must an admin to delete the event.');
+            : Response::deny('You must be an admin to delete the event.');
     }
 
     public function editEvent(User $user, Event $event): Response
@@ -84,5 +89,44 @@ class EventPolicy
         return $isParticipant || $isAdmin
             ? Response::allow()
             : Response::deny('You must be a participant of the event or an admin to invite a user to the event.');
+    }
+
+    public function requestToJoin(User $user, Event $event): Response
+    {
+        $isParticipant = EventParticipant::where('id_user', $user->id)
+                                        ->where('id_event', $event->id)
+                                        ->exists();
+
+        $isAdmin = Admin::where('id_user', $user->id)->exists();
+
+        return $isParticipant || $isAdmin
+            ? Response::deny('You must not be a participant of the event to request to join it.')
+            : Response::allow();
+    }
+
+    public function viewEvent(User $user, Event $event): Response
+    {
+        $isParticipant = EventParticipant::where('id_event', $event->id)->where('id_user', $user->id)->exists();
+        $isAdmin = Admin::where('id_user', $user->id)->exists();
+        $isInvited = DB::table('eventnotification')
+                        ->join('notification', 'eventnotification.id', '=', 'notification.id')
+                        ->where('id_event', $event->id)
+                        ->where('notification.id_user', $user->id)
+                        ->exists();
+
+        if ($event->type == 'private') {
+            return ($isParticipant || $isAdmin || $isInvited)
+                ? Response::allow()
+                : Response::deny('This is a private event, You dont have permission to view this event.');
+        } else {
+            return Response::allow();
+        }
+    }
+
+    public function cancelEvent(User $user, Event $event): Response
+    {
+        return $user->id === $event->id_user || Admin::where('id_user', $user->id)->exists()
+            ? Response::allow()
+            : Response::deny('You must be the organizer of the event or an admin to cancel the event.');
     }
 }

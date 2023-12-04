@@ -30,6 +30,8 @@ class EventHashtag extends Model
      */
     public $incrementing = false;
 
+    protected $fillable = ['id_event', 'id_hashtag'];
+
     public $timestamps = false;
 
     public function event()

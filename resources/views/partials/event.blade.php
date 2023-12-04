@@ -1,7 +1,16 @@
-<div class="box">
-    <a href="{{ route('events.details', ['id' => $event->id]) }}">
-        <div class="card shadow-0">
-            <h5 class="card-title tag">
+<div class="col-12 col-sm-6 col-lg-4 mb-4">
+    <a href="{{ route('events.details', ['id' => $event->id]) }}" style="text-decoration: none; color: inherit;">
+        <div class="card text-white bg-primary mb-3 mx-auto" style="max-width:30rem; max-height:40rem;">
+            <img src="https://mdbootstrap.com/img/new/standard/nature/111.webp" class="img-fluid" />
+
+            <div class="card-body">
+                <h4 class="card-title" style="overflow: hidden; white-space: nowrap; text-overflow: ellipsis;">{{ $event->title }}</h4>
+            </div>
+            <div class=" card-body">
+                <p class=" card-text">{{ $event->place }}</p>
+                <p class="card-text">{{ \Carbon\Carbon::parse($event->date)->format('d/m/y') }}</p>
+            </div>
+            <div class="card-header">
                 @if($event->hashtags->isNotEmpty())
                 @foreach($event->hashtags as $hashtag)
                 <span class="hashtag">#{{ $hashtag->title }}</span>
@@ -9,18 +18,10 @@
                 @else
                 &nbsp;
                 @endif
-            </h5>
-            <div class="bg-image hover-overlay ripple" data-mdb-ripple-color="light">
-                <img src="https://mdbootstrap.com/img/new/standard/nature/111.webp" class="img-fluid" />
             </div>
-            <div class="card-body">
-                <h5 class="card-title">{{ $event->title }}</h5>
-                <span class="card-title">{{ \Carbon\Carbon::parse($event->date)->format('d/m/y') }}</span>
-                <br>
-                <span class="card-title">{{ $event->place }}</span>
+            <div class="card-footer">
+                capacity: {{ $event->eventparticipants()->count() ."/". $event->capacity }}
             </div>
-            <div class="card-footer">capacity: {{ $event->eventparticipants()->count() ."/". $event->capacity }}</div>
-            <a href="{{ route('events.details', ['id' => $event->id]) }}">
         </div>
     </a>
 </div>
