@@ -3,7 +3,9 @@
 namespace App\Http\Controllers;
 
 use App\Http\Controllers\Controller;
+use App\Models\FavouriteEvent;
 use Carbon\Carbon;
+use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
@@ -342,6 +344,31 @@ class EventController extends Controller
                 return redirect()->back()->with('message', 'User jailed to leave event!');
             }
         return redirect()->back()->with('message', 'Left event successfully');
+    }
+
+    public function addEventAsFavourite (Request $request) {
+
+        //$this->authorize('addFavourite', $event);
+
+        try {
+            if (!(AuthenticatedUser::where('id_user', $request->id_user)->exists())|| !(Event::where('id', $request->id_event)->exists()))
+                return redirect()->back()->with('message', 'User or event not found');
+
+            DB::BeginTransaction();
+
+            FavouriteEvent::insert([
+                'id_user' => $request->id_user,
+                'id_event' => $request->id_event,
+            ]);
+
+            DB::commit();
+
+        } catch(ModelNotFoundException $e) {
+            DB::rollBack();
+            log::info($e->getMessage());
+            return redirect()->back()->with('message', 'User failed to add event as favourite!');
+        }
+        return redirect()->back()->with('message', 'Event added as favourite successfully');
     }
 
     public function editEvent (Request $request, $id)

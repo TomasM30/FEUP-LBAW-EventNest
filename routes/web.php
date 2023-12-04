@@ -63,6 +63,7 @@ Route::controller(EventController::class)->group(function () {
     Route::post('/events/{id}/leave','leaveEvent')->name('event.leave');
     Route::post('/events/{id}/join','joinEvent')->name('event.join');
     Route::post('/events/{id}/add', 'addUser')->name('events.add');
+    Route::post('/events/{id}/addFavourite', 'addEventAsFavourite')->name('event.favourite');
     Route::post('/events/{id}/remove', 'removeUser')->name('events.remove');
     Route::post('/events/search', 'search')->name('search-events');
     Route::post('/events/{id}/invite', 'addNotification')->name('events.notification');

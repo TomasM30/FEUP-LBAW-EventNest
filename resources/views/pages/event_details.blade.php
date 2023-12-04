@@ -80,6 +80,12 @@
                     @endphp
 
                     @if ($event->closed == false)
+                        <form method="POST" action="{{ route('event.favourite', $event->id) }}">
+                            {{ csrf_field() }}
+                            <input type="hidden" name="id_user" value="{{ Auth::user()->id }}">
+                            <input type="hidden" name="id_event" value="{{ $event->id }}">
+                            <button type="submit" class="btn btn-primary m-3 ">Add Favourite</button>
+                        </form>
                         @if(!$isParticipant && !$isAdmin && $event->eventparticipants()->count() < $event->capacity)
                             @if($event->type == 'public' || $event->type == 'private')
                                 <form method="POST" action="{{ route('event.join', $event->id) }}">
@@ -87,7 +93,6 @@
                                     <input type="hidden" name="id_user" value="{{ Auth::user()->id }}">
                                     <input type="hidden" name="eventId" value="{{ $event->id }}">
                                     <button type="submit" class="btn btn-primary m-3 ">Join</button>
-                                    </div>
                                 </form>
                             @elseif($event->type == 'approval')
                                 <form method="POST" action="{{ route('events.notification', $event->id) }}">

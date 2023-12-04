@@ -7,7 +7,7 @@ use App\Models\AuthenticatedUser;
 use App\Models\Event;
 use App\Models\User;
 use App\Models\EventParticipant;
-use App\Models\FavouriteEvents;
+use App\Models\FavouriteEvent;
 use App\Models\Notification;
 use App\Models\EventNotification;
 
