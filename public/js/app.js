@@ -251,31 +251,6 @@ if (btn && modal) {
 }
 };
 
-document.addEventListener('DOMContentLoaded', function() {
-  let searchForm = document.getElementById('search-form');
-  if(searchForm) {
-      searchForm.addEventListener('submit', function(event) {
-          event.preventDefault();
-      });
-  }
-
-  let form1 = document.getElementById('form1');
-  if(form1) {
-      form1.addEventListener('keyup', function() {
-          let value = this.value;
-          let xhr = new XMLHttpRequest();
-          let url = document.getElementById('search-form').getAttribute('data-url');
-          xhr.open('GET', url + '?search=' + value, true);
-          xhr.onreadystatechange = function() {
-              if (xhr.readyState == 4 && xhr.status == 200) {
-                  document.getElementById('container').innerHTML = xhr.responseText;
-              }
-          }
-          xhr.send();
-      });
-  }
-});
-
 let filteredEvents = [];
 
 document.addEventListener('DOMContentLoaded', function() {
@@ -316,6 +291,39 @@ function filterEvents() {
   })
   .catch(error => console.error('Error:', error));
 }
+
+document.addEventListener('DOMContentLoaded', function() {
+  let searchForm = document.getElementById('search-form');
+  if(searchForm) {
+      searchForm.addEventListener('submit', function(event) {
+          event.preventDefault();
+      });
+  }
+
+  let form1 = document.getElementById('form1');
+  if(form1) {
+    form1.addEventListener('keyup', function() {
+        let value = this.value;
+        let url = document.getElementById('search-form').getAttribute('data-url');
+        let data = { search: value, events: filteredEvents };
+
+        fetch(url, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
+            },
+            body: JSON.stringify(data)
+        })
+        .then(response => response.text())
+        .then(data => {
+            console.log(data); // Log the data object
+            document.getElementById('container').innerHTML = data;
+        })
+        .catch(error => console.error('Error:', error));
+    });
+}
+});
 
 function orderEventsByDate() {
   let dateButton = document.getElementById('date-button');
@@ -376,5 +384,6 @@ document.addEventListener('DOMContentLoaded', function () {
       }
   });
 });
+
 
 

@@ -540,25 +540,25 @@ class EventController extends Controller
     public function search(Request $request)
     {
         $search = $request->get('search');
+        $filteredEventIds = $request->input('events');
     
-        if (empty($search)) {
-            $events = Event::where('type', 'public')
-                           ->where('closed', false)
-                           ->get();
-        } else {
+        $query = Event::where('type', ['public', 'approval'])
+                      ->where('closed', false);
+    
+        if ($filteredEventIds) {
+            $query = $query->whereIn('id', $filteredEventIds);
+        }
+    
+        if (!empty($search)) {
             $searchTerms = explode(' ', $search);
-    
-            $query = Event::where('type', 'public')
-                          ->where('closed', false);
     
             foreach ($searchTerms as $term) {
                 $query = $query->whereRaw("tsvectors @@ plainto_tsquery('portuguese', ?)", [$term]);
             }
-    
-            $events = $query->get();
         }
     
-        return $this->showSearchEvents($events);    
+        $events = $query->get();
+        return view('pages.event_lists', ['events' => $events]);
     }
 
     public function showSearchEvents($events)
