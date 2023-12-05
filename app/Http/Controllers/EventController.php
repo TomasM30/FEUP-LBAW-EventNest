@@ -163,8 +163,9 @@ class EventController extends Controller
     }
 
 
-    public function showEventDetails($id) 
+    public function showEventDetails(Request $request) 
     {
+        $id = $request->id;
         $user = Auth::user();
         $hashtags = Hashtag::all();
         $data = [];
@@ -174,7 +175,7 @@ class EventController extends Controller
         $data['isAdmin'] = Admin::where('id_user', Auth::user()->id)->first();
         $data['isOrganizer'] = $data['event']->id_user == Auth::user()->id;
         $data['hashtags'] = $hashtags;
-
+        $data['attendees'] = $data['event']->eventparticipants()->paginate(10);
         return view('pages.event_details', $data);
     }
 
@@ -257,8 +258,10 @@ class EventController extends Controller
                             ->delete();
 
             
-            
+            $user = User::find($request->id_user);
             $receiverId = $request->id_user;
+
+
             if (!$this->createNotification('removed_from_event', $receiverId, null, $request->eventId)) {
                 return redirect()->back()->with('message', 'Failed to create notification!');
             }
@@ -601,7 +604,7 @@ class EventController extends Controller
             }
         }
     
-        $query = Event::whereIn('type', ['approval', 'public'])
+        $events = Event::whereIn('type', ['approval', 'public'])
                         ->where('id_user', '!=', $user->id)
                         ->where('closed', false)
                         ->orderBy($orderBy, $direction)->get();

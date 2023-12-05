@@ -25,7 +25,10 @@
                 <div id="eventInfo" class="event-info mt-5" style="overflow-wrap: break-word;">
                     <h1>{{ $event->title }}</h1>
                     <h4 class="mt-5">Hosted by:</h4>
-                    <p>{{ $event->user->name }}</p>
+                    <div class="d-flex align-items-center mb-3">
+                        <div style="width: 50px; height: 50px; border-radius: 50%; background-image: url('{{ $event->user->getProfileImage() }}'); background-size: cover; background-position: center; background-repeat: no-repeat;"></div>
+                        <p class="ml-3" style="margin: 0; padding: 0;">{{ $event->user->username }}</p>
+                    </div>
                     <h4>Location:</h4>
                     <p>{{ $event->place }}</p>
                     <h4>Date:</h4>
@@ -58,13 +61,20 @@
                                 </tr>
                             </thead>
                             <tbody>
-                                @foreach ($event->eventparticipants()->get() as $attendee)
+                                @foreach ($attendees as $attendee)
                                 <tr>
-                                    <td>{{ $attendee->user->name }}</td>
+                                    <td>
+                                        <div class="d-flex align-items-center">
+                                            <div style="width: 50px; height: 50px; border-radius: 50%; background-image: url('{{ $attendee->user->getProfileImage() }}'); background-size: cover; background-position: center; background-repeat: no-repeat;"></div>
+                                            <p class="ml-3" style="margin: 0; padding: 0;">{{ $attendee->user->username }}</p>
+                                        </div>
+                                    </td>
                                 </tr>
                                 @endforeach
                             </tbody>
                         </table>
+                        {{ $attendees->links() }}
+
                     </div>
                 </div>
             </div>
@@ -93,7 +103,6 @@
                                     <input type="hidden" name="id_user" value="{{ Auth::user()->id }}">
                                     <input type="hidden" name="eventId" value="{{ $event->id }}">
                                     <button type="submit" class="btn btn-primary m-3 ">Join</button>
-                                    </div>
                                 </form>
                             @elseif($event->type == 'approval')
                                 <form method="POST" action="{{ route('events.notification', $event->id) }}">

@@ -87,6 +87,7 @@
                 <img src="{{ asset('images/web_dark_sq_na@1x.png') }}" alt="Google sign-in" style="width: 20px; height: 20px; margin-right: 5px;">
                 Sign in with Google
             </a>
+            </form>
         </div>
         @if ($errors->has('email'))
         <div class="alert alert-dismissible alert-danger mt-3">

@@ -8,6 +8,7 @@ use Illuminate\Support\Facades\URL;
 use App\Models\AuthenticatedUser;
 use App\Models\Notification;
 use App\Models\User;
+use Illuminate\Pagination\Paginator;
 
 
 class AppServiceProvider extends ServiceProvider
@@ -38,5 +39,7 @@ class AppServiceProvider extends ServiceProvider
             $notificationsCount = auth()->user()->notifications->count();
             $view->with('notificationsCount', $notificationsCount);
         });
+
+        Paginator::useBootstrapFour();
     }
 }

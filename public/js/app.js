@@ -262,13 +262,13 @@ window.onload = function() {
   });
 
     if (uploadModal) {
-      let image = document.getElementById('imageedit');
+      let image = document.getElementById('profile-image');
 
       if (image) {
         image.addEventListener('click', function() {
             uploadModal.style.display = 'block';
-            overlay.style.display = 'block'; // Display the overlay
-            document.body.style.overflow = 'hidden'; // Prevent scrolling
+            overlay.style.display = 'block';
+            document.body.style.overflow = 'hidden';
         });
     }
 
@@ -434,6 +434,26 @@ document.addEventListener('DOMContentLoaded', function () {
       });
   }
 });
+
+document.addEventListener('DOMContentLoaded', function() {
+  document.querySelectorAll('#v-pills-tab .nav-link').forEach(function(tab) {
+      tab.addEventListener('click', function(e) {
+          e.preventDefault();
+
+          document.querySelectorAll('#v-pills-tab .nav-link').forEach(function(tab) {
+              tab.classList.remove('active');
+          });
+
+          document.querySelectorAll('.tab-pane').forEach(function(tabContent) {
+              tabContent.classList.remove('show', 'active');
+          });
+
+          tab.classList.add('active');
+          document.querySelector(tab.getAttribute('href')).classList.add('show', 'active');
+      });
+  });
+});
+
 
 
 
