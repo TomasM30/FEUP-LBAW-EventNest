@@ -7,7 +7,7 @@
         <div class="col-12 col-md-3 mb-3 mb-md-0">
             <div class="nav flex-column nav-pills" id="v-pills-tab" role="tablist" aria-orientation="vertical">
                 <a class="nav-link active" id="v-pills-profile-tab" href="#v-pills-profile">Profile</a>
-                <a class="nav-link" id="v-pills-messages-tab" href="#v-pills-messages">Messages</a>
+                <a class="nav-link" id="v-pills-events-tab" href="#v-pills-events">Events</a>
                 <a class="nav-link" id="v-pills-settings-tab" href="#v-pills-settings">Settings</a>
             </div>
         </div>
@@ -15,7 +15,7 @@
             <div class="tab-content" id="v-pills-tabContent">
                 <div class="tab-pane fade show active" id="v-pills-profile">
                     <div class="container" style="max-width: 500px;">
-                            <div class="card" style="max-width: 80%;">
+                            <div class="card" style="max-width: 75%;">
                                 <img id="profile-image" src="{{ Auth::user()->getProfileImage() }}" class="card-img-top" alt="Profile Image">
                                 <div class="card-body">
                                     <h5 class="card-title">{{ Auth::user()->username }}</h5>
@@ -28,7 +28,38 @@
                             </div>
                         </div>
                     </div>
-                <div class="tab-pane fade" id="v-pills-messages">Messages content...</div>
+                <div class="tab-pane fade" id="v-pills-events">
+                    <div class="container">
+                        <div class="row">
+                            <div class="col-lg-6 col-md-12 mb-3">
+                                <div class="card h-100">
+                                    <div class="card-body text-center">
+                                        <h5 class="card-title">Events Hosted</h5>
+                                        <p class="card-text display-4">{{ $eventsHosted }}</p>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-lg-6 col-md-12 mb-3">
+                                <div class="card h-100">
+                                    <div class="card-body text-center">
+                                        <h5 class="card-title">Events Joined</h5>
+                                        <p class="card-text display-4">{{ $eventsJoined }}</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-12 mb-3">
+                                <div class="card h-100">
+                                    <div class="card-body text-center">
+                                        <h5 class="card-title">Total Participants</h5>
+                                        <p class="card-text display-4">{{ $totalParticipants }}</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
                 <div class="tab-pane fade" id="v-pills-settings">
                     <h3>Settings</h3>
                     <div class="row mt-4">

@@ -58,8 +58,17 @@ class AuthenticatedUserController extends Controller
         if (!$authenticatedUser) {
             return redirect()->back()->with('message', 'User not found');
         }
-            
-        return view('pages.user_profile', ['user' => $authenticatedUser->user]);
+
+        $eventsHosted = Event::where('id_user', $id)->count();
+        $eventsJoined = EventParticipant::where('id_user', $id)->count();
+        $totalParticipants = EventParticipant::whereIn('id_event', Event::where('id_user', $id)->pluck('id'))->count();
+
+        return view('pages.user_profile', [
+            'user' => $authenticatedUser->user,
+            'eventsHosted' => $eventsHosted,
+            'eventsJoined' => $eventsJoined,
+            'totalParticipants' => $totalParticipants
+        ]);
     }
 
 
