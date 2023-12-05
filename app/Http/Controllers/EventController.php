@@ -138,7 +138,7 @@ class EventController extends Controller
 
         $user = Auth::user();
 
-        $events = Event::whereIn('type', ['public', 'approval'])
+        $query = Event::whereIn('type', ['approval', 'public'])
                         ->where('id_user', '!=', $user->id)
                         ->where('closed', false)
                         ->orderBy('date')
@@ -542,9 +542,9 @@ class EventController extends Controller
         $search = $request->get('search');
         $filteredEventIds = $request->input('events');
     
-        $query = Event::where('type', ['public', 'approval'])
-                      ->where('closed', false)
-                      ->where('id_user', '!=', $user->id);
+        $query = Event::whereIn('type', ['approval', 'public'])
+                        ->where('id_user', '!=', $user->id)
+                        ->where('closed', false);
     
         if ($filteredEventIds) {
             $query = $query->whereIn('id', $filteredEventIds);
@@ -585,9 +585,9 @@ class EventController extends Controller
             }
         }
     
-        $events = $query->where('type', ['public', 'approval'])
-                        ->where('closed', false)
+        $query = Event::whereIn('type', ['approval', 'public'])
                         ->where('id_user', '!=', $user->id)
+                        ->where('closed', false)
                         ->orderBy($orderBy, $direction)->get();
     
         return view('pages.event_lists', ['events' => $events]);
@@ -600,7 +600,7 @@ class EventController extends Controller
         $places = $request->input('places');
         $search = $request->input('search');
 
-        $query = Event::where('type', ['public', 'approval'])
+        $query = Event::whereIn('type', ['approval', 'public'])
                     ->where('id_user', '!=', $user->id)
                     ->where('closed', false);
 
