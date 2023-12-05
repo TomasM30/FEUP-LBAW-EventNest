@@ -51,6 +51,18 @@ class AuthenticatedUserController extends Controller
         ]);
     }
 
+    public function showUserProfile(Request $request) {
+        $id = $request->route('id');
+        $authenticatedUser = AuthenticatedUser::find($id);
+
+        if (!$authenticatedUser) {
+            return redirect()->back()->with('message', 'User not found');
+        }
+            
+        return view('pages.user_profile', ['user' => $authenticatedUser->user]);
+    }
+
+
     public function editAccount (Request $request) {
         $user = Auth::user();
 
