@@ -84,11 +84,16 @@ class EventController extends Controller
                 'id_event' => $event->id,
                 ]);
             
-            if ($request->hasFile('file')) {
-                $request->merge(['id' => $event->id, 'type' => 'event']);
-                $fileController = new FileController();
-                $fileController->upload($request);
-            }
+                if ($request->hasFile('file')) {
+                    $request->merge(['id' => $event->id, 'type' => 'event']);
+                    $fileController = new FileController();
+                    $uploadResponse = $fileController->upload($request);
+                    if ($uploadResponse instanceof \Illuminate\Http\RedirectResponse) {
+                        return redirect()->route('events.details', ['id' => $event->id]);
+                    } else if (isset($uploadResponse['file'])) {
+                        return redirect()->back()->withErrors(['file' => $uploadResponse['file']]);
+                    }
+                }
         
             return redirect()->route('events.details', ['id' => $event->id]);
             
@@ -101,8 +106,9 @@ class EventController extends Controller
         }
     }
 
-    public function deleteEvent($id)
+    public function deleteEvent(Request $request)
     {
+        $id = $request->id;
         $event = Event::find($id);
         if (!$event) {
             return redirect()->back()->with('message', 'Event not found');
@@ -261,6 +267,16 @@ class EventController extends Controller
             $user = User::find($request->id_user);
             $receiverId = $request->id_user;
 
+            $notificationIds = Notification::where('id_user', $request->id_user)
+            ->whereHas('eventnotification', function ($query) use ($request) {
+                $query->where('id_event', $request->eventId);
+            })
+            ->pluck('id');
+
+            EventNotification::whereIn('id', $notificationIds)->delete();
+
+            Notification::whereIn('id', $notificationIds)->delete();
+
 
             if (!$this->createNotification('removed_from_event', $receiverId, null, $request->eventId)) {
                 return redirect()->back()->with('message', 'Failed to create notification!');
@@ -356,9 +372,9 @@ class EventController extends Controller
         return redirect()->back()->with('message', 'Left event successfully');
     }
 
-    public function editEvent (Request $request, $id)
+    public function editEvent (Request $request)
     {
-        $event = Event::find($id);
+        $event = Event::find($request->id);
 
         $this->authorize('editEvent', $event);
 
@@ -431,14 +447,18 @@ class EventController extends Controller
 
         $participants = $event->eventparticipants()->where('id_user', '!=', $event->id_user)->get();
         foreach ($participants as $participant) {
-            log::info($participant->id_user);
             $this->createNotification('event_edited', $participant->id_user, null, $event->id);
         }
 
         if ($request->hasFile('file')) {
             $request->merge(['id' => $event->id, 'type' => 'event']);
             $fileController = new FileController();
-            $fileController->upload($request);
+            $uploadResponse = $fileController->upload($request);
+            if ($uploadResponse instanceof \Illuminate\Http\RedirectResponse) {
+                return redirect()->route('events.details', ['id' => $event->id]);
+            } else if (isset($uploadResponse['file'])) {
+                return redirect()->back()->withErrors(['file' => $uploadResponse['file']]);
+            }
         }
 
         return redirect()->back()->with('success', 'Event successfully created');
@@ -662,6 +682,17 @@ class EventController extends Controller
         $participants = $event->eventparticipants()->where('id_user', '!=', $event->id_user)->get();
 
         foreach ($participants as $participant) {
+
+            $notificationIds = Notification::where('id_user', $participant->id_user)
+                                           ->whereHas('eventnotification', function ($query) use ($request) {
+                                               $query->where('id_event', $request->eventId);
+                                           })
+                                           ->pluck('id');
+    
+            EventNotification::whereIn('id', $notificationIds)->delete();
+    
+            Notification::whereIn('id', $notificationIds)->delete();
+
             $this->createNotification('event_canceled', $participant->id_user, null, $event->id);
         }
 

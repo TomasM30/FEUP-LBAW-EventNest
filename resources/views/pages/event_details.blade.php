@@ -203,9 +203,10 @@
                         @endif
                     @endif
                     @if($isAdmin)
-                        <form method="POST" action="{{ route('events.delete', $event->id) }}">
+                        <form method="POST" action="{{ route('events.delete', ['id' => $event->id]) }}">
                             {{ csrf_field() }}
                             {{ method_field('DELETE') }}
+                            <input type="hidden" name="id" value="{{ $event->id }}">
                             <div class="btn-group">
                                 <button type="submit" class="btn btn-primary m-3 ">Delete</button>
                             </div>

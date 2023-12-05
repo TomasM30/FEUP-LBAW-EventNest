@@ -213,85 +213,46 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 
 window.onload = function() {
-  let tags = document.querySelectorAll('.tag');
-  tags.forEach(function(tag) {
-      let hashtags = tag.querySelectorAll('.hashtag');
-      let fontSize = 20;
-      if (hashtags.length > 3) {
-          fontSize = 15;
+  function handleModal(modalId, triggerId, overlayId) {
+      let modal = document.getElementById(modalId);
+      let trigger = document.getElementById(triggerId);
+      let overlay = document.getElementById(overlayId);
+
+      if (!modal || !trigger || !overlay) {
+          console.error('One or more elements could not be found.');
+          return;
       }
-      tag.style.fontSize = fontSize + 'px';
-  });
 
-  let modal = document.getElementById('newEventModal');
-  let btnNe = document.getElementById('NEvent-button');
-  let btnEe = document.getElementById('edit-button');
-  let overlay = document.getElementById('overlay');
-  let dropdowns = document.getElementsByClassName("dropdown-toggle");
-  let closeModalButton = document.querySelector('#newEventModal .close');
-  for (let i = 0; i < dropdowns.length; i++) {
-    dropdowns[i].addEventListener('click', function() {
-        let dropdownContent = this.nextElementSibling;
-        dropdownContent.classList.toggle('show');
-    });
-  }
+      let closeModalButton = modal.querySelector('.close');
 
-  let uploadModal = document.getElementById('uploadModal');
-
-  let btn = btnEe ? btnEe : btnNe;
-  if (btn && modal) {
-      btn.addEventListener('click', function() {
+      trigger.addEventListener('click', function() {
           modal.style.display = 'block';
           overlay.style.display = 'block';
           document.body.style.overflow = 'hidden';
-          modal.style.overflow = 'auto';
       });
-      closeModalButton.addEventListener('click', function() {
-          modal.style.display = 'none';
-          overlay.style.display = 'none';
-          document.body.style.overflow = 'auto';
-      });
-  }
-
-  window.addEventListener('click', function(event) {
-    if (event.target == modal) {
-        modal.style.display = 'none';
-        overlay.style.display = 'none';
-        document.body.style.overflow = 'auto';
-    }
-  });
-
-    if (uploadModal) {
-      let image = document.getElementById('profile-image');
-
-      if (image) {
-        image.addEventListener('click', function() {
-            uploadModal.style.display = 'block';
-            overlay.style.display = 'block';
-            document.body.style.overflow = 'hidden';
-        });
-    }
-
-      let closeModalButton = uploadModal.querySelector('.close');
-      let overlay = document.getElementById('overlay');
 
       if (closeModalButton) {
-        closeModalButton.addEventListener('click', function() {
-            uploadModal.style.display = 'none';
-            overlay.style.display = 'none';
-            document.body.style.overflow = 'auto';
-        });
+          closeModalButton.addEventListener('click', function() {
+              modal.style.display = 'none';
+              overlay.style.display = 'none';
+              document.body.style.overflow = 'auto';
+          });
       }
 
       window.addEventListener('click', function(event) {
-          if (event.target == uploadModal) {
-            uploadModal.style.display = 'none';
-            overlay.style.display = 'none';
-            document.body.style.overflow = 'auto';
-        }
+          if (event.target == modal) {
+              modal.style.display = 'none';
+              overlay.style.display = 'none';
+              document.body.style.overflow = 'auto';
+          }
       });
+  }
 
-    }
+  handleModal('newEventModal', 'NEvent-button', 'overlay');
+  handleModal('uploadModal', 'editProfileButton', 'overlay');
+  handleModal('newEventModal', 'edit-button', 'overlay');
+  handleModal('passwordChangeModal', 'changePasswordBtn', 'overlay');
+  handleModal('deleteAccountModal', 'deleteAccountBtn', 'overlay');
 };
 
 
