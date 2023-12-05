@@ -19,6 +19,7 @@ use App\Models\Notification;
 use App\Models\EventNotification;
 use App\Models\RequestNotification;
 use App\Models\FavoriteEvent;
+use App\Http\Controllers\FileController;
 use Illuminate\Support\Facades\Log;
 
 // use App\Models\EventMessage;
@@ -35,9 +36,7 @@ class EventController extends Controller
     {
         try {
             $this->authorize('create', Event::class);
-
-            ($request->all());
-    
+            
             $request->validate([
                 'title' => 'required|string',
                 'description' => 'required|string|max:500',
@@ -55,9 +54,10 @@ class EventController extends Controller
                 ],
                 'place' => 'required|string',
                 'hashtags' => 'array',
-                'hashtags.*' => 'exists:hashtag,id',
+                'hashtags.*' => 'exists:hashtag,id'
             ]);
             
+
             $event = Event::create([
                 'title' => $request->title,
                 'description' => $request->description,
@@ -67,6 +67,7 @@ class EventController extends Controller
                 'ticket_limit' => $request->ticket_limit ? $request->ticket_limit : $request->capacity,
                 'place' => ucfirst($request->place),
                 'id_user' => Auth::user()->id,
+                'image' => null,
             ]);
 
             if ($request->hashtags) {
@@ -82,11 +83,20 @@ class EventController extends Controller
                 'id_user' => Auth::user()->id,
                 'id_event' => $event->id,
                 ]);
+            
+            if ($request->hasFile('file')) {
+                $request->merge(['id' => $event->id, 'type' => 'event']);
+                $fileController = new FileController();
+                $fileController->upload($request);
+            }
         
             return redirect()->route('events.details', ['id' => $event->id]);
             
         } catch (ValidationException $e) {
-            log::info($e->getMessage());
+            log::info('Validation exception: ' . $e->getMessage());
+            throw $e;
+        } catch (\Exception $e) {
+            log::info('General exception: ' . $e->getMessage());
             throw $e;
         }
     }
@@ -138,7 +148,7 @@ class EventController extends Controller
 
         $user = Auth::user();
 
-        $query = Event::whereIn('type', ['approval', 'public'])
+        $events = Event::whereIn('type', ['approval', 'public'])
                         ->where('id_user', '!=', $user->id)
                         ->where('closed', false)
                         ->orderBy('date')
@@ -420,6 +430,12 @@ class EventController extends Controller
         foreach ($participants as $participant) {
             log::info($participant->id_user);
             $this->createNotification('event_edited', $participant->id_user, null, $event->id);
+        }
+
+        if ($request->hasFile('file')) {
+            $request->merge(['id' => $event->id, 'type' => 'event']);
+            $fileController = new FileController();
+            $fileController->upload($request);
         }
 
         return redirect()->back()->with('success', 'Event successfully created');

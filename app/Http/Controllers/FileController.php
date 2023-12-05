@@ -19,7 +19,6 @@ class FileController extends Controller
     ];
 
     private static function isValidType(String $type) {
-        log::debug($type);
         return array_key_exists($type, self::$systemTypes);
     }
     
@@ -64,7 +63,7 @@ class FileController extends Controller
 
     function upload(Request $request) {
 
-        // Parameters
+        log::debug($request);
         $file = $request->file('file');
         $type = $request->type;
         $id = $request->id;

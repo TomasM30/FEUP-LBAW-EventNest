@@ -32,6 +32,7 @@ Route::redirect('/', '/login');
 
 Route::controller(UserController::class)->group(function () {
     Route::get('/user/findAll', 'findAll');
+    Route::get('/user/{id}/notifications', 'showUserNotifications')->name('user.notifications');
 });
 
 Route::controller(LoginController::class)->group(function () {
@@ -51,7 +52,6 @@ Route::controller(AdminController::class)->group(function () {
 
 Route::controller(AuthenticatedUserController::class)->group(function () {
     Route::get('/user/{id}/events', 'showUserEvents')->name('user.events');
-    Route::get('/user/{id}/notifications', 'showUserNotifications')->name('user.notifications');
     Route::get('/user/{id}/profile', 'showUserProfile')->name('user.profile');
 });
 

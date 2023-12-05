@@ -69,7 +69,7 @@
                 </div>
             </div>
             <div class="col-lg-3 mt-5">
-                <div class="d-flex flex-wrap justify-content-center position-sticky" style="top: 10%;">
+                <div class="d-flex flex-wrap justify-content-center position-sticky" style="top: 15%;">
                     @php
                         $participants = $event->eventparticipants()->pluck('id_user')->toArray();
                         $nonParticipants = App\Models\AuthenticatedUser::whereNotIn('id_user', $participants)->get();
@@ -210,5 +210,4 @@
 
 <div id="overlay" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0, 0, 0, 0.5); z-index: 1000;"></div>
 @include('partials.eventModal', ['formAction' => route('events.edit', $event->id), 'hashtags' => $hashtags])
-@include('partials.uploadModal', ['event' => $event])
 @endsection

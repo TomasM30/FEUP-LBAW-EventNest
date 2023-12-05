@@ -14,7 +14,7 @@
                 </button>
             </div>
             <div class="modal-body">
-                <form method="POST" action="{{ $formAction }}">
+                <form method="POST" action="{{ $formAction }}" enctype="multipart/form-data">
                     {{ csrf_field() }}
                     <fieldset>
                         <div class="form-group">
@@ -96,6 +96,15 @@
                                     </div>
                                 @endforeach
                             </div>
+                        </div>
+                        <div class="form-group mt-5">
+                            <label for="file">Event Photo</label>
+                            <p>
+                                @if($formAction != route('events.edit', $event->id))
+                                    Choose a photo or leave empty to use the default image.
+                                @endif
+                            </p>
+                            <input class="form-control" id="file" name="file" type="file">
                         </div>
                         <button type="submit" class="btn btn-primary mt-4">
                             @if($formAction == route('events.edit', $event->id))

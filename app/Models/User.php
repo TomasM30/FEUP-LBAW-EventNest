@@ -62,4 +62,8 @@ class User extends Authenticatable
         return FileController::get('profile', $this->id);
     }
     
+    public function notifications(){
+        return $this->hasMany(Notification::class, 'id_user');
+    }
+    
 }

@@ -12,7 +12,7 @@
             <div class="modal-body">
                 <p>Choose a photo to use on your event.</p>
                 <div class="form-group">
-                    <form method="POST" action="/file/upload" enctype="multipart/form-data">
+                    <form method="POST" action="/file/uplaoad" enctype="multipart/form-data">
                         {{ csrf_field() }}
                         <input class="form-control" name="file" type="file" required>
                         <input name="id" value="{{ $event->id }}" type="hidden">
