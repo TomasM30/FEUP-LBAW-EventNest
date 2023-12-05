@@ -2,7 +2,7 @@
 
 @section('content')
 
-<div class="content-container">
+<div class="content-container overflow-x-hidden">
     <div>
         <div class="row m-3">
             <div class="col">
@@ -82,15 +82,16 @@
     </div>
 
 
-    <div class="row row-cols-1 row-cols-md-3 g-4 custom-row" id="container">
-        @foreach ($events as $event)
-        @include('partials.event', ['event' => $event])
-        @endforeach
+    <div class="container">
+        <div class="row row-cols-1 row-cols-md-3 g-4 custom-row" id="container">
+            @foreach ($events as $event)
+                @include('partials.event', ['event' => $event])
+            @endforeach
+        </div>
     </div>
 
     <div id="overlay" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0, 0, 0, 0.5); z-index: 1000;"></div>
     @include('partials.eventModal', ['formAction' => route('events.create'), 'hashtags' => $hashtags])
-
 </div>
 
 @endsection

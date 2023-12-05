@@ -31,7 +31,7 @@ class Notification extends Model
     protected $primaryKey = 'id';
 
     public function user(){
-        return $this->belongsTo(AuthenticatedUser::class, 'id_user');
+        return $this->belongsTo(User::class, 'id_user');
     }
 
     public function eventnotification(){
