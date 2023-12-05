@@ -10,8 +10,14 @@
         @endif
 
         <div class="text-center position-relative overflow-hidden">
-            <div id="bluredPic" class="position-absolute w-100 h-100 bluredPic" style="background-image: url(https://mdbootstrap.com/img/new/standard/nature/111.webp);"></div>
-            <img class="mx-auto d-block img-fluid" src="https://mdbootstrap.com/img/new/standard/nature/111.webp" style="max-height: 300px; position: relative; z-index: 1;" />
+            <div id="bluredPic" class="position-absolute w-100 h-100 bluredPic" style="background-image: url('{{ $event->getProfileImage() }}');"></div>
+            @if(Auth::user()->id == $event->id_user)
+                <a id="imageedit" href="#" data-toggle="modal" data-target="#uploadModal">
+                    <img class="mx-auto d-block img-fluid" src="{{ $event->getProfileImage() }}" style="max-height: 300px; position: relative; z-index: 1;" />
+                </a>
+            @else
+                <img class="mx-auto d-block img-fluid" src="{{ $event->getProfileImage() }}" style="max-height: 300px; position: relative; z-index: 1;" />
+            @endif
         </div>
 
         <div class="row mt-3">
@@ -204,4 +210,5 @@
 
 <div id="overlay" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0, 0, 0, 0.5); z-index: 1000;"></div>
 @include('partials.eventModal', ['formAction' => route('events.edit', $event->id), 'hashtags' => $hashtags])
+@include('partials.uploadModal', ['event' => $event])
 @endsection

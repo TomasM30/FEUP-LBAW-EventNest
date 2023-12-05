@@ -38,9 +38,9 @@
                         <div class="form-group">
                             <label for="type">Type</label>
                             <select id="type" name="type" class="form-control" style="height: 3em" @if($formAction != route('events.edit', $event->id)) required @endif>
-                                <option value="public">Public</option>
-                                <option value="private">Private</option>
-                                <option value="approval">Approval</option>
+                                <option value="public" @if(isset($event) && $event->type == 'public') selected @endif>Public</option>
+                                <option value="private" @if(isset($event) && $event->type == 'private') selected @endif>Private</option>
+                                <option value="approval" @if(isset($event) && $event->type == 'approval') selected @endif>Approval</option>
                             </select>
                         </div>
                         <div class="form-group">

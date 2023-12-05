@@ -7,7 +7,6 @@ use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Log;
 
 use App\Models\Event;
 use App\Models\User;
@@ -20,6 +19,7 @@ use App\Models\Notification;
 use App\Models\EventNotification;
 use App\Models\RequestNotification;
 use App\Models\FavoriteEvent;
+use Illuminate\Support\Facades\Log;
 
 // use App\Models\EventMessage;
 // use App\Models\EventNotification;
@@ -40,7 +40,7 @@ class EventController extends Controller
     
             $request->validate([
                 'title' => 'required|string',
-                'description' => 'required|string',
+                'description' => 'required|string|max:500',
                 'type' => 'in:public,private,approval',
                 'date' => 'required|after_or_equal:today',
                 'capacity' => 'required|integer|min:2',
@@ -83,8 +83,10 @@ class EventController extends Controller
                 'id_event' => $event->id,
                 ]);
         
-            return redirect()->back()->with('success', 'Event successfully created');
+            return redirect()->route('events.details', ['id' => $event->id]);
+            
         } catch (ValidationException $e) {
+            log::info($e->getMessage());
             throw $e;
         }
     }
@@ -294,9 +296,6 @@ class EventController extends Controller
                 
                 $receiverId = $event->id_user;
                 $eventId = $request->eventId;
-
-                log::info($receiverId);
-                log::info($senderId);
                 if (!$this->createNotification('invitation_accepted', $receiverId, $senderId, $eventId)) {
                     return redirect()->back()->with('message', 'Failed to create notification!');
                 }
@@ -423,7 +422,7 @@ class EventController extends Controller
             $this->createNotification('event_edited', $participant->id_user, null, $event->id);
         }
 
-        return redirect()->back()->with('success', 'Event successfully updated');
+        return redirect()->back()->with('success', 'Event successfully created');
     }
 
     public function createNotification($notificationType, $receiverId, $senderId = null, $eventId = null)

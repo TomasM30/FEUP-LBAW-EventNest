@@ -11943,3 +11943,8 @@ th {
   filter: blur(15px);
   z-index: -1;
 }
+
+#imageedit:hover, #bluredPicOrg:hover {
+  filter: grayscale(50%);
+  cursor: url('../images/pencil.svg'), auto;
+}

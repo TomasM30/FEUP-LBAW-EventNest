@@ -222,6 +222,7 @@ window.onload = function() {
       }
       tag.style.fontSize = fontSize + 'px';
   });
+
   let modal = document.getElementById('newEventModal');
   let btnNe = document.getElementById('NEvent-button');
   let btnEe = document.getElementById('edit-button');
@@ -233,23 +234,66 @@ window.onload = function() {
         let dropdownContent = this.nextElementSibling;
         dropdownContent.classList.toggle('show');
     });
-}
+  }
 
-let btn = btnEe ? btnEe : btnNe;
-if (btn && modal) {
-    btn.addEventListener('click', function() {
-        modal.style.display = 'block';
-        overlay.style.display = 'block';
-        document.body.style.overflow = 'hidden';
-        modal.style.overflow = 'auto';
-    });
-    closeModalButton.addEventListener('click', function() {
+  let uploadModal = document.getElementById('uploadModal');
+
+  let btn = btnEe ? btnEe : btnNe;
+  if (btn && modal) {
+      btn.addEventListener('click', function() {
+          modal.style.display = 'block';
+          overlay.style.display = 'block';
+          document.body.style.overflow = 'hidden';
+          modal.style.overflow = 'auto';
+      });
+      closeModalButton.addEventListener('click', function() {
+          modal.style.display = 'none';
+          overlay.style.display = 'none';
+          document.body.style.overflow = 'auto';
+      });
+  }
+
+  window.addEventListener('click', function(event) {
+    if (event.target == modal) {
         modal.style.display = 'none';
         overlay.style.display = 'none';
         document.body.style.overflow = 'auto';
-    });
-}
+    }
+  });
+
+    if (uploadModal) {
+      let image = document.getElementById('imageedit');
+
+      if (image) {
+        image.addEventListener('click', function() {
+            uploadModal.style.display = 'block';
+            overlay.style.display = 'block'; // Display the overlay
+            document.body.style.overflow = 'hidden'; // Prevent scrolling
+        });
+    }
+
+      let closeModalButton = uploadModal.querySelector('.close');
+      let overlay = document.getElementById('overlay');
+
+      if (closeModalButton) {
+        closeModalButton.addEventListener('click', function() {
+            uploadModal.style.display = 'none';
+            overlay.style.display = 'none';
+            document.body.style.overflow = 'auto';
+        });
+      }
+
+      window.addEventListener('click', function(event) {
+          if (event.target == uploadModal) {
+            uploadModal.style.display = 'none';
+            overlay.style.display = 'none';
+            document.body.style.overflow = 'auto';
+        }
+      });
+
+    }
 };
+
 
 let filteredEvents = [];
 let searchTerm = '';
@@ -370,21 +414,25 @@ function orderEventsByTitle() {
 }
 
 document.addEventListener('DOMContentLoaded', function () {
-  document.getElementById('navbarToggler').addEventListener('click', function () {
-      let navbarCollapse = document.getElementById('navbarColor01');
-      if (navbarCollapse.classList.contains('show')) {
-          navbarCollapse.classList.remove('show');
-          navbarCollapse.classList.add('collapsing');
-          setTimeout(function () {
+  let navbarToggler = document.getElementById('navbarToggler');
+  
+  if (navbarToggler) {
+      navbarToggler.addEventListener('click', function () {
+          let navbarCollapse = document.getElementById('navbarColor01');
+          if (navbarCollapse.classList.contains('show')) {
+              navbarCollapse.classList.remove('show');
+              navbarCollapse.classList.add('collapsing');
+              setTimeout(function () {
+                  navbarCollapse.classList.remove('collapsing');
+                  navbarCollapse.style = '';
+              }, 350);
+          } else {
               navbarCollapse.classList.remove('collapsing');
-              navbarCollapse.style = '';
-          }, 350);
-      } else {
-          navbarCollapse.classList.remove('collapsing');
-          navbarCollapse.classList.add('show');
-          navbarCollapse.style = 'display: block;';
-      }
-  });
+              navbarCollapse.classList.add('show');
+              navbarCollapse.style = 'display: block;';
+          }
+      });
+  }
 });
 
 
