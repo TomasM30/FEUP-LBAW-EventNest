@@ -105,6 +105,11 @@
                                 @endif
                             </p>
                             <input class="form-control" id="file" name="file" type="file">
+                            @if ($errors->has('file'))
+                                <div class="alert alert-dismissible alert-danger">
+                                    <strong>Oh snap!</strong> {{ $errors->first('file') }}
+                                </div>
+                            @endif
                         </div>
                         <button type="submit" class="btn btn-primary mt-4">
                             @if($formAction == route('events.edit', $event->id))

@@ -80,7 +80,7 @@ CREATE TABLE Event (
     capacity INT NOT NULL,
     ticket_limit INT ,
     place VARCHAR(255) NOT NULL,
-    id_user INT NOT NULL,
+    id_user INT,
     closed BOOLEAN DEFAULT FALSE,
     image VARCHAR(255) DEFAULT NULL,
     CHECK (ticket_limit <= capacity),

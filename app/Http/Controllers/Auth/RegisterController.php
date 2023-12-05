@@ -48,10 +48,6 @@ class RegisterController extends Controller
             'id_user' => $user->id
         ]);
 
-        //$credentials = $request->only('email', 'password');
-        //Auth::attempt($credentials);
-        //$request->session()->regenerate();
         return redirect()->route('login');
-         //   ->withSuccess('You have successfully registered & logged in!');
     }
 }

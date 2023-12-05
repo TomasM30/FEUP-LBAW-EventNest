@@ -7,15 +7,20 @@ use App\Models\AuthenticatedUser;
 use App\Models\Event;
 use App\Models\User;
 use App\Models\EventParticipant;
-use App\Models\FavouriteEvents;
+use App\Models\FavoriteEvents;
+use Illuminate\Support\Facades\Auth;
+use App\Http\Controllers\FileController;
+use App\Models\Notification;
+use App\Models\EventNotification;
+use Illuminate\Support\Facades\Hash;
 
 
 
 class AuthenticatedUserController extends Controller
 {
-    public function showUserEvents($id)
+    public function showUserEvents(Request $request)
     {
-        $authenticatedUser = AuthenticatedUser::find($id);
+        $authenticatedUser = AuthenticatedUser::find($request->route('id'));
 
         if (!$authenticatedUser) {
             return redirect()->back()->with('message', 'User not found');
@@ -53,81 +58,98 @@ class AuthenticatedUserController extends Controller
         if (!$authenticatedUser) {
             return redirect()->back()->with('message', 'User not found');
         }
-            
-        return view('pages.user_profile', ['user' => $authenticatedUser->user]);
+
+        $eventsHosted = Event::where('id_user', $id)->count();
+        $eventsJoined = EventParticipant::where('id_user', $id)->count();
+        $totalParticipants = EventParticipant::whereIn('id_event', Event::where('id_user', $id)->pluck('id'))->count();
+
+        return view('pages.user_profile', [
+            'user' => $authenticatedUser->user,
+            'eventsHosted' => $eventsHosted,
+            'eventsJoined' => $eventsJoined,
+            'totalParticipants' => $totalParticipants
+        ]);
     }
 
 
-    public function editAccount (Request $request) {
+    public function updateUserProfile (Request $request) {
+
+        $request->validate([
+            'username' => 'required|string|max:255|unique:users,username,' . Auth::user()->id,
+            'name' => 'required|string|max:255',
+            'email' => 'required|string|email|max:255|unique:users,email,' . Auth::user()->id,
+        ]);
+
         $user = Auth::user();
-
-        $this -> authorize('edit', $user);
-
-        if(!$user) {
-            return redirect()->back()->with('error','User not found');
-        }
-        if($request->has('name') && !empty($request->name)){
-            $request->validate(['name' => 'required|string|max:250']);
-            $user->name = $request->name;
-        }
-        if($request->has('username') && !empty($request->username)){
-            $request->validate(['username' => 'required|string|max:250|unique:users']);
-            $user->username = $request->username;
-        }
-        if($request->has('email') && !empty($request->email)){
-            $request->validate(['email' => 'required|email|max:250|unique:users']);
-            $user->email = $request->email;
-        }
-        if($request->has('newPassword') && !empty($request->newPassword)){
-            $request->validate(['newPassword' => 'required|min:8|confirmed']);
-        }
-        if($request->has('repeatPassword') && !empty($request->repeatPassword) && ($request->repeatPassword == $request->newPassword)){
-            $request->validate(['repeatPassword' => 'required|min:8|confirmed']);
-            $user->password = Hash::make($request->newPassword);
-        }
-
+        $user->username = $request->username;
+        $user->name = $request->name;
+        $user->email = $request->email;
         $user->save();
 
-        return redirect()->back()->with('success', 'Account successfully updated');
+
+        if ($request->hasFile('file')) {
+            $request->merge(['id' => $user->id, 'type' => 'profile']);
+            $fileController = new FileController();
+            $uploadResponse = $fileController->upload($request);
+            if ($uploadResponse instanceof \Illuminate\Http\RedirectResponse) {
+                return $uploadResponse;
+            } else if (isset($uploadResponse['file'])) {
+                return redirect()->back()->withErrors(['file' => $uploadResponse['file']]);
+            }
+        }
+
+        return redirect()->back()->with('message', 'Profile updated successfully!');    
     }
 
-    public function deleteAccount($id) {
-        $user = User::find($id);
-        if(!$user) {
-            return redirect()->back()->with('message','User not authenticated');
+    public function updateUserPassword(Request $request)
+    {
+        $request->validate([
+            'current_password' => 'required',
+            'new_password' => 'required|min:8|confirmed',
+        ]);
+    
+        $user = Auth::user();
+    
+        if ($user->password && !Hash::check($request->current_password, $user->password)) {
+            return back()->withErrors(['current_password' => 'Current password is incorrect']);
+        }
+    
+        $user->password = Hash::make($request->new_password);
+        $user->save();
+        Auth::logout();
+
+        return redirect('/login')->with('success', 'Password changed successfully. Please log in with your new password.');
+    }
+
+    public function deleteUser() {
+        $user = Auth::user();
+    
+        $eventController = new EventController;
+        $authenticatedUser = $user->authenticated;
+    
+        $events = $authenticatedUser->events->where('id_user', $user->id);
+
+        $eventNotificationIds = EventNotification::where('inviter_id', $user->id)->pluck('id');
+        EventNotification::whereIn('id', $eventNotificationIds)->delete();
+        Notification::whereIn('id', $eventNotificationIds)->delete();
+
+        $notificationIds = Notification::where('id_user', $user->id)->pluck('id');
+        EventNotification::whereIn('id', $notificationIds)->delete();
+        Notification::whereIn('id', $notificationIds)->delete();
+    
+        foreach ($events as $event) {
+            $request = new Request(['eventId' => $event->id]);
+            $eventController->cancelEvent($request);
+            $event->update(['id_user' => null]);
         }
 
-        $this -> authorize('delete', $user);
-
-        DB::beginTransaction();
-
-        try {
-            $user = User::findOrFail($id);
-
-            $user->admin()->delete();
-            $user->authenticated()->delete();
-            $user->event()->delete();
-            //$user->eventmessage()->delete();
-            Invitation::where('id_user', $id)->delete();
-            //$user->messagereaction()->delete();
-            //$user->eventparticipants()->delete();
-            $user->favouriteevent()->delete();
-            //$user->order()->delete();
-            //$user->report()->delete();
-            //$user->file()->delete();
-            //$user->poll()->delete();
-            //$user->pollvotes();
-
-            $user->delete();
-
-            DB::commit();
-
-            return redirect()->route('login')->with('message','Account deleted successfully!');
-        } catch(\Exception $e) {
-            DB::rollBack();
-            return redirect()->back()->with('message', 'Account deletion failed');
-        }
-
+    
+        EventParticipant::where('id_user', $user->id)->delete();
+        FavoriteEvents::where('id_user', $user->id)->delete();
+        $authenticatedUser->delete();
+        $user->delete();
+    
+        return redirect('/login')->with('success', 'User deleted successfully.');
     }
 
 }

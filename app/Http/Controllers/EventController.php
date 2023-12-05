@@ -84,11 +84,16 @@ class EventController extends Controller
                 'id_event' => $event->id,
                 ]);
             
-            if ($request->hasFile('file')) {
-                $request->merge(['id' => $event->id, 'type' => 'event']);
-                $fileController = new FileController();
-                $fileController->upload($request);
-            }
+                if ($request->hasFile('file')) {
+                    $request->merge(['id' => $event->id, 'type' => 'event']);
+                    $fileController = new FileController();
+                    $uploadResponse = $fileController->upload($request);
+                    if ($uploadResponse instanceof \Illuminate\Http\RedirectResponse) {
+                        return redirect()->route('events.details', ['id' => $event->id]);
+                    } else if (isset($uploadResponse['file'])) {
+                        return redirect()->back()->withErrors(['file' => $uploadResponse['file']]);
+                    }
+                }
         
             return redirect()->route('events.details', ['id' => $event->id]);
             
@@ -101,8 +106,9 @@ class EventController extends Controller
         }
     }
 
-    public function deleteEvent($id)
+    public function deleteEvent(Request $request)
     {
+        $id = $request->id;
         $event = Event::find($id);
         if (!$event) {
             return redirect()->back()->with('message', 'Event not found');
@@ -141,26 +147,31 @@ class EventController extends Controller
     public function listEvents()
     {   
         $now = Carbon::now();
-
+    
         Event::where('date', '<', $now)
             ->where('closed', false)
             ->update(['closed' => true]);
-
+    
         $user = Auth::user();
-
-        $events = Event::whereIn('type', ['approval', 'public'])
-                        ->where('id_user', '!=', $user->id)
-                        ->where('closed', false)
-                        ->orderBy('date')
-                        ->get();
-                        
-        $now = Carbon::now();
-
+    
+        $query = Event::query();
+    
+        if ($user->isAdmin()) {
+            log::info('User is admin');
+            $query->where('closed', false);
+        } else {
+            $query->whereIn('type', ['approval', 'public'])
+                  ->where('id_user', '!=', $user->id)
+                  ->where('closed', false);
+        }
+    
+        $events = $query->orderBy('date')->get();
+    
         $hashtags = Hashtag::orderBy('title')->get();
         $places = Event::getUniquePlaces()->sortBy('place');
-
+    
         return view('pages.events', ['events' => $events, 'user'=> $user, 'hashtags' => $hashtags, 'places' => $places]);
-    }
+    }   
 
 
     public function showEventDetails(Request $request) 
@@ -261,6 +272,16 @@ class EventController extends Controller
             $user = User::find($request->id_user);
             $receiverId = $request->id_user;
 
+            $notificationIds = Notification::where('id_user', $request->id_user)
+            ->whereHas('eventnotification', function ($query) use ($request) {
+                $query->where('id_event', $request->eventId);
+            })
+            ->pluck('id');
+
+            EventNotification::whereIn('id', $notificationIds)->delete();
+
+            Notification::whereIn('id', $notificationIds)->delete();
+
 
             if (!$this->createNotification('removed_from_event', $receiverId, null, $request->eventId)) {
                 return redirect()->back()->with('message', 'Failed to create notification!');
@@ -356,9 +377,9 @@ class EventController extends Controller
         return redirect()->back()->with('message', 'Left event successfully');
     }
 
-    public function editEvent (Request $request, $id)
+    public function editEvent (Request $request)
     {
-        $event = Event::find($id);
+        $event = Event::find($request->id);
 
         $this->authorize('editEvent', $event);
 
@@ -431,14 +452,18 @@ class EventController extends Controller
 
         $participants = $event->eventparticipants()->where('id_user', '!=', $event->id_user)->get();
         foreach ($participants as $participant) {
-            log::info($participant->id_user);
             $this->createNotification('event_edited', $participant->id_user, null, $event->id);
         }
 
         if ($request->hasFile('file')) {
             $request->merge(['id' => $event->id, 'type' => 'event']);
             $fileController = new FileController();
-            $fileController->upload($request);
+            $uploadResponse = $fileController->upload($request);
+            if ($uploadResponse instanceof \Illuminate\Http\RedirectResponse) {
+                return redirect()->route('events.details', ['id' => $event->id]);
+            } else if (isset($uploadResponse['file'])) {
+                return redirect()->back()->withErrors(['file' => $uploadResponse['file']]);
+            }
         }
 
         return redirect()->back()->with('success', 'Event successfully created');
@@ -560,23 +585,29 @@ class EventController extends Controller
         $user = Auth::user();
         $search = $request->get('search');
         $filteredEventIds = $request->input('events');
-    
-        $query = Event::whereIn('type', ['approval', 'public'])
-                        ->where('id_user', '!=', $user->id)
-                        ->where('closed', false);
-    
+
+        $query = Event::query();
+
+        if ($user->isAdmin()) {
+            $query->where('closed', false);
+        } else {
+            $query->whereIn('type', ['approval', 'public'])
+                ->where('id_user', '!=', $user->id)
+                ->where('closed', false);
+        }
+
         if ($filteredEventIds) {
             $query = $query->whereIn('id', $filteredEventIds);
         }
-    
+
         if (!empty($search)) {
             $searchTerms = explode(' ', $search);
-    
+
             foreach ($searchTerms as $term) {
                 $query = $query->whereRaw("tsvectors @@ plainto_tsquery('portuguese', ?)", [$term]);
             }
         }
-    
+
         $events = $query->get();
         return view('pages.event_lists', ['events' => $events]);
     }
@@ -585,30 +616,35 @@ class EventController extends Controller
     public function order(Request $request)
     {
         $user = Auth::user();
-        $orderBy = $request->input('orderBy');
+        $orderBy = $request->input('orderBy', 'date');
         $direction = $request->input('direction', 'asc');
         $eventIds = $request->input('events');
         $search = $request->input('search');
-    
+
         $query = Event::query();
-    
+
         if (!empty($eventIds)) {
             $query = $query->whereIn('id', $eventIds);
         }
-    
+
         if (!empty($search)) {
             $searchTerms = explode(' ', $search);
-    
+
             foreach ($searchTerms as $term) {
                 $query = $query->whereRaw("tsvectors @@ plainto_tsquery('portuguese', ?)", [$term]);
             }
         }
-    
-        $events = Event::whereIn('type', ['approval', 'public'])
-                        ->where('id_user', '!=', $user->id)
-                        ->where('closed', false)
-                        ->orderBy($orderBy, $direction)->get();
-    
+
+        if ($user->isAdmin()) {
+            $query->where('closed', false);
+        } else {
+            $query->whereIn('type', ['approval', 'public'])
+                ->where('id_user', '!=', $user->id)
+                ->where('closed', false);
+        }
+
+        $events = $query->orderBy($orderBy, $direction)->get();
+
         return view('pages.event_lists', ['events' => $events]);
     }
 
@@ -619,9 +655,15 @@ class EventController extends Controller
         $places = $request->input('places');
         $search = $request->input('search');
 
-        $query = Event::whereIn('type', ['approval', 'public'])
-                    ->where('id_user', '!=', $user->id)
-                    ->where('closed', false);
+        $query = Event::query();
+
+        if ($user->isAdmin()) {
+            $query->where('closed', false);
+        } else {
+            $query->whereIn('type', ['approval', 'public'])
+                ->where('id_user', '!=', $user->id)
+                ->where('closed', false);
+        }
 
         if (!empty($search)) {
             $searchTerms = explode(' ', $search);
@@ -648,7 +690,7 @@ class EventController extends Controller
             'html' => $filteredEventsHtml,
             'ids' => $filteredEventIds,
         ]);
-    }
+    }               
 
     public function cancelEvent(Request $request){
         $event = Event::find($request->eventId);
@@ -662,6 +704,17 @@ class EventController extends Controller
         $participants = $event->eventparticipants()->where('id_user', '!=', $event->id_user)->get();
 
         foreach ($participants as $participant) {
+
+            $notificationIds = Notification::where('id_user', $participant->id_user)
+                                           ->whereHas('eventnotification', function ($query) use ($request) {
+                                               $query->where('id_event', $request->eventId);
+                                           })
+                                           ->pluck('id');
+    
+            EventNotification::whereIn('id', $notificationIds)->delete();
+    
+            Notification::whereIn('id', $notificationIds)->delete();
+
             $this->createNotification('event_canceled', $participant->id_user, null, $event->id);
         }
 

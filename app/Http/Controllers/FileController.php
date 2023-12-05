@@ -69,11 +69,10 @@ class FileController extends Controller
         $id = $request->id;
         $extension = $file->getClientOriginalExtension();
         if (!in_array($extension, self::$systemTypes[$type])) {
-            return redirect()->back()->withErrors(['file' => 'Invalid file type.']);
-        }  
+            return ['file' => 'Invalid file type.'];
+        }
           
-        // Hashing
-        $fileName = $file->hashName(); // generate a random unique id
+        $fileName = $file->hashName();
     
         // Save in correct folder and disk
         $request->file->storeAs($type, $fileName, self::$diskName);

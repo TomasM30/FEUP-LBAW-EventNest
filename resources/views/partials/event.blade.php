@@ -12,11 +12,11 @@
             </div>
             <div class="card-header">
                 @if($event->hashtags->isNotEmpty())
-                @foreach($event->hashtags as $hashtag)
-                <span class="hashtag">#{{ $hashtag->title }}</span>
-                @endforeach
+                    @foreach($event->hashtags as $hashtag)
+                        <span class="hashtag">#{{ $hashtag->title }}</span>
+                    @endforeach
                 @else
-                &nbsp;
+                    &nbsp;
                 @endif
             </div>
             <div class="card-footer">

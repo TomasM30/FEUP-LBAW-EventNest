@@ -53,6 +53,9 @@ Route::controller(AdminController::class)->group(function () {
 Route::controller(AuthenticatedUserController::class)->group(function () {
     Route::get('/user/{id}/events', 'showUserEvents')->name('user.events');
     Route::get('/user/{id}/profile', 'showUserProfile')->name('user.profile');
+    Route::post('/user/{id}/profile/edit', 'updateUserProfile')->name('user.profile.update');
+    Route::post('/user/{id}/password/change', 'updateUserPassword')->name('user.password.update');
+    Route::post('/user/{id}/delete', 'deleteUser')->name('user.delete');
 });
 
 Route::controller(EventController::class)->group(function () {

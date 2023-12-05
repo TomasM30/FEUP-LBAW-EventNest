@@ -52,7 +52,7 @@ class Event extends Model
     }
 
     public function favoriteevent(){
-        return $this->hasMany(FavouriteEvents::class, 'id_event');
+        return $this->hasMany(FavoriteEvents::class, 'id_event');
     }
 
     public function hashtags()

@@ -112,6 +112,7 @@ class EventPolicy
                         ->join('notification', 'eventnotification.id', '=', 'notification.id')
                         ->where('id_event', $event->id)
                         ->where('notification.id_user', $user->id)
+                        ->where('notification.type', 'invitation_received')
                         ->exists();
 
         if ($event->type == 'private') {
