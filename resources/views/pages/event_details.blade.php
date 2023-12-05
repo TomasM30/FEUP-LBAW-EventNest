@@ -23,11 +23,16 @@
         <div class="row mt-3">
             <div class="col-lg-9 col-md-12">
                 <div id="eventInfo" class="event-info mt-5" style="overflow-wrap: break-word;">
-                    <h1>{{ $event->title }}</h1>
                     <h4 class="mt-5">Hosted by:</h4>
                     <div class="d-flex align-items-center mb-3">
-                        <div style="width: 50px; height: 50px; border-radius: 50%; background-image: url('{{ $event->user->getProfileImage() }}'); background-size: cover; background-position: center; background-repeat: no-repeat;"></div>
-                        <p class="ml-3" style="margin: 0; padding: 0;">{{ $event->user->username }}</p>
+                        @if($event->user)
+                            <div style="width: 50px; height: 50px; border-radius: 50%; background-image: url('{{ $event->user->getProfileImage() }}'); background-size: cover; background-position: center; background-repeat: no-repeat;"></div>
+                            <p class="ml-3" style="margin: 0; padding: 0;">{{ $event->user->username }}</p>
+                        @else
+                            <div class="alert alert-dismissible alert-danger">
+                                <p class="ml-3" style="margin: 0; padding: 0; color: red; font-weight: bold;">User deleted</p>                            
+                            </div>
+                        @endif
                     </div>
                     <h4>Location:</h4>
                     <p>{{ $event->place }}</p>

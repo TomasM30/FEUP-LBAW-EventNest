@@ -6,7 +6,7 @@
     <div>
         <div class="row m-3">
             <div class="col">
-                <div class="form-outline" id="search-form" data-url="{{ route('search-events') }}">
+                <div class="form-outline mt-2" id="search-form" data-url="{{ route('search-events') }}">
                     <input type="search" id="form1" class="form-control" placeholder="Search" aria-label="Search" />
                 </div>
             </div>

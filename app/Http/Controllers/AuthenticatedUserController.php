@@ -119,9 +119,14 @@ class AuthenticatedUserController extends Controller
         $authenticatedUser = $user->authenticated;
     
         $events = $authenticatedUser->events->where('id_user', $user->id);
-    
-        Notification::where('id_user', $user->id)->delete();
-        EventNotification::where('inviter_id', $user->id)->delete();
+
+        $eventNotificationIds = EventNotification::where('inviter_id', $user->id)->pluck('id');
+        EventNotification::whereIn('id', $eventNotificationIds)->delete();
+        Notification::whereIn('id', $eventNotificationIds)->delete();
+
+        $notificationIds = Notification::where('id_user', $user->id)->pluck('id');
+        EventNotification::whereIn('id', $notificationIds)->delete();
+        Notification::whereIn('id', $notificationIds)->delete();
     
         foreach ($events as $event) {
             $request = new Request(['eventId' => $event->id]);
@@ -129,9 +134,9 @@ class AuthenticatedUserController extends Controller
             $event->update(['id_user' => null]);
         }
 
+    
         EventParticipant::where('id_user', $user->id)->delete();
         FavoriteEvents::where('id_user', $user->id)->delete();
-    
         $authenticatedUser->delete();
         $user->delete();
     

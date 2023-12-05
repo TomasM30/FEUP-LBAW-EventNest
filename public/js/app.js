@@ -213,6 +213,17 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 
 window.onload = function() {
+
+  let dropdowns = document.getElementsByClassName("dropdown-toggle");
+  for (let i = 0; i < dropdowns.length; i++) {
+    dropdowns[i].addEventListener('click', function() {
+        let dropdownContent = this.nextElementSibling;
+        dropdownContent.classList.toggle('show');
+    });
+  }
+
+
+
   function handleModal(modalId, triggerId, overlayId) {
       let modal = document.getElementById(modalId);
       let trigger = document.getElementById(triggerId);
