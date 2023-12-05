@@ -14,7 +14,7 @@
                 </button>
             </div>
             <div class="modal-body">
-                <form method="POST" action="{{ $formAction }}">
+                <form method="POST" action="{{ $formAction }}" enctype="multipart/form-data">
                     {{ csrf_field() }}
                     <fieldset>
                         <div class="form-group">
@@ -38,9 +38,9 @@
                         <div class="form-group">
                             <label for="type">Type</label>
                             <select id="type" name="type" class="form-control" style="height: 3em" @if($formAction != route('events.edit', $event->id)) required @endif>
-                                <option value="public">Public</option>
-                                <option value="private">Private</option>
-                                <option value="approval">Approval</option>
+                                <option value="public" @if(isset($event) && $event->type == 'public') selected @endif>Public</option>
+                                <option value="private" @if(isset($event) && $event->type == 'private') selected @endif>Private</option>
+                                <option value="approval" @if(isset($event) && $event->type == 'approval') selected @endif>Approval</option>
                             </select>
                         </div>
                         <div class="form-group">
@@ -96,6 +96,15 @@
                                     </div>
                                 @endforeach
                             </div>
+                        </div>
+                        <div class="form-group mt-5">
+                            <label for="file">Event Photo</label>
+                            <p>
+                                @if($formAction != route('events.edit', $event->id))
+                                    Choose a photo or leave empty to use the default image.
+                                @endif
+                            </p>
+                            <input class="form-control" id="file" name="file" type="file">
                         </div>
                         <button type="submit" class="btn btn-primary mt-4">
                             @if($formAction == route('events.edit', $event->id))

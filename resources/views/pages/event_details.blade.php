@@ -10,8 +10,14 @@
         @endif
 
         <div class="text-center position-relative overflow-hidden">
-            <div id="bluredPic" class="position-absolute w-100 h-100 bluredPic" style="background-image: url(https://mdbootstrap.com/img/new/standard/nature/111.webp);"></div>
-            <img class="mx-auto d-block img-fluid" src="https://mdbootstrap.com/img/new/standard/nature/111.webp" style="max-height: 300px; position: relative; z-index: 1;" />
+            <div id="bluredPic" class="position-absolute w-100 h-100 bluredPic" style="background-image: url('{{ $event->getProfileImage() }}');"></div>
+            @if(Auth::user()->id == $event->id_user)
+                <a id="imageedit" href="#" data-toggle="modal" data-target="#uploadModal">
+                    <img class="mx-auto d-block img-fluid" src="{{ $event->getProfileImage() }}" style="max-height: 300px; position: relative; z-index: 1;" />
+                </a>
+            @else
+                <img class="mx-auto d-block img-fluid" src="{{ $event->getProfileImage() }}" style="max-height: 300px; position: relative; z-index: 1;" />
+            @endif
         </div>
 
         <div class="row mt-3">
@@ -19,7 +25,10 @@
                 <div id="eventInfo" class="event-info mt-5" style="overflow-wrap: break-word;">
                     <h1>{{ $event->title }}</h1>
                     <h4 class="mt-5">Hosted by:</h4>
-                    <p>{{ $event->user->name }}</p>
+                    <div class="d-flex align-items-center mb-3">
+                        <div style="width: 50px; height: 50px; border-radius: 50%; background-image: url('{{ $event->user->getProfileImage() }}'); background-size: cover; background-position: center; background-repeat: no-repeat;"></div>
+                        <p class="ml-3" style="margin: 0; padding: 0;">{{ $event->user->username }}</p>
+                    </div>
                     <h4>Location:</h4>
                     <p>{{ $event->place }}</p>
                     <h4>Date:</h4>
@@ -52,18 +61,25 @@
                                 </tr>
                             </thead>
                             <tbody>
-                                @foreach ($event->eventparticipants()->get() as $attendee)
+                                @foreach ($attendees as $attendee)
                                 <tr>
-                                    <td>{{ $attendee->user->name }}</td>
+                                    <td>
+                                        <div class="d-flex align-items-center">
+                                            <div style="width: 50px; height: 50px; border-radius: 50%; background-image: url('{{ $attendee->user->getProfileImage() }}'); background-size: cover; background-position: center; background-repeat: no-repeat;"></div>
+                                            <p class="ml-3" style="margin: 0; padding: 0;">{{ $attendee->user->username }}</p>
+                                        </div>
+                                    </td>
                                 </tr>
                                 @endforeach
                             </tbody>
                         </table>
+                        {{ $attendees->links() }}
+
                     </div>
                 </div>
             </div>
             <div class="col-lg-3 mt-5">
-                <div class="d-flex flex-wrap justify-content-center position-sticky" style="top: 10%;">
+                <div class="d-flex flex-wrap justify-content-center position-sticky" style="top: 15%;">
                     @php
                         $participants = $event->eventparticipants()->pluck('id_user')->toArray();
                         $nonParticipants = App\Models\AuthenticatedUser::whereNotIn('id_user', $participants)->get();

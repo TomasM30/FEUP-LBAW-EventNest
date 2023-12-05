@@ -10,6 +10,7 @@ use App\Http\Controllers\EventController;
 use App\Http\Controllers\AdminController;
 use App\Http\Controllers\AuthenticatedUserController;
 use App\Http\Controllers\GoogleController;
+use App\Http\Controllers\FileController;
 
 
 use App\Http\Controllers\Auth\LoginController;
@@ -31,6 +32,7 @@ Route::redirect('/', '/login');
 
 Route::controller(UserController::class)->group(function () {
     Route::get('/user/findAll', 'findAll');
+    Route::get('/user/{id}/notifications', 'showUserNotifications')->name('user.notifications');
 });
 
 Route::controller(LoginController::class)->group(function () {
@@ -50,7 +52,7 @@ Route::controller(AdminController::class)->group(function () {
 
 Route::controller(AuthenticatedUserController::class)->group(function () {
     Route::get('/user/{id}/events', 'showUserEvents')->name('user.events');
-    Route::get('/user/{id}/notifications', 'showUserNotifications')->name('user.notifications');
+    Route::get('/user/{id}/profile', 'showUserProfile')->name('user.profile');
 });
 
 Route::controller(EventController::class)->group(function () {
@@ -64,7 +66,7 @@ Route::controller(EventController::class)->group(function () {
     Route::post('/events/{id}/join','joinEvent')->name('event.join');
     Route::post('/events/{id}/add', 'addUser')->name('events.add');
     Route::post('/events/{id}/remove', 'removeUser')->name('events.remove');
-    Route::get('/events/search', 'search')->name('search-events');
+    Route::post('/events/search', 'search')->name('search-events');
     Route::post('/events/{id}/invite', 'addNotification')->name('events.notification');
     Route::delete('/notifications/{notificationId}/delete', 'deleteNotification')->name('notification.delete');
     Route::post('/events/order', 'order')->name('events.order');
@@ -74,6 +76,10 @@ Route::controller(EventController::class)->group(function () {
 Route::controller(GoogleController::class)->group(function () {
     Route::get('auth/google', 'redirect')->name('google-auth');
     Route::get('auth/google/call-back', 'callbackGoogle')->name('google-call-back');
+});
+
+Route::controller(FileController::class)->group(function () {
+    Route::post('/file/upload', 'upload')-> name('file.upload');
 });
 
 

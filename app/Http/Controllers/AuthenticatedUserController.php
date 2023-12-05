@@ -8,11 +8,6 @@ use App\Models\Event;
 use App\Models\User;
 use App\Models\EventParticipant;
 use App\Models\FavouriteEvents;
-use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Hash;
-use App\Models\Notification;
-use App\Models\EventNotification;
 
 
 

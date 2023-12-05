@@ -2,7 +2,7 @@
 
 @section('content')
 
-<div class="content-container">
+<div class="content-container overflow-x-hidden">
     <div>
         <div class="row m-3">
             <div class="col">
@@ -35,7 +35,7 @@
                     </div>
                 </div>
             </div>
-            <div class="col-md-6">
+            <div class="col-md-6 ">
                 <div class="accordion m-4" id="accordionExample">
                     <div class="accordion-item">
                         <h2 class="accordion-header" id="headingTwo">
@@ -45,7 +45,7 @@
                         </h2>
                         <div id="collapseTwo" class="accordion-collapse collapse" aria-labelledby="headingTwo" data-bs-parent="#accordionExample">
                             <div class="accordion-body row">
-                                <div class="col-md-6">
+                                <div class="col-md-6 mb-3">
                                     <h5>Hashtags</h5>
                                     <div class="card-body hashtags-body">
                                         @foreach ($hashtags as $hashtag)
@@ -82,15 +82,16 @@
     </div>
 
 
-    <div class="row row-cols-1 row-cols-md-3 g-4 custom-row" id="container">
-        @foreach ($events as $event)
-        @include('partials.event', ['event' => $event])
-        @endforeach
+    <div class="container">
+        <div class="row row-cols-1 row-cols-md-3 g-4 custom-row" id="container">
+            @foreach ($events as $event)
+                @include('partials.event', ['event' => $event])
+            @endforeach
+        </div>
     </div>
 
     <div id="overlay" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0, 0, 0, 0.5); z-index: 1000;"></div>
     @include('partials.eventModal', ['formAction' => route('events.create'), 'hashtags' => $hashtags])
-
 </div>
 
 @endsection

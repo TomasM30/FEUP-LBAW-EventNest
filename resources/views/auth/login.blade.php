@@ -2,10 +2,10 @@
 
 @section('content')
 
-<nav class="navbar navbar-expand-lg bg-primary" data-bs-theme="dark">
+<nav class="navbar navbar-expand-lg bg-primary px-3" data-bs-theme="dark">
     <div class="container-fluid">
         <a class="navbar-brand" href="#">EventNest</a>
-        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarColor01" aria-controls="navbarColor01" aria-expanded="false" aria-label="Toggle navigation">
+        <button class="navbar-toggler" type="button" id="navbarToggler" aria-controls="navbarColor01" aria-expanded="false" aria-label="Toggle navigation">
             <span class="navbar-toggler-icon"></span>
         </button>
         <div class="collapse navbar-collapse" id="navbarColor01">
@@ -14,7 +14,6 @@
                 <button id='register' type="submit" name="action" value="register" class="btn btn-secondary" type="submit">Register</button>
             </div>
         </div>
-    </div>
     </div>
 </nav>
 <div class="container-fluid row">

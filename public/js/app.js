@@ -222,6 +222,7 @@ window.onload = function() {
       }
       tag.style.fontSize = fontSize + 'px';
   });
+
   let modal = document.getElementById('newEventModal');
   let btnNe = document.getElementById('NEvent-button');
   let btnEe = document.getElementById('edit-button');
@@ -233,50 +234,69 @@ window.onload = function() {
         let dropdownContent = this.nextElementSibling;
         dropdownContent.classList.toggle('show');
     });
-}
+  }
 
-let btn = btnEe ? btnEe : btnNe;
-if (btn && modal) {
-    btn.addEventListener('click', function() {
-        modal.style.display = 'block';
-        overlay.style.display = 'block';
-        document.body.style.overflow = 'hidden';
-        modal.style.overflow = 'auto';
-    });
-    closeModalButton.addEventListener('click', function() {
+  let uploadModal = document.getElementById('uploadModal');
+
+  let btn = btnEe ? btnEe : btnNe;
+  if (btn && modal) {
+      btn.addEventListener('click', function() {
+          modal.style.display = 'block';
+          overlay.style.display = 'block';
+          document.body.style.overflow = 'hidden';
+          modal.style.overflow = 'auto';
+      });
+      closeModalButton.addEventListener('click', function() {
+          modal.style.display = 'none';
+          overlay.style.display = 'none';
+          document.body.style.overflow = 'auto';
+      });
+  }
+
+  window.addEventListener('click', function(event) {
+    if (event.target == modal) {
         modal.style.display = 'none';
         overlay.style.display = 'none';
         document.body.style.overflow = 'auto';
-    });
-}
+    }
+  });
+
+    if (uploadModal) {
+      let image = document.getElementById('profile-image');
+
+      if (image) {
+        image.addEventListener('click', function() {
+            uploadModal.style.display = 'block';
+            overlay.style.display = 'block';
+            document.body.style.overflow = 'hidden';
+        });
+    }
+
+      let closeModalButton = uploadModal.querySelector('.close');
+      let overlay = document.getElementById('overlay');
+
+      if (closeModalButton) {
+        closeModalButton.addEventListener('click', function() {
+            uploadModal.style.display = 'none';
+            overlay.style.display = 'none';
+            document.body.style.overflow = 'auto';
+        });
+      }
+
+      window.addEventListener('click', function(event) {
+          if (event.target == uploadModal) {
+            uploadModal.style.display = 'none';
+            overlay.style.display = 'none';
+            document.body.style.overflow = 'auto';
+        }
+      });
+
+    }
 };
 
-document.addEventListener('DOMContentLoaded', function() {
-  let searchForm = document.getElementById('search-form');
-  if(searchForm) {
-      searchForm.addEventListener('submit', function(event) {
-          event.preventDefault();
-      });
-  }
-
-  let form1 = document.getElementById('form1');
-  if(form1) {
-      form1.addEventListener('keyup', function() {
-          let value = this.value;
-          let xhr = new XMLHttpRequest();
-          let url = document.getElementById('search-form').getAttribute('data-url');
-          xhr.open('GET', url + '?search=' + value, true);
-          xhr.onreadystatechange = function() {
-              if (xhr.readyState == 4 && xhr.status == 200) {
-                  document.getElementById('container').innerHTML = xhr.responseText;
-              }
-          }
-          xhr.send();
-      });
-  }
-});
 
 let filteredEvents = [];
+let searchTerm = '';
 
 document.addEventListener('DOMContentLoaded', function() {
   let acc = document.getElementsByClassName("accordion-button");
@@ -298,7 +318,7 @@ function filterEvents() {
   let selectedPlaces = Array.from(document.querySelectorAll('input[name^="places"]:checked')).map(input => input.value);
 
   let url = `/events/filter`;
-  let data = { hashtags: selectedHashtags, places: selectedPlaces };
+  let data = { hashtags: selectedHashtags, places: selectedPlaces, search: searchTerm  };
 
   console.log(data);
   fetch(url, {
@@ -317,6 +337,40 @@ function filterEvents() {
   .catch(error => console.error('Error:', error));
 }
 
+document.addEventListener('DOMContentLoaded', function() {
+  let searchForm = document.getElementById('search-form');
+  if(searchForm) {
+      searchForm.addEventListener('submit', function(event) {
+          event.preventDefault();
+      });
+  }
+
+  let form1 = document.getElementById('form1');
+  if(form1) {
+    form1.addEventListener('keyup', function() {
+        searchTerm = this.value;
+        let value = this.value;
+        let url = document.getElementById('search-form').getAttribute('data-url');
+        let data = { search: value, events: filteredEvents };
+
+        fetch(url, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
+            },
+            body: JSON.stringify(data)
+        })
+        .then(response => response.text())
+        .then(data => {
+            console.log(data); // Log the data object
+            document.getElementById('container').innerHTML = data;
+        })
+        .catch(error => console.error('Error:', error));
+    });
+}
+});
+
 function orderEventsByDate() {
   let dateButton = document.getElementById('date-button');
   let orderDirection = dateButton.getAttribute('data-direction') === 'asc' ? 'desc' : 'asc';
@@ -329,7 +383,7 @@ function orderEventsByDate() {
           'Content-Type': 'application/json',
           'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
       },
-      body: JSON.stringify({ events: filteredEvents, orderBy: 'date', direction: orderDirection })
+      body: JSON.stringify({ events: filteredEvents, orderBy: 'date', direction: orderDirection, search: searchTerm  })
   })
   .then(response => response.text())
   .then(data => {
@@ -350,7 +404,7 @@ function orderEventsByTitle() {
           'Content-Type': 'application/json',
           'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
       },
-      body: JSON.stringify({ events: filteredEvents, orderBy: 'title', direction: orderDirection })
+      body: JSON.stringify({ events: filteredEvents, orderBy: 'title', direction: orderDirection, search: searchTerm  })
   })
   .then(response => response.text())
   .then(data => {
@@ -360,21 +414,46 @@ function orderEventsByTitle() {
 }
 
 document.addEventListener('DOMContentLoaded', function () {
-  document.getElementById('navbarToggler').addEventListener('click', function () {
-      let navbarCollapse = document.getElementById('navbarColor01');
-      if (navbarCollapse.classList.contains('show')) {
-          navbarCollapse.classList.remove('show');
-          navbarCollapse.classList.add('collapsing');
-          setTimeout(function () {
+  let navbarToggler = document.getElementById('navbarToggler');
+  
+  if (navbarToggler) {
+      navbarToggler.addEventListener('click', function () {
+          let navbarCollapse = document.getElementById('navbarColor01');
+          if (navbarCollapse.classList.contains('show')) {
+              navbarCollapse.classList.remove('show');
+              navbarCollapse.classList.add('collapsing');
+              setTimeout(function () {
+                  navbarCollapse.classList.remove('collapsing');
+                  navbarCollapse.style = '';
+              }, 350);
+          } else {
               navbarCollapse.classList.remove('collapsing');
-              navbarCollapse.style = '';
-          }, 350);
-      } else {
-          navbarCollapse.classList.remove('collapsing');
-          navbarCollapse.classList.add('show');
-          navbarCollapse.style = 'display: block;';
-      }
+              navbarCollapse.classList.add('show');
+              navbarCollapse.style = 'display: block;';
+          }
+      });
+  }
+});
+
+document.addEventListener('DOMContentLoaded', function() {
+  document.querySelectorAll('#v-pills-tab .nav-link').forEach(function(tab) {
+      tab.addEventListener('click', function(e) {
+          e.preventDefault();
+
+          document.querySelectorAll('#v-pills-tab .nav-link').forEach(function(tab) {
+              tab.classList.remove('active');
+          });
+
+          document.querySelectorAll('.tab-pane').forEach(function(tabContent) {
+              tabContent.classList.remove('show', 'active');
+          });
+
+          tab.classList.add('active');
+          document.querySelector(tab.getAttribute('href')).classList.add('show', 'active');
+      });
   });
 });
+
+
 
 

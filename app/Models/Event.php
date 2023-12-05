@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use App\Http\Controllers\FileController;
 
 class Event extends Model
 {
@@ -20,6 +21,7 @@ class Event extends Model
         'place',
         'id_user',
         'closed',
+        'image'
     ];
 
     use HasFactory;
@@ -69,5 +71,9 @@ class Event extends Model
     public static function getUniquePlaces()
     {
         return self::select('place')->distinct()->get();
+    }
+
+    public function getProfileImage() {
+        return FileController::get('event', $this->id);
     }
 }
