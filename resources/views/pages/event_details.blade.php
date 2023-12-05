@@ -23,6 +23,7 @@
         <div class="row mt-3">
             <div class="col-lg-9 col-md-12">
                 <div id="eventInfo" class="event-info mt-5" style="overflow-wrap: break-word;">
+                    <h1>{{ $event->title }}</h1>
                     <h4 class="mt-5">Hosted by:</h4>
                     <div class="d-flex align-items-center mb-3">
                         @if($event->user)
