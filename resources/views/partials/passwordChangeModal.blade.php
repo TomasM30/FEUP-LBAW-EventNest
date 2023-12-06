@@ -14,27 +14,33 @@
                         <label for="current_password">Current Password</label>
                         <input type="password" class="form-control" id="current_password" name="current_password" required>
                         @if ($errors->has('current_password'))
-                            <div class="alert alert-dismissible alert-danger">
-                                <strong>Oh snap!</strong> {{ $errors->first('current_password') }}
-                            </div>
+                            @foreach ($errors->get('current_password') as $error)
+                                <div class="alert alert-dismissible alert-danger">
+                                    <strong>Oh snap!</strong> {{ $error }}
+                                </div>
+                            @endforeach
                         @endif
                     </div>
                     <div class="form-group">
                         <label for="new_password">New Password</label>
                         <input type="password" class="form-control" id="new_password" name="new_password" required>
                         @if ($errors->has('new_password'))
-                            <div class="alert alert-dismissible alert-danger">
-                                <strong>Oh snap!</strong> {{ $errors->first('new_password') }}
-                            </div>
+                            @foreach ($errors->get('new_password"') as $error)
+                                <div class="alert alert-dismissible alert-danger">
+                                    <strong>Oh snap!</strong> {{ $error }}
+                                </div>
+                            @endforeach
                         @endif
                     </div>
                     <div class="form-group">
                         <label for="new_password_confirmation">Confirm New Password</label>
                         <input type="password" class="form-control" id="new_password_confirmation" name="new_password_confirmation" required>
                         @if ($errors->has('new_password_confirmation'))
-                            <div class="alert alert-dismissible alert-danger">
-                                <strong>Oh snap!</strong> {{ $errors->first('new_password_confirmation') }}
-                            </div>
+                            @foreach ($errors->get('new_password_confirmation') as $error)
+                                <div class="alert alert-dismissible alert-danger">
+                                    <strong>Oh snap!</strong> {{ $error }}
+                                </div>
+                            @endforeach
                         @endif
                     </div>
                     <button type="submit" class="btn btn-primary mt-4">Change Password</button>

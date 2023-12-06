@@ -264,6 +264,7 @@ window.onload = function() {
   handleModal('newEventModal', 'edit-button', 'overlay');
   handleModal('passwordChangeModal', 'changePasswordBtn', 'overlay');
   handleModal('deleteAccountModal', 'deleteAccountBtn', 'overlay');
+  handleModal('reportModal', 'reportBtn', 'overlay');
 };
 
 

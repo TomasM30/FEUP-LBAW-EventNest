@@ -21,18 +21,22 @@
                             <label for="title" class="form-label mt-4">Title</label>
                             <input type="text" class="form-control" id="title" name="title" placeholder="Event title" @if($formAction != route('events.edit', $event->id)) required @endif>
                             @if ($errors->has('title'))
-                                <span class="error">
-                                    {{ $errors->first('title') }}
-                                </span>
+                                @foreach ($errors->get('title') as $error)
+                                    <div class="alert alert-dismissible alert-danger">
+                                        <strong>Oh snap!</strong> {{ $error }}
+                                    </div>
+                                @endforeach
                             @endif
                         </div>
                         <div class="form-group">
                             <label for="description" class="form-label mt-4">Description</label>
                             <textarea class="form-control" id="description" name="description" @if($formAction != route('events.edit', $event->id)) required @endif></textarea>
                             @if ($errors->has('description'))
-                                <span class="error">
-                                    {{ $errors->first('description') }}
-                                </span>
+                                @foreach ($errors->get('description') as $error)
+                                    <div class="alert alert-dismissible alert-danger">
+                                        <strong>Oh snap!</strong> {{ $error }}
+                                    </div>
+                                @endforeach
                             @endif
                         </div>
                         <div class="form-group">
@@ -47,18 +51,22 @@
                             <label for="date">Date</label>
                             <input type="date" class="form-control" id="date" name="date"  @if($formAction != route('events.edit', $event->id)) required @endif>
                             @if ($errors->has('date'))
-                                <span class="error">
-                                    {{ $errors->first('date') }}
-                                </span>
+                                @foreach ($errors->get('date') as $error)
+                                    <div class="alert alert-dismissible alert-danger">
+                                        <strong>Oh snap!</strong> {{ $error }}
+                                    </div>
+                                @endforeach
                             @endif
                         </div>
                         <div class="form-group">
                             <label for="capacity">Capacity</label>
                             <input type="number" class="form-control" id="capacity" name="capacity"  @if($formAction != route('events.edit', $event->id)) required @endif>
                             @if ($errors->has('capacity'))
-                                <span class="error">
-                                    {{ $errors->first('capacity') }}
-                                </span>
+                                @foreach ($errors->get('capacity') as $error)
+                                    <div class="alert alert-dismissible alert-danger">
+                                        <strong>Oh snap!</strong> {{ $error }}
+                                    </div>
+                                @endforeach
                             @endif
                         </div>
                         @if (Auth::user()->isAdmin() || (Auth::user()->authenticated->is_verified))
@@ -67,19 +75,23 @@
                                 <input type="number" class="form-control" id="ticket_limit" name="ticket_limit">
                                 <p>If left empty, ticket limit will be equal to capacity.</p>
                                 @if ($errors->has('ticket_limit'))
-                                    <span class="error">
-                                        {{ $errors->first('ticket_limit') }}
-                                    </span>
-                                @endif
+                                @foreach ($errors->get('ticket_limit') as $error)
+                                    <div class="alert alert-dismissible alert-danger">
+                                        <strong>Oh snap!</strong> {{ $error }}
+                                    </div>
+                                @endforeach
+                            @endif
                             </div>
                         @endif
                         <div class="form-group">
                             <label for="place">Place</label>
                             <input type="text" class="form-control" id="place" name="place"  @if($formAction != route('events.edit', $event->id)) required @endif>
                             @if ($errors->has('place'))
-                                <span class="error">
-                                    {{ $errors->first('place') }}
-                                </span>
+                                @foreach ($errors->get('place') as $error)
+                                    <div class="alert alert-dismissible alert-danger">
+                                        <strong>Oh snap!</strong> {{ $error }}
+                                    </div>
+                                @endforeach
                             @endif
                         </div>
                         <div class="card">
@@ -106,9 +118,11 @@
                             </p>
                             <input class="form-control" id="file" name="file" type="file">
                             @if ($errors->has('file'))
-                                <div class="alert alert-dismissible alert-danger">
-                                    <strong>Oh snap!</strong> {{ $errors->first('file') }}
-                                </div>
+                                @foreach ($errors->get('file') as $error)
+                                    <div class="alert alert-dismissible alert-danger">
+                                        <strong>Oh snap!</strong> {{ $error }}
+                                    </div>
+                                @endforeach
                             @endif
                         </div>
                         <button type="submit" class="btn btn-primary mt-4">

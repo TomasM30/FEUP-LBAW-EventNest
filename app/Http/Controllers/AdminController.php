@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use App\Models\AuthenticatedUser;
 use App\Models\Event;
+use App\Models\Report;
 use Carbon\Carbon;
 
 
@@ -25,5 +26,12 @@ class AdminController extends Controller
         $events = Event::orderBy('date')->get();
     
         return view('pages.admin_dashboard', ['users' => $authenticatedUsers, 'events' => $events]);
+    }
+
+    public function showReportDetails($id)
+    {
+        $report = Report::with('user', 'event')->find($id);
+
+        return view('pages.report_details', ['report' => $report]);
     }
 }

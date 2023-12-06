@@ -7,6 +7,7 @@ use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Log;
 
 use App\Models\Event;
 use App\Models\User;
@@ -19,16 +20,9 @@ use App\Models\Notification;
 use App\Models\EventNotification;
 use App\Models\RequestNotification;
 use App\Models\FavoriteEvent;
+use App\Models\Report;
 use App\Http\Controllers\FileController;
-use Illuminate\Support\Facades\Log;
 
-// use App\Models\EventMessage;
-// use App\Models\EventNotification;
-// use App\Models\EventHashtag;
-// use App\Models\TicketType;
-// use App\Models\Report;
-// use App\Models\File;
-// use App\Models\Poll;
 
 class EventController extends Controller
 {
@@ -36,6 +30,8 @@ class EventController extends Controller
     {
         try {
             $this->authorize('create', Event::class);
+
+            DB::BeginTransaction();
             
             $request->validate([
                 'title' => 'required|string',
@@ -54,7 +50,7 @@ class EventController extends Controller
                 ],
                 'place' => 'required|string',
                 'hashtags' => 'array',
-                'hashtags.*' => 'exists:hashtag,id'
+                'hashtags.*' => 'exists:hashtag,id',
             ]);
             
 
@@ -84,24 +80,26 @@ class EventController extends Controller
                 'id_event' => $event->id,
                 ]);
             
-                if ($request->hasFile('file')) {
-                    $request->merge(['id' => $event->id, 'type' => 'event']);
-                    $fileController = new FileController();
-                    $uploadResponse = $fileController->upload($request);
-                    if ($uploadResponse instanceof \Illuminate\Http\RedirectResponse) {
-                        return redirect()->route('events.details', ['id' => $event->id]);
-                    } else if (isset($uploadResponse['file'])) {
-                        return redirect()->back()->withErrors(['file' => $uploadResponse['file']]);
-                    }
+            if ($request->hasFile('file')) {
+                $request->merge(['id' => $event->id, 'type' => 'event']);
+                $fileController = new FileController();
+                $uploadResponse = $fileController->upload($request);
+                if ($uploadResponse instanceof \Illuminate\Http\RedirectResponse) {
+                    return redirect()->route('events.details', ['id' => $event->id]);
+                } else if (isset($uploadResponse['file'])) {
+                    return redirect()->back()->withErrors(['file' => $uploadResponse['file']]);
                 }
+            }
+
+            DB::commit();
         
             return redirect()->route('events.details', ['id' => $event->id]);
             
         } catch (ValidationException $e) {
-            log::info('Validation exception: ' . $e->getMessage());
+            DB::rollback();
             throw $e;
         } catch (\Exception $e) {
-            log::info('General exception: ' . $e->getMessage());
+            DB::rollback();
             throw $e;
         }
     }
@@ -379,102 +377,116 @@ class EventController extends Controller
 
     public function editEvent (Request $request)
     {
-        $event = Event::find($request->id);
 
-        $this->authorize('editEvent', $event);
+        try{
+            DB::BeginTransaction();
 
-        if (!$event) {
-            return redirect()->back()->with('error', 'Event not found');
-        }
+            $event = Event::find($request->id);
 
-        if ($request->has('title') && !empty($request->title)) {
-            $request->validate(['title' => 'string']);
-            $event->title = $request->title;
-        }
+            $this->authorize('editEvent', $event);
 
-        if ($request->has('description') && !empty($request->description)) {
-            $request->validate(['description' => 'string']);
-            $event->description = $request->description;
-        }
+            if (!$event) {
+                return redirect()->back()->with('error', 'Event not found');
+            }
 
-        if ($request->has('type') && !empty($request->type)) {
-            $request->validate(['type' => 'in:public,private,approval']);
-            $event->type = $request->type;
-        }
+            if ($request->has('title') && !empty($request->title)) {
+                $request->validate(['title' => 'string']);
+                $event->title = $request->title;
+            }
 
-        if ($request->has('date') && !empty($request->date)) {
-            $request->validate(['date' => 'after_or_equal:today']);
-            $event->date = $request->date;
-        }
+            if ($request->has('description') && !empty($request->description)) {
+                $request->validate(['description' => 'string']);
+                $event->description = $request->description;
+            }
 
-        if ($request->has('capacity') && !empty($request->capacity)) {
-            $request->validate(['capacity' => 'integer|min:0']);
-            $event->capacity = $request->capacity;
-        }
+            if ($request->has('type') && !empty($request->type)) {
+                $request->validate(['type' => 'in:public,private,approval']);
+                $event->type = $request->type;
+            }
 
-        if ($request->has('ticket_limit') && !empty($request->ticket_limit)) {
-            $request->validate([
-                'ticket_limit' => [
-                    'integer',
-                    'min:0',
-                    function ($attribute, $value, $fail) use ($request) {
-                        if ($value > $request->capacity) {
-                            $fail($attribute.' must be less than or equal to capacity.');
-                        }
-                    },
-                ],
-            ]);
-            $event->ticket_limit = $request->ticket_limit;
-        }
+            if ($request->has('date') && !empty($request->date)) {
+                $request->validate(['date' => 'after_or_equal:today']);
+                $event->date = $request->date;
+            }
 
-        if ($request->has('place') && !empty($request->place)) {
-            $request->validate(['place' => 'string']);
-            $event->place = ucfirst($request->place);
-        }
+            if ($request->has('capacity') && !empty($request->capacity)) {
+                $request->validate(['capacity' => 'integer|min:0']);
+                $event->capacity = $request->capacity;
+            }
 
-        if ($request->has('hashtags')) {
-            $request->validate([
-                'hashtags' => 'array',
-                'hashtags.*' => 'exists:hashtag,id',
-            ]);
-
-            $event->hashtags()->detach();
-
-            foreach ($request->hashtags as $hashtagId) {
-                EventHashtag::create([
-                    'id_event' => $event->id,
-                    'id_hashtag' => $hashtagId,
+            if ($request->has('ticket_limit') && !empty($request->ticket_limit)) {
+                $request->validate([
+                    'ticket_limit' => [
+                        'integer',
+                        'min:0',
+                        function ($attribute, $value, $fail) use ($request) {
+                            if ($value > $request->capacity) {
+                                $fail($attribute.' must be less than or equal to capacity.');
+                            }
+                        },
+                    ],
                 ]);
+                $event->ticket_limit = $request->ticket_limit;
             }
-        }
 
-        $event->save();
-
-        $participants = $event->eventparticipants()->where('id_user', '!=', $event->id_user)->get();
-        foreach ($participants as $participant) {
-            $this->createNotification('event_edited', $participant->id_user, null, $event->id);
-        }
-
-        if ($request->hasFile('file')) {
-            $request->merge(['id' => $event->id, 'type' => 'event']);
-            $fileController = new FileController();
-            $uploadResponse = $fileController->upload($request);
-            if ($uploadResponse instanceof \Illuminate\Http\RedirectResponse) {
-                return redirect()->route('events.details', ['id' => $event->id]);
-            } else if (isset($uploadResponse['file'])) {
-                return redirect()->back()->withErrors(['file' => $uploadResponse['file']]);
+            if ($request->has('place') && !empty($request->place)) {
+                $request->validate(['place' => 'string']);
+                $event->place = ucfirst($request->place);
             }
-        }
 
-        return redirect()->back()->with('success', 'Event successfully created');
+            if ($request->has('hashtags')) {
+                $request->validate([
+                    'hashtags' => 'array',
+                    'hashtags.*' => 'exists:hashtag,id',
+                ]);
+
+                $event->hashtags()->detach();
+
+                foreach ($request->hashtags as $hashtagId) {
+                    EventHashtag::create([
+                        'id_event' => $event->id,
+                        'id_hashtag' => $hashtagId,
+                    ]);
+                }
+            }
+
+            $event->save();
+
+            $participants = $event->eventparticipants()->where('id_user', '!=', $event->id_user)->get();
+            foreach ($participants as $participant) {
+                $this->createNotification('event_edited', $participant->id_user, null, $event->id);
+            }
+
+            if ($request->hasFile('file')) {
+                $request->merge(['id' => $event->id, 'type' => 'event']);
+                $fileController = new FileController();
+                $uploadResponse = $fileController->upload($request);
+
+                if ($uploadResponse instanceof \Illuminate\Http\RedirectResponse) {
+                    return redirect()->route('events.details', ['id' => $event->id]);
+                } else if (isset($uploadResponse['file'])) {
+                    return redirect()->back()->withErrors(['file' => $uploadResponse['file']]);
+                }
+            }
+
+            DB::commit();
+
+            return redirect()->back()->with('success', 'Event successfully created');
+        } catch (\Exception $e) {
+            DB::rollback();
+            return redirect()->back()->with('error', 'Event creation failed');                                                                      
+        }
     }
 
     public function createNotification($notificationType, $receiverId, $senderId = null, $eventId = null)
     {
         try {
-
-
             DB::BeginTransaction();
+
+            log::info("notification type:" . $notificationType);
+            log::info("receiver id:" . $receiverId);
+            log::info("sender id:" . $senderId);
+            log::info("event id:" . $eventId);
             $notification = Notification::create([
                 'type' => $notificationType,
                 'id_user' => $receiverId,
@@ -719,5 +731,44 @@ class EventController extends Controller
         }
 
         return redirect()->back()->with('message', 'Event cancelled successfully');
+    }
+
+    public function reportEvent(Request $request, $id){
+        try {
+
+            DB::BeginTransaction();
+
+            $request->validate([
+                'title' => 'required|max:255',
+                'content' => 'required|max:500',
+            ]);
+    
+            $report = Report::create([
+                'title' => $request->input('title'),
+                'content' => $request->input('content'),
+                'id_user' => Auth::id(),
+                'id_event' => $id,
+                'file' => null,
+            ]);
+    
+            if ($request->hasFile('file')) {
+                $request->merge(['id' => $report->id, 'type' => 'report']);
+                $fileController = new FileController();
+                $uploadResponse = $fileController->upload($request);
+            }
+
+            $admins = Admin::all();
+            $senderId = Auth::user()->id;
+            foreach ($admins as $admin) {
+                $this->createNotification('report_received', $admin->id_user, $senderId, $id);
+            }
+
+            DB::commit();
+    
+            return redirect()->back()->with('success', 'Report submitted successfully');
+        } catch (\Exception $e) {
+            DB::rollback();
+            return redirect()->back()->withErrors(['error' => $e->getMessage()]);
+        }
     }
 }

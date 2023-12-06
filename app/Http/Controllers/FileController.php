@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Models\User;
 use App\Models\Event;
+use App\Models\Report;
 use Illuminate\Support\Facades\Log;
 
 class FileController extends Controller
@@ -15,7 +16,7 @@ class FileController extends Controller
     static $systemTypes = [
         'profile' => ['png', 'jpg', 'jpeg', 'gif'],
         'event' => ['png', 'jpg', 'jpeg', 'gif'],
-        'report' => ['png', 'jpg', 'jpeg', 'gif', 'MP4']
+        'report' => ['png', 'jpg', 'jpeg', 'gif']
     ];
 
     private static function isValidType(String $type) {
@@ -63,7 +64,6 @@ class FileController extends Controller
 
     function upload(Request $request) {
 
-        log::debug($request);
         $file = $request->file('file');
         $type = $request->type;
         $id = $request->id;
@@ -89,6 +89,13 @@ class FileController extends Controller
             if ($user) {
                 $user->profile_image = $fileName;
                 $user->save();
+            }
+        }
+        else if ($type === 'report') {
+            $report = Report::find($id);
+            if ($report) {
+                $report->file = $fileName;
+                $report->save();
             }
         }
 
