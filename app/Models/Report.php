@@ -15,6 +15,7 @@ class Report extends Model
         'id_user',
         'id_event',
         'file',
+        'closed'
     ];
 
     use HasFactory;
@@ -41,6 +42,10 @@ class Report extends Model
     public function event()
     {
         return $this->belongsTo(Event::class, 'id_event');
+    }
+
+    public function notification(){
+        return $this->hasOne(Notification::class, 'report_id');
     }
 
 }

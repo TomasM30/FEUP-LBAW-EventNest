@@ -8,6 +8,7 @@ use App\Models\AuthenticatedUser;
 use App\Models\Event;
 use App\Models\Report;
 use Carbon\Carbon;
+use Illuminate\Support\Facades\Log;
 
 
 class AdminController extends Controller
@@ -24,15 +25,18 @@ class AdminController extends Controller
             ->update(['closed' => true]);
 
         $events = Event::orderBy('date')->get();
+
+        $reports = Report::all();
     
-        return view('pages.admin_dashboard', ['users' => $authenticatedUsers, 'events' => $events]);
+        return view('pages.admin_dashboard', ['users' => $authenticatedUsers, 'events' => $events, 'reports' => $reports]);
     }
 
     public function showReportDetails($id)
     {
         $this->authorize('viewReportDetails', Admin::class);
         $report = Report::with('user', 'event')->find($id);
+        $reports = Report::orderBy('closed')->get();
 
-        return view('pages.report_details', ['report' => $report]);
+        return view('pages.report_details', ['report' => $report, 'reports' => $reports]);
     }
 }

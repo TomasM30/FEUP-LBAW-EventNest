@@ -43,6 +43,8 @@
                         {{ $notification->eventnotification->inviter->user->username}} has reported the event
                         &#128227;
                     </a>
+                @elseif($notification->type == 'report_closed')
+                    The report has been closed.
                 @endif
             </p>
             <div class="row">

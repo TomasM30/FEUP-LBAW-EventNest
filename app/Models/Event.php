@@ -73,6 +73,10 @@ class Event extends Model
         return self::select('place')->distinct()->get();
     }
 
+    public function report(){
+        return $this->hasMany(Report::class, 'id_event');
+    }
+
     public function getProfileImage() {
         return FileController::get('event', $this->id);
     }

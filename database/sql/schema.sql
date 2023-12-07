@@ -44,7 +44,7 @@ CREATE TYPE TypesMessage AS ENUM ('chat', 'comment');
 CREATE TYPE TypesNotification AS ENUM ('invitation_received', 'request', 'invitation_accepted', 
                                         'invitation_rejected', 'request_rejected', 'request_accepted',
                                         'removed_from_event', 'added_to_event', 'event_canceled',
-                                        'event_edited', 'report_received');
+                                        'event_edited', 'report_received', 'report_closed');
 
 -- Create tables
 CREATE TABLE users (

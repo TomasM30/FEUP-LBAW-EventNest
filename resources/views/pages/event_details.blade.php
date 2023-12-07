@@ -86,23 +86,8 @@
             </div>
             <div class="col-lg-3 mt-5">
                 <div class="d-flex flex-wrap justify-content-center position-sticky" style="top: 15%;">
-                    @php
-                        $participants = $event->eventparticipants()->pluck('id_user')->toArray();
-                        $nonParticipants = App\Models\AuthenticatedUser::whereNotIn('id_user', $participants)->get();
-                        $invitedUsers = \DB::table('eventnotification')
-                                    ->join('notification', 'eventnotification.id', '=', 'notification.id')
-                                    ->where('inviter_id', Auth::user()->id)
-                                    ->where('id_event', $event->id)
-                                    ->pluck('notification.id_user')
-                                    ->toArray();
 
-                        $notInvited = App\Models\AuthenticatedUser::whereNotIn('id_user', $participants)
-                            ->whereNotIn('id_user', $invitedUsers)
-                            ->get();
-                    @endphp
-
-
-                    @if (!$isAdmin)
+                    @if (!$isAdmin && $alreadyReported == false)
                         <div class="btn-group">
                             <button id="reportBtn" type="submit" class="btn btn-primary m-3 ">Report</button>
                          </div>

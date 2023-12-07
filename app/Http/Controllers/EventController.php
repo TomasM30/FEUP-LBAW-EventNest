@@ -129,9 +129,13 @@ class EventController extends Controller
                 $event->eventnotification->notification()->delete();
             }
 
+            $event->report()->delete();
+
+
             $event->eventparticipants()->delete();
             $event->favoriteevent()->delete();
             $event->hashtags()->detach();
+
 
             $event->delete();
 
@@ -189,6 +193,25 @@ class EventController extends Controller
         $data['isOrganizer'] = $data['event']->id_user == Auth::user()->id;
         $data['hashtags'] = $hashtags;
         $data['attendees'] = $data['event']->eventparticipants()->paginate(10);
+
+        $data['participants'] = $data['event']->eventparticipants()->pluck('id_user')->toArray();
+
+        $data['invitedUsers'] = DB::table('eventnotification')->join('notification', 'eventnotification.id', '=', 'notification.id')
+                                                            ->where('inviter_id', Auth::user()->id)
+                                                            ->where('id_event', $data['event']->id)
+                                                            ->pluck('notification.id_user')
+                                                            ->toArray(); 
+
+        $data['notInvited'] = AuthenticatedUser::whereNotIn('id_user', $data['participants'])
+                            ->whereNotIn('id_user', $data['invitedUsers'])
+                            ->get();
+                            
+        $data['nonParticipants'] = AuthenticatedUser::whereNotIn('id_user', $data['participants'])->get();
+        $data['alreadyReported'] = Report::where('id_user', Auth::user()->id)
+                                        ->where('id_event', $data['event']->id)
+                                        ->where('closed', false)
+                                        ->exists();
+
         return view('pages.event_details', $data);
     }
 
@@ -519,6 +542,9 @@ class EventController extends Controller
                 $newNotificationType = 'invitation_rejected';
             } elseif ($notification->type == 'request') {
                 $newNotificationType = 'request_rejected';
+            } elseif ($notification->type == 'report_received') {
+                $notification->report->update(['closed' => true]);
+                $newNotificationType = 'report_closed';
             }
     
             if ($newNotificationType != '') {
@@ -773,4 +799,6 @@ class EventController extends Controller
             return redirect()->back()->withErrors(['error' => $e->getMessage()]);
         }
     }
+
+
 }
