@@ -213,43 +213,64 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 
 window.onload = function() {
-  let tags = document.querySelectorAll('.tag');
-  tags.forEach(function(tag) {
-      let hashtags = tag.querySelectorAll('.hashtag');
-      let fontSize = 20;
-      if (hashtags.length > 3) {
-          fontSize = 15;
-      }
-      tag.style.fontSize = fontSize + 'px';
-  });
-  let modal = document.getElementById('newEventModal');
-  let btnNe = document.getElementById('NEvent-button');
-  let btnEe = document.getElementById('edit-button');
-  let overlay = document.getElementById('overlay');
+
+  let activeReport = document.querySelector('.list-group-item.active');
+  if (activeReport) {
+    document.getElementById('reportList').scrollTop = activeReport.offsetTop;
+  }
+
   let dropdowns = document.getElementsByClassName("dropdown-toggle");
-  let closeModalButton = document.querySelector('#newEventModal .close');
   for (let i = 0; i < dropdowns.length; i++) {
     dropdowns[i].addEventListener('click', function() {
         let dropdownContent = this.nextElementSibling;
         dropdownContent.classList.toggle('show');
     });
-}
+  }
 
-let btn = btnEe ? btnEe : btnNe;
-if (btn && modal) {
-    btn.addEventListener('click', function() {
-        modal.style.display = 'block';
-        overlay.style.display = 'block';
-        document.body.style.overflow = 'hidden';
-        modal.style.overflow = 'auto';
-    });
-    closeModalButton.addEventListener('click', function() {
-        modal.style.display = 'none';
-        overlay.style.display = 'none';
-        document.body.style.overflow = 'auto';
-    });
-}
+  function handleModal(modalId, triggerId, overlayId) {
+      let modal = document.getElementById(modalId);
+      let trigger = document.getElementById(triggerId);
+      let overlay = document.getElementById(overlayId);
+
+      if (!modal || !trigger || !overlay) {
+          console.error('One or more elements could not be found.');
+          return;
+      }
+
+      let closeModalButton = modal.querySelector('.close');
+
+      trigger.addEventListener('click', function() {
+          modal.style.display = 'block';
+          overlay.style.display = 'block';
+          document.body.style.overflow = 'hidden';
+      });
+
+      if (closeModalButton) {
+          closeModalButton.addEventListener('click', function() {
+              modal.style.display = 'none';
+              overlay.style.display = 'none';
+              document.body.style.overflow = 'auto';
+          });
+      }
+
+      window.addEventListener('click', function(event) {
+          if (event.target == modal) {
+              modal.style.display = 'none';
+              overlay.style.display = 'none';
+              document.body.style.overflow = 'auto';
+          }
+      });
+  }
+
+  handleModal('newEventModal', 'NEvent-button', 'overlay');
+  handleModal('uploadModal', 'editProfileButton', 'overlay');
+  handleModal('newEventModal', 'edit-button', 'overlay');
+  handleModal('passwordChangeModal', 'changePasswordBtn', 'overlay');
+  handleModal('deleteAccountModal', 'deleteAccountBtn', 'overlay');
+  handleModal('reportModal', 'reportBtn', 'overlay');
 };
+
+
 
 let filteredEvents = [];
 let searchTerm = '';
@@ -370,22 +391,46 @@ function orderEventsByTitle() {
 }
 
 document.addEventListener('DOMContentLoaded', function () {
-  document.getElementById('navbarToggler').addEventListener('click', function () {
-      let navbarCollapse = document.getElementById('navbarColor01');
-      if (navbarCollapse.classList.contains('show')) {
-          navbarCollapse.classList.remove('show');
-          navbarCollapse.classList.add('collapsing');
-          setTimeout(function () {
+  let navbarToggler = document.getElementById('navbarToggler');
+  
+  if (navbarToggler) {
+      navbarToggler.addEventListener('click', function () {
+          let navbarCollapse = document.getElementById('navbarColor01');
+          if (navbarCollapse.classList.contains('show')) {
+              navbarCollapse.classList.remove('show');
+              navbarCollapse.classList.add('collapsing');
+              setTimeout(function () {
+                  navbarCollapse.classList.remove('collapsing');
+                  navbarCollapse.style = '';
+              }, 350);
+          } else {
               navbarCollapse.classList.remove('collapsing');
-              navbarCollapse.style = '';
-          }, 350);
-      } else {
-          navbarCollapse.classList.remove('collapsing');
-          navbarCollapse.classList.add('show');
-          navbarCollapse.style = 'display: block;';
-      }
+              navbarCollapse.classList.add('show');
+              navbarCollapse.style = 'display: block;';
+          }
+      });
+  }
+});
+
+document.addEventListener('DOMContentLoaded', function() {
+  document.querySelectorAll('#v-pills-tab .nav-link').forEach(function(tab) {
+      tab.addEventListener('click', function(e) {
+          e.preventDefault();
+
+          document.querySelectorAll('#v-pills-tab .nav-link').forEach(function(tab) {
+              tab.classList.remove('active');
+          });
+
+          document.querySelectorAll('.tab-pane').forEach(function(tabContent) {
+              tabContent.classList.remove('show', 'active');
+          });
+
+          tab.classList.add('active');
+          document.querySelector(tab.getAttribute('href')).classList.add('show', 'active');
+      });
   });
 });
+
 
 
 

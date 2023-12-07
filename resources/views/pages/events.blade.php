@@ -2,11 +2,11 @@
 
 @section('content')
 
-<div class="content-container">
+<div class="content-container overflow-x-hidden">
     <div>
         <div class="row m-3">
             <div class="col">
-                <div class="form-outline" id="search-form" data-url="{{ route('search-events') }}">
+                <div class="form-outline mt-2" id="search-form" data-url="{{ route('search-events') }}">
                     <input type="search" id="form1" class="form-control" placeholder="Search" aria-label="Search" />
                 </div>
             </div>
@@ -16,7 +16,6 @@
                 @endif
             </div>
         </div>
-
         <div class="row">
             <div class="col-md-6">
                 <div class="accordion m-4" id="accordionExample">
@@ -82,15 +81,25 @@
     </div>
 
 
-    <div class="row row-cols-1 row-cols-md-3 g-4 custom-row" id="container">
-        @foreach ($events as $event)
-        @include('partials.event', ['event' => $event])
-        @endforeach
+    <div class="container">
+        @if (!$events->isEmpty())
+            <div class="row row-cols-1 row-cols-md-3 g-4 custom-row" id="container">
+                @foreach ($events as $event)
+                    @include('partials.event', ['event' => $event])
+                @endforeach
+            </div>
+        @else
+            <div class="card m-3">
+                <div class="card-body text-center">
+                    <h4 class="card-title">No events</h4>
+                    <p class="card-text">There are currently no events for YOU</p>
+                </div>
+            </div>
+        @endif
     </div>
 
     <div id="overlay" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0, 0, 0, 0.5); z-index: 1000;"></div>
     @include('partials.eventModal', ['formAction' => route('events.create'), 'hashtags' => $hashtags])
-
 </div>
 
 @endsection

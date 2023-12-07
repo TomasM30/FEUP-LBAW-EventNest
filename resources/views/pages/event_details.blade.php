@@ -10,8 +10,14 @@
         @endif
 
         <div class="text-center position-relative overflow-hidden">
-            <div id="bluredPic" class="position-absolute w-100 h-100 bluredPic" style="background-image: url(https://mdbootstrap.com/img/new/standard/nature/111.webp);"></div>
-            <img class="mx-auto d-block img-fluid" src="https://mdbootstrap.com/img/new/standard/nature/111.webp" style="max-height: 300px; position: relative; z-index: 1;" />
+            <div id="bluredPic" class="position-absolute w-100 h-100 bluredPic" style="background-image: url('{{ $event->getProfileImage() }}');"></div>
+            @if(Auth::user()->id == $event->id_user)
+                <a id="imageedit" href="#" data-toggle="modal" data-target="#uploadModal">
+                    <img class="mx-auto d-block img-fluid" src="{{ $event->getProfileImage() }}" style="max-height: 300px; position: relative; z-index: 1;" />
+                </a>
+            @else
+                <img class="mx-auto d-block img-fluid" src="{{ $event->getProfileImage() }}" style="max-height: 300px; position: relative; z-index: 1;" />
+            @endif
         </div>
 
         <div class="row mt-3">
@@ -19,7 +25,16 @@
                 <div id="eventInfo" class="event-info mt-5" style="overflow-wrap: break-word;">
                     <h1>{{ $event->title }}</h1>
                     <h4 class="mt-5">Hosted by:</h4>
-                    <p>{{ $event->user->name }}</p>
+                    <div class="d-flex align-items-center mb-3">
+                        @if($event->user)
+                            <div style="width: 50px; height: 50px; border-radius: 50%; background-image: url('{{ $event->user->getProfileImage() }}'); background-size: cover; background-position: center; background-repeat: no-repeat;"></div>
+                            <p class="ml-3" style="margin: 0; padding: 0;">{{ $event->user->username }}</p>
+                        @else
+                            <div class="alert alert-dismissible alert-danger">
+                                <p class="ml-3" style="margin: 0; padding: 0; color: red; font-weight: bold;">User deleted</p>                            
+                            </div>
+                        @endif
+                    </div>
                     <h4>Location:</h4>
                     <p>{{ $event->place }}</p>
                     <h4>Date:</h4>
@@ -52,33 +67,31 @@
                                 </tr>
                             </thead>
                             <tbody>
-                                @foreach ($event->eventparticipants()->get() as $attendee)
+                                @foreach ($attendees as $attendee)
                                 <tr>
-                                    <td>{{ $attendee->user->name }}</td>
+                                    <td>
+                                        <div class="d-flex align-items-center">
+                                            <div style="width: 50px; height: 50px; border-radius: 50%; background-image: url('{{ $attendee->user->getProfileImage() }}'); background-size: cover; background-position: center; background-repeat: no-repeat;"></div>
+                                            <p class="ml-3" style="margin: 0; padding: 0;">{{ $attendee->user->username }}</p>
+                                        </div>
+                                    </td>
                                 </tr>
                                 @endforeach
                             </tbody>
                         </table>
+                        {{ $attendees->links() }}
+
                     </div>
                 </div>
             </div>
             <div class="col-lg-3 mt-5">
-                <div class="d-flex flex-wrap justify-content-center position-sticky" style="top: 10%;">
-                    @php
-                        $participants = $event->eventparticipants()->pluck('id_user')->toArray();
-                        $nonParticipants = App\Models\AuthenticatedUser::whereNotIn('id_user', $participants)->get();
-                        $invitedUsers = \DB::table('eventnotification')
-                                    ->join('notification', 'eventnotification.id', '=', 'notification.id')
-                                    ->where('inviter_id', Auth::user()->id)
-                                    ->where('id_event', $event->id)
-                                    ->pluck('notification.id_user')
-                                    ->toArray();
+                <div class="d-flex flex-wrap justify-content-center position-sticky" style="top: 15%;">
 
-                        $notInvited = App\Models\AuthenticatedUser::whereNotIn('id_user', $participants)
-                            ->whereNotIn('id_user', $invitedUsers)
-                            ->get();
-                    @endphp
-
+                    @if (!$isAdmin && $alreadyReported == false)
+                        <div class="btn-group">
+                            <button id="reportBtn" type="submit" class="btn btn-primary m-3 ">Report</button>
+                         </div>
+                    @endif
                     @if ($event->closed == false)
                         @if(!$isParticipant && !$isAdmin && $event->eventparticipants()->count() < $event->capacity)
                             @if($event->type == 'public' || $event->type == 'private')
@@ -87,7 +100,6 @@
                                     <input type="hidden" name="id_user" value="{{ Auth::user()->id }}">
                                     <input type="hidden" name="eventId" value="{{ $event->id }}">
                                     <button type="submit" class="btn btn-primary m-3 ">Join</button>
-                                    </div>
                                 </form>
                             @elseif($event->type == 'approval')
                                 <form method="POST" action="{{ route('events.notification', $event->id) }}">
@@ -111,7 +123,7 @@
                             </form>
                             @endif
 
-                            @if(!$isAdmin && $isParticipant)
+                        @if(!$isAdmin && $isParticipant)
                             <div class="dropdown">
                                 <button class="btn btn-primary m-3  dropdown-toggle invite" type="button" id="dropdownMenuInvite" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                                     Invite
@@ -130,7 +142,7 @@
                                     @endforeach
                                 </div>
                             </div>
-                            @endif
+                        @endif
 
                         @if($isAdmin || $isOrganizer)
                             @if($event->eventparticipants()->count() > 1)
@@ -188,9 +200,10 @@
                         @endif
                     @endif
                     @if($isAdmin)
-                        <form method="POST" action="{{ route('events.delete', $event->id) }}">
+                        <form method="POST" action="{{ route('events.delete', ['id' => $event->id]) }}">
                             {{ csrf_field() }}
                             {{ method_field('DELETE') }}
+                            <input type="hidden" name="id" value="{{ $event->id }}">
                             <div class="btn-group">
                                 <button type="submit" class="btn btn-primary m-3 ">Delete</button>
                             </div>
@@ -204,4 +217,5 @@
 
 <div id="overlay" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0, 0, 0, 0.5); z-index: 1000;"></div>
 @include('partials.eventModal', ['formAction' => route('events.edit', $event->id), 'hashtags' => $hashtags])
+@include('partials.reportModal')
 @endsection

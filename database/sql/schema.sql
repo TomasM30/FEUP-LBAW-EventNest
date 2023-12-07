@@ -15,7 +15,6 @@ DROP TABLE IF EXISTS Hashtag CASCADE;
 DROP TABLE IF EXISTS Report CASCADE;
 DROP TABLE IF EXISTS PollOption CASCADE;
 DROP TABLE IF EXISTS Poll CASCADE;
-DROP TABLE IF EXISTS File CASCADE;
 DROP TABLE IF EXISTS Authenticated CASCADE;
 DROP TABLE IF EXISTS Admin CASCADE;
 DROP TABLE IF EXISTS Event CASCADE;
@@ -45,7 +44,7 @@ CREATE TYPE TypesMessage AS ENUM ('chat', 'comment');
 CREATE TYPE TypesNotification AS ENUM ('invitation_received', 'request', 'invitation_accepted', 
                                         'invitation_rejected', 'request_rejected', 'request_accepted',
                                         'removed_from_event', 'added_to_event', 'event_canceled',
-                                        'event_edited');
+                                        'event_edited', 'report_received', 'report_closed');
 
 -- Create tables
 CREATE TABLE users (
@@ -55,7 +54,9 @@ CREATE TABLE users (
     username VARCHAR(255) UNIQUE NOT NULL,
     remember_token VARCHAR(256) DEFAULT NULL,
     password VARCHAR(255),
-    google_id VARCHAR(255)
+    google_id VARCHAR(255),
+    profile_image VARCHAR(255) DEFAULT NULL
+
 );
 
 CREATE TABLE Admin (
@@ -67,8 +68,6 @@ CREATE TABLE Admin (
 CREATE TABLE Authenticated (
     id_user INT PRIMARY KEY,
     is_verified BOOLEAN DEFAULT FALSE,
-    id_profilepic INT DEFAULT 1,
-    --FOREIGN KEY (id_profilepic) REFERENCES File(id),
     FOREIGN KEY (id_user) REFERENCES users(id)
 );
 
@@ -81,8 +80,9 @@ CREATE TABLE Event (
     capacity INT NOT NULL,
     ticket_limit INT ,
     place VARCHAR(255) NOT NULL,
-    id_user INT NOT NULL,
+    id_user INT,
     closed BOOLEAN DEFAULT FALSE,
+    image VARCHAR(255) DEFAULT NULL,
     CHECK (ticket_limit <= capacity),
     FOREIGN KEY (id_user) REFERENCES Authenticated(id_user)
 );
@@ -106,12 +106,27 @@ CREATE TABLE MessageReaction (
     PRIMARY KEY (id_user, id_message)
 );
 
+CREATE TABLE Report (
+    id SERIAL PRIMARY KEY,
+    title VARCHAR(255) NOT NULL,
+    content TEXT NOT NULL,
+    id_user INT NOT NULL,
+    id_event INT NOT NULL,
+    closed BOOLEAN DEFAULT FALSE,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    file VARCHAR(255) DEFAULT NULL,
+    FOREIGN KEY (id_user) REFERENCES Authenticated(id_user),
+    FOREIGN KEY (id_event) REFERENCES Event(id)
+);
+
 CREATE TABLE Notification (
     id SERIAL PRIMARY KEY,
     type TypesNotification NOT NULL,
     id_user INT NOT NULL,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    FOREIGN KEY (id_user) REFERENCES Authenticated(id_user)
+    report_id INT DEFAULT NULL,
+    FOREIGN KEY (report_id) REFERENCES Report(id),
+    FOREIGN KEY (id_user) REFERENCES users(id)
 );
 
 CREATE TABLE EventNotification (
@@ -119,7 +134,7 @@ CREATE TABLE EventNotification (
     inviter_id INT,
     id_event INT NOT NULL,
     FOREIGN KEY (id) REFERENCES Notification(id),
-    FOREIGN KEY (inviter_id) REFERENCES Authenticated(id_user),
+    FOREIGN KEY (inviter_id) REFERENCES users(id),
     FOREIGN KEY (id_event) REFERENCES Event(id)
 );
 
@@ -184,37 +199,6 @@ CREATE TABLE OrderDetail (
     quantity INT NOT NULL,
     FOREIGN KEY (id_order) REFERENCES Orders(id),
     PRIMARY KEY (id_order)
-);
-
-CREATE TABLE Report (
-    id SERIAL PRIMARY KEY,
-    title VARCHAR(255) NOT NULL,
-    content TEXT NOT NULL,
-    id_user INT NOT NULL,
-    id_event INT NOT NULL,
-    FOREIGN KEY (id_user) REFERENCES Authenticated(id_user),
-    FOREIGN KEY (id_event) REFERENCES Event(id)
-);
-
-CREATE TABLE File (
-    id SERIAL PRIMARY KEY,
-    path VARCHAR(255) NOT NULL,
-    id_user INT NOT NULL,
-    id_message INT,
-    id_report INT,
-    id_event INT,
-    id_profile INT,
-    FOREIGN KEY (id_user) REFERENCES Authenticated(id_user),
-    FOREIGN KEY (id_message) REFERENCES EventMessage(id),
-    FOREIGN KEY (id_report) REFERENCES Report(id),
-    FOREIGN KEY (id_event) REFERENCES Event(id),
-    FOREIGN KEY (id_profile) REFERENCES Authenticated(id_user),
-    CHECK (
-        (id_message IS NOT NULL AND id_event IS NULL AND id_report IS NULL AND id_profile IS NULL) OR
-        (id_message IS NULL AND id_event IS NOT NULL AND id_report IS NULL AND id_profile IS NULL) OR
-        (id_message IS NULL AND id_event IS NULL AND id_report IS NOT NULL AND id_profile IS NULL) OR
-        (id_message IS NULL AND id_event IS NULL AND id_report IS NULL AND id_profile IS NOT NULL)
-    )
 );
 
 CREATE TABLE Poll (

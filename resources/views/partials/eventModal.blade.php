@@ -3,8 +3,12 @@
         <div class="modal-content">
             <div class="modal-header">
                 <h5 class="modal-title" id="newEventModalLabel">
-                    @if($formAction == route('events.edit', $event->id))
-                        Edit Event
+                    @if(isset($event))
+                        @if($formAction == route('events.edit', $event->id))
+                            Edit Event
+                        @else
+                            Create Event
+                        @endif
                     @else
                         Create Event
                     @endif
@@ -14,51 +18,59 @@
                 </button>
             </div>
             <div class="modal-body">
-                <form method="POST" action="{{ $formAction }}">
+                <form method="POST" action="{{ $formAction }}" enctype="multipart/form-data">
                     {{ csrf_field() }}
                     <fieldset>
                         <div class="form-group">
                             <label for="title" class="form-label mt-4">Title</label>
-                            <input type="text" class="form-control" id="title" name="title" placeholder="Event title" @if($formAction != route('events.edit', $event->id)) required @endif>
+                            <input type="text" class="form-control" id="title" name="title" placeholder="Event title" @if(isset($event) && $formAction != route('events.edit', $event->id)) required @endif>
                             @if ($errors->has('title'))
-                                <span class="error">
-                                    {{ $errors->first('title') }}
-                                </span>
+                                @foreach ($errors->get('title') as $error)
+                                    <div class="alert alert-dismissible alert-danger">
+                                        <strong>Oh snap!</strong> {{ $error }}
+                                    </div>
+                                @endforeach
                             @endif
                         </div>
                         <div class="form-group">
                             <label for="description" class="form-label mt-4">Description</label>
-                            <textarea class="form-control" id="description" name="description" @if($formAction != route('events.edit', $event->id)) required @endif></textarea>
+                            <textarea class="form-control" id="description" name="description" placeholder="Event description" @if(isset($event) && $formAction != route('events.edit', $event->id)) required @endif></textarea>
                             @if ($errors->has('description'))
-                                <span class="error">
-                                    {{ $errors->first('description') }}
-                                </span>
+                                @foreach ($errors->get('description') as $error)
+                                    <div class="alert alert-dismissible alert-danger">
+                                        <strong>Oh snap!</strong> {{ $error }}
+                                    </div>
+                                @endforeach
                             @endif
                         </div>
                         <div class="form-group">
                             <label for="type">Type</label>
-                            <select id="type" name="type" class="form-control" style="height: 3em" @if($formAction != route('events.edit', $event->id)) required @endif>
-                                <option value="public">Public</option>
-                                <option value="private">Private</option>
-                                <option value="approval">Approval</option>
+                            <select id="type" name="type" class="form-control" style="height: 3em" @if(isset($event) && $formAction != route('events.edit', $event->id)) required @endif>
+                                <option value="public" @if(isset($event) && $event->type == 'public') selected @endif>Public</option>
+                                <option value="private" @if(isset($event) && $event->type == 'private') selected @endif>Private</option>
+                                <option value="approval" @if(isset($event) && $event->type == 'approval') selected @endif>Approval</option>
                             </select>
                         </div>
                         <div class="form-group">
                             <label for="date">Date</label>
-                            <input type="date" class="form-control" id="date" name="date"  @if($formAction != route('events.edit', $event->id)) required @endif>
+                            <input type="date" class="form-control" id="date" name="date"  @if(isset($event) && $formAction != route('events.edit', $event->id)) required @endif>
                             @if ($errors->has('date'))
-                                <span class="error">
-                                    {{ $errors->first('date') }}
-                                </span>
+                                @foreach ($errors->get('date') as $error)
+                                    <div class="alert alert-dismissible alert-danger">
+                                        <strong>Oh snap!</strong> {{ $error }}
+                                    </div>
+                                @endforeach
                             @endif
                         </div>
                         <div class="form-group">
                             <label for="capacity">Capacity</label>
-                            <input type="number" class="form-control" id="capacity" name="capacity"  @if($formAction != route('events.edit', $event->id)) required @endif>
+                            <input type="number" class="form-control" id="capacity" name="capacity"  @if(isset($event) && $formAction != route('events.edit', $event->id)) required @endif>
                             @if ($errors->has('capacity'))
-                                <span class="error">
-                                    {{ $errors->first('capacity') }}
-                                </span>
+                                @foreach ($errors->get('capacity') as $error)
+                                    <div class="alert alert-dismissible alert-danger">
+                                        <strong>Oh snap!</strong> {{ $error }}
+                                    </div>
+                                @endforeach
                             @endif
                         </div>
                         @if (Auth::user()->isAdmin() || (Auth::user()->authenticated->is_verified))
@@ -67,19 +79,23 @@
                                 <input type="number" class="form-control" id="ticket_limit" name="ticket_limit">
                                 <p>If left empty, ticket limit will be equal to capacity.</p>
                                 @if ($errors->has('ticket_limit'))
-                                    <span class="error">
-                                        {{ $errors->first('ticket_limit') }}
-                                    </span>
-                                @endif
+                                @foreach ($errors->get('ticket_limit') as $error)
+                                    <div class="alert alert-dismissible alert-danger">
+                                        <strong>Oh snap!</strong> {{ $error }}
+                                    </div>
+                                @endforeach
+                            @endif
                             </div>
                         @endif
                         <div class="form-group">
                             <label for="place">Place</label>
-                            <input type="text" class="form-control" id="place" name="place"  @if($formAction != route('events.edit', $event->id)) required @endif>
+                            <input type="text" class="form-control" id="place" name="place"  @if(isset($event) && $formAction != route('events.edit', $event->id)) required @endif>
                             @if ($errors->has('place'))
-                                <span class="error">
-                                    {{ $errors->first('place') }}
-                                </span>
+                                @foreach ($errors->get('place') as $error)
+                                    <div class="alert alert-dismissible alert-danger">
+                                        <strong>Oh snap!</strong> {{ $error }}
+                                    </div>
+                                @endforeach
                             @endif
                         </div>
                         <div class="card">
@@ -97,8 +113,24 @@
                                 @endforeach
                             </div>
                         </div>
+                        <div class="form-group mt-5">
+                            <label for="file">Event Photo</label>
+                            <p>
+                                @if(isset($event) && $formAction != route('events.edit', $event->id))
+                                    Choose a photo or leave empty to use the default image.
+                                @endif
+                            </p>
+                            <input class="form-control" id="file" name="file" type="file">
+                            @if ($errors->has('file'))
+                                @foreach ($errors->get('file') as $error)
+                                    <div class="alert alert-dismissible alert-danger">
+                                        <strong>Oh snap!</strong> {{ $error }}
+                                    </div>
+                                @endforeach
+                            @endif
+                        </div>
                         <button type="submit" class="btn btn-primary mt-4">
-                            @if($formAction == route('events.edit', $event->id))
+                            @if(isset($event) && $formAction == route('events.edit', $event->id))
                                 Edit Event
                             @else
                                 Create Event

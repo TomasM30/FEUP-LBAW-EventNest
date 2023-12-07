@@ -12,6 +12,7 @@ class Notification extends Model
     protected $fillable = [
         'type',
         'id_user',
+        'report_id',
     ];
 
     use HasFactory;
@@ -31,10 +32,14 @@ class Notification extends Model
     protected $primaryKey = 'id';
 
     public function user(){
-        return $this->belongsTo(AuthenticatedUser::class, 'id_user');
+        return $this->belongsTo(User::class, 'id_user');
     }
 
     public function eventnotification(){
         return $this->hasOne(EventNotification::class, 'id');
+    }
+
+    public function report(){
+        return $this->belongsTo(Report::class, 'report_id');
     }
 }

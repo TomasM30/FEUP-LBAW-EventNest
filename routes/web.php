@@ -10,6 +10,7 @@ use App\Http\Controllers\EventController;
 use App\Http\Controllers\AdminController;
 use App\Http\Controllers\AuthenticatedUserController;
 use App\Http\Controllers\GoogleController;
+use App\Http\Controllers\FileController;
 
 
 use App\Http\Controllers\Auth\LoginController;
@@ -31,6 +32,7 @@ Route::redirect('/', '/login');
 
 Route::controller(UserController::class)->group(function () {
     Route::get('/user/findAll', 'findAll');
+    Route::get('/user/{id}/notifications', 'showUserNotifications')->name('user.notifications');
 });
 
 Route::controller(LoginController::class)->group(function () {
@@ -46,11 +48,15 @@ Route::controller(RegisterController::class)->group(function () {
 
 Route::controller(AdminController::class)->group(function () {
     Route::get('/dashboard', 'showDashboard')->name('dashboard');
+    Route::get('/report/{id}/details', 'showReportDetails')->name('report.details');
 });
 
 Route::controller(AuthenticatedUserController::class)->group(function () {
     Route::get('/user/{id}/events', 'showUserEvents')->name('user.events');
-    Route::get('/user/{id}/notifications', 'showUserNotifications')->name('user.notifications');
+    Route::get('/user/{id}/profile', 'showUserProfile')->name('user.profile');
+    Route::post('/user/{id}/profile/edit', 'updateUserProfile')->name('user.profile.update');
+    Route::post('/user/{id}/password/change', 'updateUserPassword')->name('user.password.update');
+    Route::post('/user/{id}/delete', 'deleteUser')->name('user.delete');
 });
 
 Route::controller(EventController::class)->group(function () {
@@ -69,11 +75,16 @@ Route::controller(EventController::class)->group(function () {
     Route::delete('/notifications/{notificationId}/delete', 'deleteNotification')->name('notification.delete');
     Route::post('/events/order', 'order')->name('events.order');
     Route::post('/events/filter', 'filter')->name('events.filter');
+    Route::post('/events/{id}/report', 'reportEvent')->name('events.report');
 });
 
 Route::controller(GoogleController::class)->group(function () {
     Route::get('auth/google', 'redirect')->name('google-auth');
     Route::get('auth/google/call-back', 'callbackGoogle')->name('google-call-back');
+});
+
+Route::controller(FileController::class)->group(function () {
+    Route::post('/file/upload', 'upload')-> name('file.upload');
 });
 
 

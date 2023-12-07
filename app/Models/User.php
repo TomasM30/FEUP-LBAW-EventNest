@@ -8,6 +8,9 @@ use Illuminate\Notifications\Notifiable;
 use Laravel\Sanctum\HasApiTokens;
 
 use App\Models\AuthenticatedUser;
+use App\Http\Controllers\FileController;
+
+
 
 // Added to define Eloquent relationships.
 use Illuminate\Database\Eloquent\Relations\HasMany;
@@ -25,6 +28,7 @@ class User extends Authenticatable
         'email',
         'password',
         'google_id',
+        'profile_image',
     ];
 
     /**
@@ -53,4 +57,13 @@ class User extends Authenticatable
     public function authenticated(){
         return $this->hasOne(AuthenticatedUser::class, 'id_user');
     }
+
+    public function getProfileImage() {
+        return FileController::get('profile', $this->id);
+    }
+    
+    public function notifications(){
+        return $this->hasMany(Notification::class, 'id_user');
+    }
+    
 }

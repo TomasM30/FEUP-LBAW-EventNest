@@ -5,8 +5,19 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class FavouriteEvents extends Model
+class Report extends Model
 {
+    public $timestamps = false;
+
+    protected $fillable = [
+        'title',
+        'content',
+        'id_user',
+        'id_event',
+        'file',
+        'closed'
+    ];
+
     use HasFactory;
 
     /**
@@ -14,21 +25,14 @@ class FavouriteEvents extends Model
      *
      * @var string
      */
-    protected $table = 'favoriteevent';
+    protected $table = 'report';
 
     /**
      * The primary key associated with the table.
      *
      * @var string
      */
-    protected $primaryKey = ['id_user', 'id_event'];
-
-    /**
-     * Indicates if the IDs are auto-incrementing.
-     *
-     * @var bool
-     */
-    public $incrementing = false;
+    protected $primaryKey = 'id';
 
     public function user()
     {
@@ -39,4 +43,9 @@ class FavouriteEvents extends Model
     {
         return $this->belongsTo(Event::class, 'id_event');
     }
+
+    public function notification(){
+        return $this->hasOne(Notification::class, 'report_id');
+    }
+
 }
