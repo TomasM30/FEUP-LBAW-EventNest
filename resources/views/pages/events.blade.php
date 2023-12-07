@@ -85,7 +85,7 @@
     <div class="container">
         <div class="row row-cols-1 row-cols-md-3 g-4 custom-row" id="container">
             @foreach ($events as $event)
-                @include('partials.event', ['event' => $event])
+            @include('partials.event', ['event' => $event])
             @endforeach
         </div>
     </div>
