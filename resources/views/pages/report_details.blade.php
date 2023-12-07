@@ -2,14 +2,14 @@
 
 @section('content')
 <div class="container">
-    <div class="container d-flex align-items-center justify-content-center" style="height: 100vh;">
-        <div class="col-md-8">
+    <div class="container" style="padding-top: 50px;">
+        <div class="col-md-8 mx-auto">
             <div class="card">
                 <div class="card-header">Report #{{ $report->id }}</div>
                 <div class="card-body">
-                    <h5>{{ $report->title }}</h5>
-                    <div class="mt-3">
-                        <p>Event: {{ $report->event->title }}</p>
+                    <h4>{{ $report->title }}</h4>
+                    <div class="mt-3 mb-3">
+                        <a href="{{ route('events.details', $report->event->id) }}">{{ Str::limit($report->event->title, 30, '...') }}</a>
                     </div>
                     <div class="d-flex justify-content-between align-items-center">
                         <div class="d-flex align-items-center">
@@ -22,6 +22,13 @@
                     <div class="mt-3 p-3 border">
                         <p>{{ $report->content }}</p>
                     </div>
+                    @if($report->file)
+                    <div class="mt-3">
+                        <a href="{{ asset('report/' . $report->file) }}" target="_blank" style="text-decoration: none;">
+                            &#128196; {{ basename($report->file) }}
+                        </a>
+                    </div>
+                    @endif
                 </div>
             </div>
         </div>

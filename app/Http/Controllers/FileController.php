@@ -64,6 +64,7 @@ class FileController extends Controller
 
     function upload(Request $request) {
 
+        log::debug($request->all);
         $file = $request->file('file');
         $type = $request->type;
         $id = $request->id;

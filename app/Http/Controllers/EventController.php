@@ -85,8 +85,10 @@ class EventController extends Controller
                 $fileController = new FileController();
                 $uploadResponse = $fileController->upload($request);
                 if ($uploadResponse instanceof \Illuminate\Http\RedirectResponse) {
+                    DB::commit();
                     return redirect()->route('events.details', ['id' => $event->id]);
                 } else if (isset($uploadResponse['file'])) {
+                    DB::rollback();
                     return redirect()->back()->withErrors(['file' => $uploadResponse['file']]);
                 }
             }
@@ -96,9 +98,11 @@ class EventController extends Controller
             return redirect()->route('events.details', ['id' => $event->id]);
             
         } catch (ValidationException $e) {
+            log::info($e->getMessage());
             DB::rollback();
             throw $e;
         } catch (\Exception $e) {
+            log::info($e->getMessage());
             DB::rollback();
             throw $e;
         }
@@ -478,18 +482,16 @@ class EventController extends Controller
         }
     }
 
-    public function createNotification($notificationType, $receiverId, $senderId = null, $eventId = null)
+    public function createNotification($notificationType, $receiverId, $senderId = null, $eventId = null, $reportId = null)
     {
         try {
             DB::BeginTransaction();
 
-            log::info("notification type:" . $notificationType);
-            log::info("receiver id:" . $receiverId);
-            log::info("sender id:" . $senderId);
-            log::info("event id:" . $eventId);
+
             $notification = Notification::create([
                 'type' => $notificationType,
                 'id_user' => $receiverId,
+                'report_id' => $reportId,
             ]);
     
             EventNotification::create([
@@ -760,7 +762,7 @@ class EventController extends Controller
             $admins = Admin::all();
             $senderId = Auth::user()->id;
             foreach ($admins as $admin) {
-                $this->createNotification('report_received', $admin->id_user, $senderId, $id);
+                $this->createNotification('report_received', $admin->id_user, $senderId, $id, $report->id);
             }
 
             DB::commit();

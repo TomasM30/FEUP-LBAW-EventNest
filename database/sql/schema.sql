@@ -106,11 +106,26 @@ CREATE TABLE MessageReaction (
     PRIMARY KEY (id_user, id_message)
 );
 
+CREATE TABLE Report (
+    id SERIAL PRIMARY KEY,
+    title VARCHAR(255) NOT NULL,
+    content TEXT NOT NULL,
+    id_user INT NOT NULL,
+    id_event INT NOT NULL,
+    closed BOOLEAN DEFAULT FALSE,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    file VARCHAR(255) DEFAULT NULL,
+    FOREIGN KEY (id_user) REFERENCES Authenticated(id_user),
+    FOREIGN KEY (id_event) REFERENCES Event(id)
+);
+
 CREATE TABLE Notification (
     id SERIAL PRIMARY KEY,
     type TypesNotification NOT NULL,
     id_user INT NOT NULL,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    report_id INT DEFAULT NULL,
+    FOREIGN KEY (report_id) REFERENCES Report(id),
     FOREIGN KEY (id_user) REFERENCES users(id)
 );
 
@@ -184,19 +199,6 @@ CREATE TABLE OrderDetail (
     quantity INT NOT NULL,
     FOREIGN KEY (id_order) REFERENCES Orders(id),
     PRIMARY KEY (id_order)
-);
-
-CREATE TABLE Report (
-    id SERIAL PRIMARY KEY,
-    title VARCHAR(255) NOT NULL,
-    content TEXT NOT NULL,
-    id_user INT NOT NULL,
-    id_event INT NOT NULL,
-    closed BOOLEAN DEFAULT FALSE,
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    file VARCHAR(255) DEFAULT NULL,
-    FOREIGN KEY (id_user) REFERENCES Authenticated(id_user),
-    FOREIGN KEY (id_event) REFERENCES Event(id)
 );
 
 CREATE TABLE Poll (

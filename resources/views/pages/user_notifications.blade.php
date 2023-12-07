@@ -7,8 +7,7 @@
             <div>
                 <div>
                     <h2>
-                        <a href="{{ route('events.details', $notification->eventnotification->event->id) }}">{{ $notification->eventnotification->event->title }}</a>
-                    </h2>
+                        <a href="{{ route('events.details', $notification->eventnotification->event->id) }}">{{ Str::limit($notification->eventnotification->event->title, 20, '...') }}</a>                    </h2>
                     <p>
                         @if($notification->type == 'invitation_received')
                             {{ $notification->eventnotification->inviter->user->username}} invited you to join the event.
@@ -31,7 +30,10 @@
                         @elseif($notification->type == 'event_edited')
                             The event information has been edited.
                         @elseif($notification->type == 'report_received')
-                            {{ $notification->eventnotification->inviter->user->username}} has reported the event.
+                            <a href="{{ route('report.details', $notification->report->id) }}" style="text-decoration: none;">
+                                {{ $notification->eventnotification->inviter->user->username}} has reported the event
+                                &#128227;
+                            </a>
                         @endif
 
                     </p>

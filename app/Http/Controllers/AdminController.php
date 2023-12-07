@@ -30,6 +30,7 @@ class AdminController extends Controller
 
     public function showReportDetails($id)
     {
+        $this->authorize('viewReportDetails', Admin::class);
         $report = Report::with('user', 'event')->find($id);
 
         return view('pages.report_details', ['report' => $report]);
