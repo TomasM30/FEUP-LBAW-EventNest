@@ -48,6 +48,7 @@ Route::controller(RegisterController::class)->group(function () {
 
 Route::controller(AdminController::class)->group(function () {
     Route::get('/dashboard', 'showDashboard')->name('dashboard');
+    Route::get('/report/{id}/details', 'showReportDetails')->name('report.details');
 });
 
 Route::controller(AuthenticatedUserController::class)->group(function () {
@@ -74,6 +75,7 @@ Route::controller(EventController::class)->group(function () {
     Route::delete('/notifications/{notificationId}/delete', 'deleteNotification')->name('notification.delete');
     Route::post('/events/order', 'order')->name('events.order');
     Route::post('/events/filter', 'filter')->name('events.filter');
+    Route::post('/events/{id}/report', 'reportEvent')->name('events.report');
 });
 
 Route::controller(GoogleController::class)->group(function () {

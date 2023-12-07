@@ -5,14 +5,17 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class Notification extends Model
+class Report extends Model
 {
     public $timestamps = false;
 
     protected $fillable = [
-        'type',
+        'title',
+        'content',
         'id_user',
-        'report_id',
+        'id_event',
+        'file',
+        'closed'
     ];
 
     use HasFactory;
@@ -22,7 +25,7 @@ class Notification extends Model
      *
      * @var string
      */
-    protected $table = 'notification';
+    protected $table = 'report';
 
     /**
      * The primary key associated with the table.
@@ -31,15 +34,18 @@ class Notification extends Model
      */
     protected $primaryKey = 'id';
 
-    public function user(){
+    public function user()
+    {
         return $this->belongsTo(User::class, 'id_user');
     }
 
-    public function eventnotification(){
-        return $this->hasOne(EventNotification::class, 'id');
+    public function event()
+    {
+        return $this->belongsTo(Event::class, 'id_event');
     }
 
-    public function report(){
-        return $this->belongsTo(Report::class, 'report_id');
+    public function notification(){
+        return $this->hasOne(Notification::class, 'report_id');
     }
+
 }

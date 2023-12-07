@@ -38,6 +38,13 @@
                 The event has been cancelled.
                 @elseif($notification->type == 'event_edited')
                 The event information has been edited.
+                @elseif($notification->type == 'report_received')
+                    <a href="{{ route('report.details', $notification->report->id) }}" style="text-decoration: none;">
+                        {{ $notification->eventnotification->inviter->user->username}} has reported the event
+                        &#128227;
+                    </a>
+                @elseif($notification->type == 'report_closed')
+                    The report has been closed.
                 @endif
             </p>
             <div class="row">

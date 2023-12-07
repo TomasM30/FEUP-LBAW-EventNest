@@ -86,21 +86,12 @@
             </div>
             <div class="col-lg-3 mt-5">
                 <div class="d-flex flex-wrap justify-content-center position-sticky" style="top: 15%;">
-                    @php
-                        $participants = $event->eventparticipants()->pluck('id_user')->toArray();
-                        $nonParticipants = App\Models\AuthenticatedUser::whereNotIn('id_user', $participants)->get();
-                        $invitedUsers = \DB::table('eventnotification')
-                                    ->join('notification', 'eventnotification.id', '=', 'notification.id')
-                                    ->where('inviter_id', Auth::user()->id)
-                                    ->where('id_event', $event->id)
-                                    ->pluck('notification.id_user')
-                                    ->toArray();
 
-                        $notInvited = App\Models\AuthenticatedUser::whereNotIn('id_user', $participants)
-                            ->whereNotIn('id_user', $invitedUsers)
-                            ->get();
-                    @endphp
-
+                    @if (!$isAdmin && $alreadyReported == false)
+                        <div class="btn-group">
+                            <button id="reportBtn" type="submit" class="btn btn-primary m-3 ">Report</button>
+                         </div>
+                    @endif
                     @if ($event->closed == false)
                         @if(!$isParticipant && !$isAdmin && $event->eventparticipants()->count() < $event->capacity)
                             @if($event->type == 'public' || $event->type == 'private')
@@ -132,7 +123,7 @@
                             </form>
                             @endif
 
-                            @if(!$isAdmin && $isParticipant)
+                        @if(!$isAdmin && $isParticipant)
                             <div class="dropdown">
                                 <button class="btn btn-primary m-3  dropdown-toggle invite" type="button" id="dropdownMenuInvite" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                                     Invite
@@ -151,7 +142,7 @@
                                     @endforeach
                                 </div>
                             </div>
-                            @endif
+                        @endif
 
                         @if($isAdmin || $isOrganizer)
                             @if($event->eventparticipants()->count() > 1)
@@ -226,4 +217,5 @@
 
 <div id="overlay" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0, 0, 0, 0.5); z-index: 1000;"></div>
 @include('partials.eventModal', ['formAction' => route('events.edit', $event->id), 'hashtags' => $hashtags])
+@include('partials.reportModal')
 @endsection

@@ -44,7 +44,7 @@ CREATE TYPE TypesMessage AS ENUM ('chat', 'comment');
 CREATE TYPE TypesNotification AS ENUM ('invitation_received', 'request', 'invitation_accepted', 
                                         'invitation_rejected', 'request_rejected', 'request_accepted',
                                         'removed_from_event', 'added_to_event', 'event_canceled',
-                                        'event_edited');
+                                        'event_edited', 'report_received', 'report_closed');
 
 -- Create tables
 CREATE TABLE users (
@@ -106,12 +106,27 @@ CREATE TABLE MessageReaction (
     PRIMARY KEY (id_user, id_message)
 );
 
+CREATE TABLE Report (
+    id SERIAL PRIMARY KEY,
+    title VARCHAR(255) NOT NULL,
+    content TEXT NOT NULL,
+    id_user INT NOT NULL,
+    id_event INT NOT NULL,
+    closed BOOLEAN DEFAULT FALSE,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    file VARCHAR(255) DEFAULT NULL,
+    FOREIGN KEY (id_user) REFERENCES Authenticated(id_user),
+    FOREIGN KEY (id_event) REFERENCES Event(id)
+);
+
 CREATE TABLE Notification (
     id SERIAL PRIMARY KEY,
     type TypesNotification NOT NULL,
     id_user INT NOT NULL,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    FOREIGN KEY (id_user) REFERENCES Authenticated(id_user)
+    report_id INT DEFAULT NULL,
+    FOREIGN KEY (report_id) REFERENCES Report(id),
+    FOREIGN KEY (id_user) REFERENCES users(id)
 );
 
 CREATE TABLE EventNotification (
@@ -119,7 +134,7 @@ CREATE TABLE EventNotification (
     inviter_id INT,
     id_event INT NOT NULL,
     FOREIGN KEY (id) REFERENCES Notification(id),
-    FOREIGN KEY (inviter_id) REFERENCES Authenticated(id_user),
+    FOREIGN KEY (inviter_id) REFERENCES users(id),
     FOREIGN KEY (id_event) REFERENCES Event(id)
 );
 
@@ -184,16 +199,6 @@ CREATE TABLE OrderDetail (
     quantity INT NOT NULL,
     FOREIGN KEY (id_order) REFERENCES Orders(id),
     PRIMARY KEY (id_order)
-);
-
-CREATE TABLE Report (
-    id SERIAL PRIMARY KEY,
-    title VARCHAR(255) NOT NULL,
-    content TEXT NOT NULL,
-    id_user INT NOT NULL,
-    id_event INT NOT NULL,
-    FOREIGN KEY (id_user) REFERENCES Authenticated(id_user),
-    FOREIGN KEY (id_event) REFERENCES Event(id)
 );
 
 CREATE TABLE Poll (

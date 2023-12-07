@@ -214,6 +214,11 @@ document.addEventListener('DOMContentLoaded', function() {
 
 window.onload = function() {
 
+  let activeReport = document.querySelector('.list-group-item.active');
+  if (activeReport) {
+    document.getElementById('reportList').scrollTop = activeReport.offsetTop;
+  }
+
   let dropdowns = document.getElementsByClassName("dropdown-toggle");
   for (let i = 0; i < dropdowns.length; i++) {
     dropdowns[i].addEventListener('click', function() {
@@ -221,8 +226,6 @@ window.onload = function() {
         dropdownContent.classList.toggle('show');
     });
   }
-
-
 
   function handleModal(modalId, triggerId, overlayId) {
       let modal = document.getElementById(modalId);
@@ -264,7 +267,9 @@ window.onload = function() {
   handleModal('newEventModal', 'edit-button', 'overlay');
   handleModal('passwordChangeModal', 'changePasswordBtn', 'overlay');
   handleModal('deleteAccountModal', 'deleteAccountBtn', 'overlay');
+  handleModal('reportModal', 'reportBtn', 'overlay');
 };
+
 
 
 let filteredEvents = [];
