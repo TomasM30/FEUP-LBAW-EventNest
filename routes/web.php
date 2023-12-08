@@ -1,10 +1,7 @@
 <?php
 
-use App\Http\Controllers\MainPageController;
 use Illuminate\Support\Facades\Route;
 
-use App\Http\Controllers\CardController;
-use App\Http\Controllers\ItemController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\EventController;
 use App\Http\Controllers\AdminController;
@@ -12,9 +9,10 @@ use App\Http\Controllers\AuthenticatedUserController;
 use App\Http\Controllers\GoogleController;
 use App\Http\Controllers\FileController;
 
-
 use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\Auth\RegisterController;
+
+use App\Http\Controllers\PayPalController;
 
 
 /*
@@ -87,4 +85,10 @@ Route::controller(FileController::class)->group(function () {
     Route::post('/file/upload', 'upload')-> name('file.upload');
 });
 
+Route::controller(PayPalController::class)->group(function () {
+    Route::get('paypal', [PayPalController::class, 'index'])->name('paypal');
+    Route::get('paypal/payment', [PayPalController::class, 'payment'])->name('paypal.payment');
+    Route::get('paypal/payment/success', [PayPalController::class, 'paymentSuccess'])->name('paypal.payment.success');
+    Route::get('paypal/payment/cancel', [PayPalController::class, 'paymentCancel'])->name('paypal.payment/cancel');
+});
 
