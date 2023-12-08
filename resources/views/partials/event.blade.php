@@ -10,7 +10,7 @@
                 <p class=" card-text">{{ $event->place }}</p>
                 <p class="card-text">{{ \Carbon\Carbon::parse($event->date)->format('d/m/y') }}</p>
             </div>
-            <div class="card-header">
+            <div class="card-header" style="overflow-x: auto; white-space: nowrap;">
                 @if($event->hashtags->isNotEmpty())
                     @foreach($event->hashtags as $hashtag)
                         <span class="hashtag">#{{ $hashtag->title }}</span>

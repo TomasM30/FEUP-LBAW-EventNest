@@ -4,7 +4,7 @@
 
 <div class="content-container overflow-x-hidden">
     <div>
-        <div class="row m-3">
+        <div class="row m-5">
             <div class="col">
                 <div class="form-outline mt-2" id="search-form" data-url="{{ route('search-events') }}">
                     <input type="search" id="form1" class="form-control" placeholder="Search" aria-label="Search" />
@@ -16,7 +16,7 @@
                 @endif
             </div>
         </div>
-        <div class="row">
+        <div class="row m-4">
             <div class="col-md-6">
                 <div class="accordion m-4" id="accordionExample">
                     <div class="accordion-item">
@@ -72,7 +72,6 @@
                                     </div>
                                 </div>
                             </div>
-                            <!--<button type="button" class="btn btn-primary" onclick="filterEvents()">Filter</button>-->
                         </div>
                     </div>
                 </div>
