@@ -27,8 +27,15 @@
                     <h4 class="mt-5">Hosted by:</h4>
                     <div class="d-flex align-items-center mb-3">
                         @if($event->user)
-                            <div style="width: 50px; height: 50px; border-radius: 50%; background-image: url('{{ $event->user->getProfileImage() }}'); background-size: cover; background-position: center; background-repeat: no-repeat;"></div>
-                            <p class="ml-3" style="margin: 0; padding: 0;">{{ $event->user->username }}</p>
+                            <a href="{{ route('user.profile', $event->user->id) }}" style="text-decoration: none; color: inherit; overflow-wrap: break-word;">
+                                <div style="display: flex; align-items: center;">
+                                    <div style="width: 50px; height: 50px; border-radius: 50%; background-image: url('{{ $event->user->getProfileImage() }}'); background-size: cover; background-position: center; background-repeat: no-repeat;"></div>
+                                    <p class="ml-3 mr-1" style="margin: 0; padding: 0;">{{ $event->user->username }}</p>
+                                    @if($event->user->authenticated->is_verified == 1)
+                                        <i class="fa-solid fa-circle-check"></i>
+                                    @endif
+                                </div>
+                            </a>                 
                         @else
                             <div class="alert alert-dismissible alert-danger">
                                 <p class="ml-3" style="margin: 0; padding: 0; color: red; font-weight: bold;">User deleted</p>                            
@@ -47,19 +54,9 @@
                         @endforeach
                     </div>
                 </div>
-                <div class="attendees mt-5">
-                    <div class="capacity d-flex justify-content-around">
-                        <div class="capacity-item d-flex flex-column justify-content-center align-items-center">
-                            <h4>Joined</h4>
-                            <p>{{ $event->eventparticipants()->count() }}</p>
-                        </div>
-                        <div class="capacity-item d-flex flex-column justify-content-center align-items-center">
-                            <h4>Limit</h4>
-                            <p>{{ $event->capacity }}</p>
-                        </div>
-                    </div>
-                    <div class="attendees-list mt-5">
-                        <h3>Attendees:</h3>
+                <div class="attendees-list mt-5">
+                    <h3 style="overflow-wrap: break-word;" >Attendees:</h3>
+                    <div class="table-responsive">
                         <table class="table table-hover" style="border: 0;">
                             <thead>
                                 <tr>
@@ -71,17 +68,23 @@
                                 <tr>
                                     <td>
                                         <div class="d-flex align-items-center">
-                                            <div style="width: 50px; height: 50px; border-radius: 50%; background-image: url('{{ $attendee->user->getProfileImage() }}'); background-size: cover; background-position: center; background-repeat: no-repeat;"></div>
-                                            <p class="ml-3" style="margin: 0; padding: 0;">{{ $attendee->user->username }}</p>
+                                            <a href="{{ route('user.profile', $attendee->user->id) }}" style="text-decoration: none; color: inherit;">
+                                                <div style="display: flex; align-items: center;">
+                                                    <div style="width: 50px; height: 50px; border-radius: 50%; background-image: url('{{ $event->user->getProfileImage() }}'); background-size: cover; background-position: center; background-repeat: no-repeat;"></div>
+                                                    <p class="ml-3 mr-1" style="margin: 0; padding: 0;">{{ $attendee->user->username }}</p>
+                                                    @if($attendee->user->authenticated->is_verified == 1)
+                                                        <i class="fa-solid fa-circle-check"></i>
+                                                    @endif
+                                                </div>
+                                            </a>      
                                         </div>
                                     </td>
                                 </tr>
                                 @endforeach
                             </tbody>
                         </table>
-                        {{ $attendees->links() }}
-
                     </div>
+                    {{ $attendees->links() }}
                 </div>
             </div>
             <div class="col-lg-3 mt-5">
@@ -184,15 +187,17 @@
                                     </div>
                                 </div>
                             @endif
-
-                            <form method="POST" action="{{ route('events.cancel', $event->id) }}">
-                                {{ csrf_field() }}
-                                <input type="hidden" name="id_user" value="{{ Auth::user()->id }}">
-                                <input type="hidden" name="eventId" value="{{ $event->id }}">
-                                <div class="btn-group">
-                                    <button type="submit" class="btn btn-primary m-3 ">Cancel</button>
-                                </div>
-                            </form>
+                            
+                            @if($user->authenticated->is_verified == 0)
+                                <form method="POST" action="{{ route('events.cancel', $event->id) }}">
+                                    {{ csrf_field() }}
+                                    <input type="hidden" name="id_user" value="{{ Auth::user()->id }}">
+                                    <input type="hidden" name="eventId" value="{{ $event->id }}">
+                                    <div class="btn-group">
+                                        <button type="submit" class="btn btn-primary m-3 ">Cancel</button>
+                                    </div>
+                                </form>
+                            @endif
 
                             <div class="btn-group">
                                 <button id='edit-button' type="button" class="btn btn-primary m-3 " data-toggle="modal" data-target="#newEventModal">Edit</button>

@@ -57,6 +57,7 @@ Route::controller(AuthenticatedUserController::class)->group(function () {
     Route::post('/user/{id}/profile/edit', 'updateUserProfile')->name('user.profile.update');
     Route::post('/user/{id}/password/change', 'updateUserPassword')->name('user.password.update');
     Route::post('/user/{id}/delete', 'deleteUser')->name('user.delete');
+    Route::post('/user/{id}/verify', 'verifyUser')->name('user.verify');
 });
 
 Route::controller(EventController::class)->group(function () {

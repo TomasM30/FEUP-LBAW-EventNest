@@ -110,7 +110,7 @@ CREATE TABLE Report (
     id SERIAL PRIMARY KEY,
     title VARCHAR(255) NOT NULL,
     content TEXT NOT NULL,
-    id_user INT NOT NULL,
+    id_user INT,
     id_event INT NOT NULL,
     closed BOOLEAN DEFAULT FALSE,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,

@@ -211,6 +211,7 @@ class EventController extends Controller
                                         ->where('id_event', $data['event']->id)
                                         ->where('closed', false)
                                         ->exists();
+        $data['user'] = $user;
 
         return view('pages.event_details', $data);
     }

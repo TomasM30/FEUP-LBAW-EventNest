@@ -10,10 +10,12 @@ use App\Models\EventParticipant;
 use App\Models\FavoriteEvents;
 use Illuminate\Support\Facades\Auth;
 use App\Http\Controllers\FileController;
+use App\Models\Report;
 use App\Models\Notification;
 use App\Models\EventNotification;
 use Illuminate\Support\Facades\Hash;
-
+use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\DB;
 
 
 class AuthenticatedUserController extends Controller
@@ -122,34 +124,55 @@ class AuthenticatedUserController extends Controller
     }
 
     public function deleteUser() {
-        $user = Auth::user();
-    
-        $eventController = new EventController;
-        $authenticatedUser = $user->authenticated;
-    
-        $events = $authenticatedUser->events->where('id_user', $user->id);
 
-        $eventNotificationIds = EventNotification::where('inviter_id', $user->id)->pluck('id');
-        EventNotification::whereIn('id', $eventNotificationIds)->delete();
-        Notification::whereIn('id', $eventNotificationIds)->delete();
+        try {
+            DB::beginTransaction();
 
-        $notificationIds = Notification::where('id_user', $user->id)->pluck('id');
-        EventNotification::whereIn('id', $notificationIds)->delete();
-        Notification::whereIn('id', $notificationIds)->delete();
+            $user = Auth::user();
+        
+            $eventController = new EventController;
+            $authenticatedUser = $user->authenticated;
+        
+            $events = $authenticatedUser->events->where('id_user', $user->id);
     
-        foreach ($events as $event) {
-            $request = new Request(['eventId' => $event->id]);
-            $eventController->cancelEvent($request);
-            $event->update(['id_user' => null]);
+            $eventNotificationIds = EventNotification::where('inviter_id', $user->id)->pluck('id');
+            EventNotification::whereIn('id', $eventNotificationIds)->delete();
+            Notification::whereIn('id', $eventNotificationIds)->delete();
+    
+            $notificationIds = Notification::where('id_user', $user->id)->pluck('id');
+            EventNotification::whereIn('id', $notificationIds)->delete();
+            Notification::whereIn('id', $notificationIds)->delete();
+    
+            Report::where('id_user', $user->id)
+            ->update(['closed' => true, 'id_user' => null]);
+        
+            foreach ($events as $event) {
+                $request = new Request(['eventId' => $event->id]);
+                $eventController->cancelEvent($request);
+                $event->update(['id_user' => null]);
+            }
+    
+        
+            EventParticipant::where('id_user', $user->id)->delete();
+            FavoriteEvents::where('id_user', $user->id)->delete();
+            $authenticatedUser->delete();
+            $user->delete();
+    
+            DB::commit();
+            return redirect('/login')->with('success', 'User deleted successfully.');
+        } catch (\Exception $e) {
+            return redirect()->back()->withErrors(['error' => 'Something went wrong. Please try again later.']);
         }
 
-    
-        EventParticipant::where('id_user', $user->id)->delete();
-        FavoriteEvents::where('id_user', $user->id)->delete();
-        $authenticatedUser->delete();
-        $user->delete();
-    
-        return redirect('/login')->with('success', 'User deleted successfully.');
+    }
+
+    public function verifyUser(Request $request) {
+        $user = Auth::user();
+        $authenticatedUser = $user->authenticated;
+        $authenticatedUser->is_verified = true;
+        $authenticatedUser->save();
+
+        return redirect()->back()->with('message', 'User verified successfully!');
     }
 
 }

@@ -8,26 +8,52 @@
             <div class="nav flex-column nav-pills" id="v-pills-tab" role="tablist" aria-orientation="vertical">
                 <a class="nav-link active" id="v-pills-profile-tab" href="#v-pills-profile">Profile</a>
                 <a class="nav-link" id="v-pills-events-tab" href="#v-pills-events">Events</a>
-                <a class="nav-link" id="v-pills-settings-tab" href="#v-pills-settings">Settings</a>
+                @if($user->id == Auth::user()->id)
+                    <a class="nav-link" id="v-pills-settings-tab" href="#v-pills-settings">Settings</a>
+                @endif
             </div>
         </div>
         <div class="col-12 col-md-9">
             <div class="tab-content" id="v-pills-tabContent">
                 <div class="tab-pane fade show active" id="v-pills-profile">
-                    <div class="container" style="max-width: 500px;">
-                            <div class="card" style="max-width: 75%;">
-                                <img id="profile-image" src="{{ Auth::user()->getProfileImage() }}" class="card-img-top" alt="Profile Image">
-                                <div class="card-body">
-                                    <h5 class="card-title">{{ Auth::user()->username }}</h5>
-                                    <p class="card-text">{{ Auth::user()->name }}</p>
-                                    <p class="card-text">{{ Auth::user()->email }}</p>
-                                    <button type="button" id="editProfileButton" class="btn btn-primary" data-toggle="modal" data-target="#editProfileModal">
-                                        Edit Profile
-                                    </button>
+                    <div class="container m-0" style="max-width: 800px;">
+                        <div class="row">
+                            <div class="col-md-8">
+                                <div class="card" style="max-width: 90%;">
+                                    <img id="profile-image" src="{{ $user->getProfileImage() }}" class="card-img-top" alt="Profile Image">
+                                    <div class="card-body">
+                                        <h5 
+                                            class="card-title">{{ $user->username }}
+                                            @if($user->authenticated->is_verified == 1)
+                                                <i class="fa-solid fa-circle-check"></i>
+                                            @endif
+                                        </h5>
+                                        <p class="card-text">{{ $user->name }}</p>
+                                        <p class="card-text">{{ $user->email }}</p>
+                                        <button type="button" id="editProfileButton" class="btn btn-primary" data-toggle="modal" data-target="#editProfileModal">
+                                            Edit Profile
+                                        </button>
+                                    </div>
                                 </div>
                             </div>
+                            @if($user->id == Auth::user()->id && $user->authenticated->is_verified == 0)
+                                <div class="col-md-4 mt-3 mt-md-0">
+                                    <div class="card" style="max-width: 100%; position: relative;">
+                                        <button id="questionBtn" type="button" class="p-0" style="position: absolute; top: 10px; right: 10px; color: inherit; text-decoration: none; background: none; border: none;">
+                                            <i class="fas fa-question-circle"></i>
+                                        </button>
+                                        <div class="card-body">
+                                            <h5 class="card-title">Want to be a verified User?</h5>
+                                            <button type="button" class="btn btn-primary" id="verifiedBTn">
+                                                Request to be verified
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            @endif
                         </div>
                     </div>
+                </div>
                 <div class="tab-pane fade" id="v-pills-events">
                     <div class="container">
                         <div class="row">
@@ -63,7 +89,7 @@
                 <div class="tab-pane fade" id="v-pills-settings">
                     <h3>Settings</h3>
                     <div class="row mt-4">
-                        @if(Auth::user()->google_id == null)
+                        @if($user->google_id == null)
                             <div class="col-12 col-md-6 mb-3">
                                 <a id="changePasswordBtn" href="#" class="btn btn-primary btn-block">Change Password</a>
                             </div>
@@ -80,8 +106,11 @@
     </div>
 </div>
 <div id="overlay" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0, 0, 0, 0.5); z-index: 1000;"></div>
-@include('partials.profileModal', ['id' => Auth::user()->id, 'type' => 'profile'])
-@include('partials.passwordChangeModal')
-@include('partials.deleteAccountModal')
+@if($user->id == Auth::user()->id)
+    @include('partials.profileModal', ['id' => $user->id, 'type' => 'profile'])
+    @include('partials.passwordChangeModal')
+    @include('partials.deleteAccountModal')
+    @include('partials.verificationModal')
+@endif
 
 @endsection

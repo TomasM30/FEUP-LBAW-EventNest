@@ -26,7 +26,7 @@ class AuthenticatedUser extends Model
      */
     protected $primaryKey = 'id_user';
 
-    protected $fillable = ['id_user'];
+    protected $fillable = ['id_user', 'is_verified'];
 
 
     /**
