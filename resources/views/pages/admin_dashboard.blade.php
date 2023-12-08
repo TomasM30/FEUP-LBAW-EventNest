@@ -140,23 +140,27 @@
                 @if (!$tags->isEmpty())
                     <div class="col-12">
                         <div class="table-responsive">
-                            <table class="table table-hover mx-auto" style="max-width: 500px;">
+                            <table class="table table-hover mx-auto" style="max-width: 650px;">
                                 <thead>
                                     <tr>
-                                        <th class="text-center">Tag</th>
+                                        <th class="text-left align-middle">Tag</th>
                                         <th class="text-right">
-                                            <a href="#" class="btn btn-success float-right"><i class="fa fa-plus"></i></a>
-                                        </th>
+                                            <a id="tagBtn" class="btn btn-primary float-right align-middle"><i class="fa fa-plus text-white"></i>
+                                        </a>
                                     </tr>
                                 </thead>
                                 <tbody>
                                     @foreach ($tags as $tag)
                                         <tr>
-                                            <td>
+                                            <td class="align-middle">
                                                 #{{ $tag->title }}
                                             </td>
-                                            <td class="text-right">
-                                                <a href="#" class="btn btn-danger"><i class="fa fa-trash"></i></a>
+                                            <td class="text-right align-middle">
+                                                <form method="POST" action="{{ route('tag.delete', $tag->id) }}">
+                                                    {{ csrf_field() }}
+                                                    {{ method_field('DELETE') }}
+                                                    <button type="submit" class="btn btn-danger"><i class="fa fa-trash"></i></button>
+                                                </form>
                                             </td>
                                         </tr>
                                     @endforeach
@@ -176,4 +180,6 @@
         </div>
     </div>
 </div>
+<div id="overlay" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0, 0, 0, 0.5); z-index: 1000;"></div>
+@include('partials.tagModal')
 @endsection

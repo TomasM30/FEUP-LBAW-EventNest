@@ -49,6 +49,8 @@ Route::controller(RegisterController::class)->group(function () {
 Route::controller(AdminController::class)->group(function () {
     Route::get('/dashboard', 'showDashboard')->name('dashboard');
     Route::get('/report/{id}/details', 'showReportDetails')->name('report.details');
+    Route::post('/dashboard/tag/add', 'addTag')->name('tag.add');
+    Route::delete('/dashboard/tag/{id}/delete', 'deleteTag')->name('tag.delete');
 });
 
 Route::controller(AuthenticatedUserController::class)->group(function () {

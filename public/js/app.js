@@ -283,6 +283,7 @@ window.onload = function() {
   handleModal('reportModal', 'reportBtn', 'overlay');
   handleModal('verificationModal', 'verifiedBTn', 'overlay');
   handleModal('verificationModal', 'questionBtn', 'overlay');
+  handleModal('tagModal', 'tagBtn', 'overlay');
 
 };
 

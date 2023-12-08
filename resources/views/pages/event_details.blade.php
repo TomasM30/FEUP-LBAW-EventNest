@@ -188,7 +188,7 @@
                                 </div>
                             @endif
                             
-                            @if($user->authenticated->is_verified == 0)
+                            @if($event->user->authenticated->is_verified == 0)
                                 <form method="POST" action="{{ route('events.cancel', $event->id) }}">
                                     {{ csrf_field() }}
                                     <input type="hidden" name="id_user" value="{{ Auth::user()->id }}">
