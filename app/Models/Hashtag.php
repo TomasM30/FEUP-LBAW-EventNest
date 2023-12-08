@@ -8,6 +8,7 @@ use Illuminate\Database\Eloquent\Model;
 class Hashtag extends Model
 {
     use HasFactory;
+    public $timestamps = false;
 
     /**
      * The table associated with the model.
@@ -22,6 +23,8 @@ class Hashtag extends Model
      * @var string
      */
     protected $primaryKey = 'id';
+
+    
 
     public function events()
     {
