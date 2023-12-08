@@ -170,7 +170,7 @@ class EventController extends Controller
                   ->where('closed', false);
         }
     
-        $events = $query->orderBy('date')->paginate(10);
+        $events = $query->orderBy('date')->paginate(21);
     
         $hashtags = Hashtag::orderBy('title')->get();
         $places = Event::getUniquePlaces()->sortBy('place');
@@ -191,7 +191,7 @@ class EventController extends Controller
         $data['isAdmin'] = Admin::where('id_user', Auth::user()->id)->first();
         $data['isOrganizer'] = $data['event']->id_user == Auth::user()->id;
         $data['hashtags'] = $hashtags;
-        $data['attendees'] = $data['event']->eventparticipants()->paginate(10);
+        $data['attendees'] = $data['event']->eventparticipants()->paginate(15);
 
         $data['participants'] = $data['event']->eventparticipants()->pluck('id_user')->toArray();
 
@@ -211,6 +211,10 @@ class EventController extends Controller
                                         ->where('closed', false)
                                         ->exists();
         $data['user'] = $user;
+
+        if ($request->ajax()) {
+            return view('partials.attendeesTable', ['attendees' => $data['attendees'], 'event' => $data['event']])->render();
+        }
 
         return view('pages.event_details', $data);
     }
@@ -656,7 +660,7 @@ class EventController extends Controller
                         return $query->whereIn('place', $places);
                     })
                     ->orderBy($orderBy, $direction)
-                    ->paginate(10);
+                    ->paginate(21);
 
         $filteredEventsHtml = view('pages.event_lists', ['events' => $events])->render();
         $filteredEventIds = $events->pluck('id')->all();

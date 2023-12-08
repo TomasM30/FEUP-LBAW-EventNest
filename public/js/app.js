@@ -214,24 +214,41 @@ document.addEventListener('DOMContentLoaded', function () {
 
 window.onload = function () {
   document.querySelector('.table-responsive').addEventListener('click', function (e) {
-    var paginationLink = e.target.closest('.pagination a');
+    let paginationLink = e.target.closest('.pagination a');
 
     if (paginationLink) {
       e.preventDefault();
 
-      // Fetch the content of the clicked page using AJAX
       fetch(paginationLink.href, {
         headers: {
-          'X-Requested-With': 'XMLHttpRequest'  // This makes the request AJAX
+          'X-Requested-With': 'XMLHttpRequest'
         }
       })
         .then(response => response.text())
         .then(html => {
-          // Replace the content of the 'table-responsive' div with the loaded HTML
           document.querySelector('.table-responsive').innerHTML = html;
         });
     }
   });
+
+  document.querySelector('.attendees-list').addEventListener('click', function (e) {
+    let paginationLink = e.target.closest('.pagination a');
+  
+    if (paginationLink) {
+      e.preventDefault();
+  
+      fetch(paginationLink.href, {
+        headers: {
+          'X-Requested-With': 'XMLHttpRequest'
+        }
+      })
+        .then(response => response.text())
+        .then(html => {
+          document.querySelector('.table-responsive').innerHTML = html;
+        });
+    }
+  });
+
 
   let acceptTerms = document.getElementById('acceptTerms');
   let confirmCertainty = document.getElementById('confirmCertainty');
@@ -425,14 +442,11 @@ function fetchEvents(page = 1) {
   .then(response => response.json())
   .then(data => {
       document.getElementById('container').innerHTML = data.html;
+      setActivePageNumber(page); // Set the active page number
       filteredEvents = data.ids;
+      window.scrollTo(0, 0);
   })
-  .catch(error => console.error('Error:', error))
-  .then(data => {
-    document.getElementById('container').innerHTML = data.html;
-    setActivePageNumber(page); // Set the active page number
-    filteredEvents = data.ids;
-  });
+  .catch(error => console.error('Error:', error));
 }
 
 document.addEventListener('click', function(event) {
@@ -461,12 +475,20 @@ function orderEvents(orderByField) {
 }
 
 function setActivePageNumber(page) {
+  // Remove the active class from the current active page number
   let activePageNumber = document.querySelector('.pagination .active');
   if (activePageNumber) {
     activePageNumber.classList.remove('active');
   }
 
-  let newActivePageNumber = document.querySelector(`.pagination a[data-url*="page=${page}"]`).parentNode;
+  // Add the active class to the new active page number
+  let newActivePageNumber;
+  if (page === 1) {
+    newActivePageNumber = Array.from(document.querySelectorAll('.pagination a:not([href*="page="])')).find(el => el.textContent.trim() === '1').parentNode;
+  } else {
+    newActivePageNumber = document.querySelector(`.pagination a[href*="page=${page}"]`).parentNode;
+  }
+  
   if (newActivePageNumber) {
     newActivePageNumber.classList.add('active');
   }
