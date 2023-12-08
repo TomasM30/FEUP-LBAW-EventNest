@@ -27,8 +27,8 @@
                         </h2>
                         <div id="collapseOne" class="accordion-collapse collapse" aria-labelledby="headingOne" data-bs-parent="#accordionExample">
                             <div class="accordion-body">
-                                <button id='date-button' class="btn btn-custom btn-block" onclick="orderEventsByDate()" data-direction="asc">Date</button>
-                                <button id='title-button' class="btn btn-custom btn-block" onclick="orderEventsByTitle()" data-direction="asc">Title</button>
+                                <button id='date-button' class="btn btn-custom btn-block" data-direction="asc">Date</button>
+                                <button id='title-button' class="btn btn-custom btn-block" data-direction="asc">Title</button>
                             </div>
                         </div>
                     </div>
@@ -72,7 +72,7 @@
                                     </div>
                                 </div>
                             </div>
-                            <button type="button" class="btn btn-primary" onclick="filterEvents()">Filter</button>
+                            <!--<button type="button" class="btn btn-primary" onclick="filterEvents()">Filter</button>-->
                         </div>
                     </div>
                 </div>
@@ -96,6 +96,8 @@
                 </div>
             </div>
         @endif
+        {{ $events->links('partials.pagination') }}
+
     </div>
 
     <div id="overlay" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0, 0, 0, 0.5); z-index: 1000;"></div>

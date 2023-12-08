@@ -11,5 +11,7 @@
         </div>
     </div>
 </div>
-
+<div class="col-12 mt-3">
+    @include('partials.usersTable', ['users' => $users])
+</div>
 @endsection

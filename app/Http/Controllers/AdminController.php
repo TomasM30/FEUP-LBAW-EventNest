@@ -14,24 +14,57 @@ use Illuminate\Support\Facades\Log;
 
 class AdminController extends Controller
 {
-    public function showDashboard()
+    public function showDashboard(Request $request)
     {
         $this->authorize('viewDashboard', Admin::class);
-        $authenticatedUsers = AuthenticatedUser::with('user')->get()->sortBy('user.username');
+        return view('pages.admin_dashboard');
+    }
 
+    public function showUsers(Request $request){
+        $this->authorize('viewDashboard', Admin::class);
+        $authenticatedUsers = AuthenticatedUser::paginate(8);
+        if ($request->ajax()) {
+            return view('partials.usersTable', ['users' => $authenticatedUsers])->render();
+        }
+
+        return view('pages.admin_users', ['users' => $authenticatedUsers]);
+    }
+
+    public function showEvents(Request $request){
+        $this->authorize('viewDashboard', Admin::class);
         $now = Carbon::now();
 
         Event::where('date', '<', $now)
             ->where('closed', false)
             ->update(['closed' => true]);
 
-        $events = Event::orderBy('date')->get();
+        $events = Event::orderBy('date')->paginate(8);
+        if ($request->ajax()) {
+            return view('partials.eventsTable', ['events' => $events])->render();
+        }
+        log::info($events);
 
-        $reports = Report::all();
+        return view('pages.admin_events', ['events' => $events]);
+    }
 
-        $tags = Hashtag::all();
-    
-        return view('pages.admin_dashboard', ['users' => $authenticatedUsers, 'events' => $events, 'reports' => $reports, 'tags' => $tags]);
+    public function showReports(Request $request){
+        $this->authorize('viewDashboard', Admin::class);
+        $reports = Report::orderby('closed')->paginate(8);
+        if ($request->ajax()) {
+            return view('partials.reportsTable', ['reports' => $reports])->render();
+        }
+
+        return view('pages.admin_reports', ['reports' => $reports]);
+    }
+
+    public function showTags(Request $request){
+        $this->authorize('viewDashboard', Admin::class);
+        $tags = Hashtag::orderby('title')->paginate(5);
+        if ($request->ajax()) {
+            return view('partials.tagsTable', ['tags' => $tags])->render();
+        }
+
+        return view('pages.admin_tags', ['tags' => $tags]);
     }
 
     public function showReportDetails($id)

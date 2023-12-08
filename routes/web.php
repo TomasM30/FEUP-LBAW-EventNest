@@ -51,6 +51,10 @@ Route::controller(AdminController::class)->group(function () {
     Route::get('/report/{id}/details', 'showReportDetails')->name('report.details');
     Route::post('/dashboard/tag/add', 'addTag')->name('tag.add');
     Route::delete('/dashboard/tag/{id}/delete', 'deleteTag')->name('tag.delete');
+    Route::get('/dashboard/users', 'showUsers')->name('admin.users');
+    Route::get('/dashboard/events', 'showEvents')->name('admin.events');
+    Route::get('/dashboard/reports', 'showReports')->name('admin.reports');
+    Route::get('/dashboard/tags', 'showTags')->name('admin.tags');
 });
 
 Route::controller(AuthenticatedUserController::class)->group(function () {

@@ -163,7 +163,6 @@ class EventController extends Controller
         $query = Event::query();
     
         if ($user->isAdmin()) {
-            log::info('User is admin');
             $query->where('closed', false);
         } else {
             $query->whereIn('type', ['approval', 'public'])
@@ -171,7 +170,8 @@ class EventController extends Controller
                   ->where('closed', false);
         }
     
-        $events = $query->orderBy('date')->get();
+        $events = $query->orderBy('date')->paginate(10);
+        log::info($events);
     
         $hashtags = Hashtag::orderBy('title')->get();
         $places = Event::getUniquePlaces()->sortBy('place');
@@ -621,80 +621,14 @@ class EventController extends Controller
         return redirect()->back()->with('success', 'Notification successfully sent!');
     }
 
-    public function search(Request $request)
-    {
-        $user = Auth::user();
-        $search = $request->get('search');
-        $filteredEventIds = $request->input('events');
-
-        $query = Event::query();
-
-        if ($user->isAdmin()) {
-            $query->where('closed', false);
-        } else {
-            $query->whereIn('type', ['approval', 'public'])
-                ->where('id_user', '!=', $user->id)
-                ->where('closed', false);
-        }
-
-        if ($filteredEventIds) {
-            $query = $query->whereIn('id', $filteredEventIds);
-        }
-
-        if (!empty($search)) {
-            $searchTerms = explode(' ', $search);
-
-            foreach ($searchTerms as $term) {
-                $query = $query->whereRaw("tsvectors @@ plainto_tsquery('portuguese', ?)", [$term]);
-            }
-        }
-
-        $events = $query->get();
-        return view('pages.event_lists', ['events' => $events]);
-    }
-
-
-    public function order(Request $request)
-    {
-        $user = Auth::user();
-        $orderBy = $request->input('orderBy', 'date');
-        $direction = $request->input('direction', 'asc');
-        $eventIds = $request->input('events');
-        $search = $request->input('search');
-
-        $query = Event::query();
-
-        if (!empty($eventIds)) {
-            $query = $query->whereIn('id', $eventIds);
-        }
-
-        if (!empty($search)) {
-            $searchTerms = explode(' ', $search);
-
-            foreach ($searchTerms as $term) {
-                $query = $query->whereRaw("tsvectors @@ plainto_tsquery('portuguese', ?)", [$term]);
-            }
-        }
-
-        if ($user->isAdmin()) {
-            $query->where('closed', false);
-        } else {
-            $query->whereIn('type', ['approval', 'public'])
-                ->where('id_user', '!=', $user->id)
-                ->where('closed', false);
-        }
-
-        $events = $query->orderBy($orderBy, $direction)->get();
-
-        return view('pages.event_lists', ['events' => $events]);
-    }
-
     public function filter(Request $request)
     {
         $user = Auth::user();
         $hashtags = $request->input('hashtags');
         $places = $request->input('places');
         $search = $request->input('search');
+        $orderBy = $request->input('orderBy', 'date');
+        $direction = $request->input('direction', 'asc');
 
         $query = Event::query();
 
@@ -722,7 +656,8 @@ class EventController extends Controller
                     ->when($places, function ($query, $places) {
                         return $query->whereIn('place', $places);
                     })
-                    ->get();
+                    ->orderBy($orderBy, $direction)
+                    ->paginate(10);
 
         $filteredEventsHtml = view('pages.event_lists', ['events' => $events])->render();
         $filteredEventIds = $events->pluck('id')->all();
@@ -731,7 +666,7 @@ class EventController extends Controller
             'html' => $filteredEventsHtml,
             'ids' => $filteredEventIds,
         ]);
-    }               
+    }             
 
     public function cancelEvent(Request $request){
         $event = Event::find($request->eventId);
