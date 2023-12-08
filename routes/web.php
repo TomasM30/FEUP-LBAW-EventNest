@@ -49,6 +49,8 @@ Route::controller(RegisterController::class)->group(function () {
 Route::controller(AdminController::class)->group(function () {
     Route::get('/dashboard', 'showDashboard')->name('dashboard');
     Route::get('/report/{id}/details', 'showReportDetails')->name('report.details');
+    Route::post('/dashboard/tag/add', 'addTag')->name('tag.add');
+    Route::delete('/dashboard/tag/{id}/delete', 'deleteTag')->name('tag.delete');
 });
 
 Route::controller(AuthenticatedUserController::class)->group(function () {
@@ -57,6 +59,7 @@ Route::controller(AuthenticatedUserController::class)->group(function () {
     Route::post('/user/{id}/profile/edit', 'updateUserProfile')->name('user.profile.update');
     Route::post('/user/{id}/password/change', 'updateUserPassword')->name('user.password.update');
     Route::post('/user/{id}/delete', 'deleteUser')->name('user.delete');
+    Route::post('/user/{id}/verify', 'verifyUser')->name('user.verify');
 });
 
 Route::controller(EventController::class)->group(function () {
@@ -66,8 +69,8 @@ Route::controller(EventController::class)->group(function () {
     Route::post('/events/cancel/{id}', 'cancelEvent')->name('events.cancel');
     Route::get('/events', 'listEvents')->name('events');
     Route::get('/events/{id}/details', 'showEventDetails')->name('events.details');
-    Route::post('/events/{id}/leave','leaveEvent')->name('event.leave');
-    Route::post('/events/{id}/join','joinEvent')->name('event.join');
+    Route::post('/events/{id}/leave', 'leaveEvent')->name('event.leave');
+    Route::post('/events/{id}/join', 'joinEvent')->name('event.join');
     Route::post('/events/{id}/add', 'addUser')->name('events.add');
     Route::post('/events/{id}/remove', 'removeUser')->name('events.remove');
     Route::post('/events/search', 'search')->name('search-events');
@@ -84,7 +87,7 @@ Route::controller(GoogleController::class)->group(function () {
 });
 
 Route::controller(FileController::class)->group(function () {
-    Route::post('/file/upload', 'upload')-> name('file.upload');
+    Route::post('/file/upload', 'upload')->name('file.upload');
 });
 
-
+Route::get('/about', 'App\Http\Controllers\AboutController@index')->name('about');

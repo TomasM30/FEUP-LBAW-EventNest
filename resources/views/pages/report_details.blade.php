@@ -25,10 +25,16 @@
                             <a href="{{ route('events.details', $report->event->id) }}">{{ Str::limit($report->event->title, 45, '...') }}</a>
                         </div>
                         <div class="d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-center"  style=" overflow-wrap:break-word;">
-                            <div class="d-flex align-items-center mb-2 mb-md-0">
-                                <div style="width: 50px; height: 50px; border-radius: 50%; background-image: url('{{ $report->user->getProfileImage() }}'); background-size: cover; background-position: center; background-repeat: no-repeat;"></div>
-                                <p class="ml-3" style="margin: 0; padding: 0; word-break: break-word;">{{ $report->user->username }}</p>
-                            </div>
+                            @if($report->user)
+                                <div class="d-flex align-items-center mb-2 mb-md-0">
+                                    <div style="width: 50px; height: 50px; border-radius: 50%; background-image: url('{{ $report->user->getProfileImage() }}'); background-size: cover; background-position: center; background-repeat: no-repeat;"></div>
+                                    <p class="ml-3" style="margin: 0; padding: 0; word-break: break-word;">{{ $report->user->username }}</p>
+                                </div>
+                            @else
+                                <div class="alert alert-dismissible alert-danger">
+                                    <p class="ml-3" style="margin: 0; padding: 0; color: red; font-weight: bold;">User deleted</p>                            
+                                </div>
+                            @endif
                             <p class="text-md-right mb-0">{{ \Carbon\Carbon::parse($report->created_at)->format('d/m/Y, H:i') }}</p>
                         </div>
                         <div class="mt-3 p-3 border">
@@ -37,7 +43,7 @@
                         @if($report->file)
                         <div class="mt-3">
                             <a href="{{ asset('report/' . $report->file) }}" target="_blank" style="text-decoration: none;">
-                                &#128196; {{ basename($report->file) }}
+                                <i class="fas fa-file-alt"></i> {{ basename($report->file) }}
                             </a>
                         </div>
                         @endif

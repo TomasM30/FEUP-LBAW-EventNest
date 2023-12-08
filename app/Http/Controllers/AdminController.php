@@ -7,6 +7,7 @@ use Illuminate\Support\Facades\Auth;
 use App\Models\AuthenticatedUser;
 use App\Models\Event;
 use App\Models\Report;
+use App\Models\Hashtag;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Log;
 
@@ -27,8 +28,10 @@ class AdminController extends Controller
         $events = Event::orderBy('date')->get();
 
         $reports = Report::all();
+
+        $tags = Hashtag::all();
     
-        return view('pages.admin_dashboard', ['users' => $authenticatedUsers, 'events' => $events, 'reports' => $reports]);
+        return view('pages.admin_dashboard', ['users' => $authenticatedUsers, 'events' => $events, 'reports' => $reports, 'tags' => $tags]);
     }
 
     public function showReportDetails($id)
@@ -39,4 +42,27 @@ class AdminController extends Controller
 
         return view('pages.report_details', ['report' => $report, 'reports' => $reports]);
     }
+
+    public function addTag(Request $request)
+    {
+        //$this->authorize('addTag', Admin::class);
+        $tag = new Hashtag();
+        $tag->title = $request->hashtag;
+        $tag->save();
+
+        return redirect()->route('dashboard');
+    }
+
+    public function deleteTag(Request $request)
+    {
+        //$this->authorize('deleteTag', Admin::class);
+        $tag = Hashtag::find($request->id);
+    
+         $tag->events()->detach();
+    
+        $tag->delete();
+    
+        return redirect()->back();
+    }
+
 }

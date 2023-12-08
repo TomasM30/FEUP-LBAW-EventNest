@@ -214,6 +214,19 @@ document.addEventListener('DOMContentLoaded', function() {
 
 window.onload = function() {
 
+  let acceptTerms = document.getElementById('acceptTerms');
+  let confirmCertainty = document.getElementById('confirmCertainty');
+  let submitButton = document.getElementById('submitButton');
+
+  if (acceptTerms && confirmCertainty && submitButton) {
+      acceptTerms.addEventListener('change', checkConditions);
+      confirmCertainty.addEventListener('change', checkConditions);
+
+      function checkConditions() {
+          submitButton.disabled = !(acceptTerms.checked && confirmCertainty.checked);
+      }
+  }
+
   let activeReport = document.querySelector('.list-group-item.active');
   if (activeReport) {
     document.getElementById('reportList').scrollTop = activeReport.offsetTop;
@@ -268,7 +281,54 @@ window.onload = function() {
   handleModal('passwordChangeModal', 'changePasswordBtn', 'overlay');
   handleModal('deleteAccountModal', 'deleteAccountBtn', 'overlay');
   handleModal('reportModal', 'reportBtn', 'overlay');
+  handleModal('verificationModal', 'verifiedBTn', 'overlay');
+  handleModal('verificationModal', 'questionBtn', 'overlay');
+  handleModal('tagModal', 'tagBtn', 'overlay');
+
 };
+
+
+document.addEventListener('DOMContentLoaded', function () {
+  let navbarToggler = document.getElementById('navbarToggler');
+  
+  if (navbarToggler) {
+      navbarToggler.addEventListener('click', function () {
+          let navbarCollapse = document.getElementById('navbarColor01');
+          if (navbarCollapse.classList.contains('show')) {
+              navbarCollapse.classList.remove('show');
+              navbarCollapse.classList.add('collapsing');
+              setTimeout(function () {
+                  navbarCollapse.classList.remove('collapsing');
+                  navbarCollapse.style = '';
+              }, 350);
+          } else {
+              navbarCollapse.classList.remove('collapsing');
+              navbarCollapse.classList.add('show');
+              navbarCollapse.style = 'display: block;';
+          }
+      });
+  }
+});
+
+document.addEventListener('DOMContentLoaded', function() {
+  document.querySelectorAll('#v-pills-tab .nav-link').forEach(function(tab) {
+      tab.addEventListener('click', function(e) {
+          e.preventDefault();
+
+          document.querySelectorAll('#v-pills-tab .nav-link').forEach(function(tab) {
+              tab.classList.remove('active');
+          });
+
+          document.querySelectorAll('.tab-pane').forEach(function(tabContent) {
+              tabContent.classList.remove('show', 'active');
+          });
+
+          tab.classList.add('active');
+          document.querySelector(tab.getAttribute('href')).classList.add('show', 'active');
+      });
+  });
+});
+
 
 
 
@@ -390,46 +450,6 @@ function orderEventsByTitle() {
   .catch(error => console.error('Error:', error));
 }
 
-document.addEventListener('DOMContentLoaded', function () {
-  let navbarToggler = document.getElementById('navbarToggler');
-  
-  if (navbarToggler) {
-      navbarToggler.addEventListener('click', function () {
-          let navbarCollapse = document.getElementById('navbarColor01');
-          if (navbarCollapse.classList.contains('show')) {
-              navbarCollapse.classList.remove('show');
-              navbarCollapse.classList.add('collapsing');
-              setTimeout(function () {
-                  navbarCollapse.classList.remove('collapsing');
-                  navbarCollapse.style = '';
-              }, 350);
-          } else {
-              navbarCollapse.classList.remove('collapsing');
-              navbarCollapse.classList.add('show');
-              navbarCollapse.style = 'display: block;';
-          }
-      });
-  }
-});
-
-document.addEventListener('DOMContentLoaded', function() {
-  document.querySelectorAll('#v-pills-tab .nav-link').forEach(function(tab) {
-      tab.addEventListener('click', function(e) {
-          e.preventDefault();
-
-          document.querySelectorAll('#v-pills-tab .nav-link').forEach(function(tab) {
-              tab.classList.remove('active');
-          });
-
-          document.querySelectorAll('.tab-pane').forEach(function(tabContent) {
-              tabContent.classList.remove('show', 'active');
-          });
-
-          tab.classList.add('active');
-          document.querySelector(tab.getAttribute('href')).classList.add('show', 'active');
-      });
-  });
-});
 
 
 

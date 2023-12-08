@@ -41,7 +41,7 @@
                 @elseif($notification->type == 'report_received')
                     <a href="{{ route('report.details', $notification->report->id) }}" style="text-decoration: none;">
                         {{ $notification->eventnotification->inviter->user->username}} has reported the event
-                        &#128227;
+                        <i class="fas fa-exclamation-triangle"></i>
                     </a>
                 @elseif($notification->type == 'report_closed')
                     The report has been closed.
@@ -75,5 +75,6 @@
     </div>
     @endif
 </div>
+
 
 @endsection
