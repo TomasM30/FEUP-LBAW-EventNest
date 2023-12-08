@@ -28,6 +28,7 @@
     @include('partials.navbar')
     @endif
     @yield('content')
+    @include('partials.footer')
 
 
 </body>
