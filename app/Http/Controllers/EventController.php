@@ -171,7 +171,6 @@ class EventController extends Controller
         }
     
         $events = $query->orderBy('date')->paginate(10);
-        log::info($events);
     
         $hashtags = Hashtag::orderBy('title')->get();
         $places = Event::getUniquePlaces()->sortBy('place');
