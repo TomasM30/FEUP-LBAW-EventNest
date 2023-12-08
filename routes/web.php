@@ -69,8 +69,8 @@ Route::controller(EventController::class)->group(function () {
     Route::post('/events/cancel/{id}', 'cancelEvent')->name('events.cancel');
     Route::get('/events', 'listEvents')->name('events');
     Route::get('/events/{id}/details', 'showEventDetails')->name('events.details');
-    Route::post('/events/{id}/leave','leaveEvent')->name('event.leave');
-    Route::post('/events/{id}/join','joinEvent')->name('event.join');
+    Route::post('/events/{id}/leave', 'leaveEvent')->name('event.leave');
+    Route::post('/events/{id}/join', 'joinEvent')->name('event.join');
     Route::post('/events/{id}/add', 'addUser')->name('events.add');
     Route::post('/events/{id}/remove', 'removeUser')->name('events.remove');
     Route::post('/events/search', 'search')->name('search-events');
@@ -87,7 +87,7 @@ Route::controller(GoogleController::class)->group(function () {
 });
 
 Route::controller(FileController::class)->group(function () {
-    Route::post('/file/upload', 'upload')-> name('file.upload');
+    Route::post('/file/upload', 'upload')->name('file.upload');
 });
 
-
+Route::get('/about', 'App\Http\Controllers\AboutController@index')->name('about');
