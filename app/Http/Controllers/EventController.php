@@ -664,7 +664,7 @@ class EventController extends Controller
             $searchTerms = explode(' ', $search);
 
             foreach ($searchTerms as $term) {
-                $query = $query->whereRaw("tsvectors @@ plainto_tsquery('portuguese', ?)", [$term]);
+                $query = $query->whereRaw("tsvectors @@ plainto_tsquery('english', ?)", [$term]);
             }
         }
 

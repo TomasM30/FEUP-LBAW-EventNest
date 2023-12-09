@@ -414,13 +414,19 @@ document.addEventListener('DOMContentLoaded', function() {
     });
   }
 
-  document.getElementById('date-button').addEventListener('click', function() {
-    orderEvents('date');
-  });
+  let dateButton = document.getElementById('date-button');
+  if(dateButton) {
+    dateButton.addEventListener('click', function() {
+      orderEvents('date');
+    });
+  }
 
-  document.getElementById('title-button').addEventListener('click', function() {
-      orderEvents('title');
-  });
+  let titleButton = document.getElementById('title-button');
+  if(titleButton) {
+    titleButton.addEventListener('click', function() {
+        orderEvents('title');
+    });
+  }
 
   fetchEvents();
 });
@@ -428,7 +434,8 @@ document.addEventListener('DOMContentLoaded', function() {
 function fetchEvents(page = 1) {
   let selectedHashtags = Array.from(document.querySelectorAll('input[name="hashtags[]"]:checked')).map(input => input.value);
   let selectedPlaces = Array.from(document.querySelectorAll('input[name^="places"]:checked')).map(input => input.value);
-  let type = document.querySelector('input[name="type"]').value;
+  let typeElement = document.querySelector('input[name="type"]');
+  let type = typeElement ? typeElement.value : null;
 
   let url = `/events/filter`;
   let data = { 
@@ -451,10 +458,13 @@ function fetchEvents(page = 1) {
   })
   .then(response => response.json())
   .then(data => {
-      document.getElementById('container').innerHTML = data.html;
-      setActivePageNumber(page); // Set the active page number
-      filteredEvents = data.ids;
-      window.scrollTo(0, 0);
+    let container = document.getElementById('container');
+    if(container) {
+        container.innerHTML = data.html;
+    }
+    setActivePageNumber(page); // Set the active page number
+    filteredEvents = data.ids;
+    window.scrollTo(0, 0);
   })
   .catch(error => console.error('Error:', error));
 }
@@ -485,18 +495,21 @@ function orderEvents(orderByField) {
 }
 
 function setActivePageNumber(page) {
-  // Remove the active class from the current active page number
   let activePageNumber = document.querySelector('.pagination .active');
   if (activePageNumber) {
     activePageNumber.classList.remove('active');
   }
 
-  // Add the active class to the new active page number
   let newActivePageNumber;
+  let element;
   if (page === 1) {
-    newActivePageNumber = Array.from(document.querySelectorAll('.pagination a:not([href*="page="])')).find(el => el.textContent.trim() === '1').parentNode;
+    element = Array.from(document.querySelectorAll('.pagination a:not([href*="page="])')).find(el => el.textContent.trim() === '1');
   } else {
-    newActivePageNumber = document.querySelector(`.pagination a[href*="page=${page}"]`).parentNode;
+    element = document.querySelector(`.pagination a[href*="page=${page}"]`);
+  }
+  
+  if (element) {
+    newActivePageNumber = element.parentNode;
   }
   
   if (newActivePageNumber) {
@@ -504,4 +517,19 @@ function setActivePageNumber(page) {
   }
 }
 
-
+document.addEventListener('DOMContentLoaded', function() {
+  let searchInput = document.getElementById('adminsearch');
+  let searchForm = document.getElementById('search-form');
+  if(searchInput) {
+    searchInput.addEventListener('keyup', function() {
+      let search = this.value;
+      let url = searchForm.getAttribute('data-url') + '?search=' + encodeURIComponent(search);
+      fetch(url)
+        .then(response => response.text())
+        .then(data => {
+          let tableClass = searchForm.getAttribute('data-url').includes('users') ? 'usersTable' : 'eventsTable';
+          document.querySelector('.' + tableClass).innerHTML = data;
+        });
+    });
+  }
+});

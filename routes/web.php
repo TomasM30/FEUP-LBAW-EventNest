@@ -55,6 +55,8 @@ Route::controller(AdminController::class)->group(function () {
     Route::get('/dashboard/events', 'showEvents')->name('admin.events');
     Route::get('/dashboard/reports', 'showReports')->name('admin.reports');
     Route::get('/dashboard/tags', 'showTags')->name('admin.tags');
+    Route::get('/search-users', 'searchUsers')->name('admin-search-users');
+    Route::get('/search-events', 'searchEvents')->name('admin-search-events');
 });
 
 Route::controller(AuthenticatedUserController::class)->group(function () {

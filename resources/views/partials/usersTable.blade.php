@@ -1,5 +1,6 @@
 @if (!$users->isEmpty())
     <div class="col-12">
+
         <div class="table-responsive">
             <table class="table table-hover mx-auto" style="max-width: 1000px;">                               
                 <thead>

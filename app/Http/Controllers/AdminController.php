@@ -8,6 +8,7 @@ use App\Models\AuthenticatedUser;
 use App\Models\Event;
 use App\Models\Report;
 use App\Models\Hashtag;
+use App\Models\User;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Log;
 
@@ -42,7 +43,6 @@ class AdminController extends Controller
         if ($request->ajax()) {
             return view('partials.eventsTable', ['events' => $events])->render();
         }
-        log::info($events);
 
         return view('pages.admin_events', ['events' => $events]);
     }
@@ -96,6 +96,32 @@ class AdminController extends Controller
         $tag->delete();
     
         return redirect()->back();
+    }
+
+    public function searchUsers(Request $request)
+    {
+        $search = $request->get('search');
+        $users = AuthenticatedUser::join('users', 'authenticated.id_user', '=', 'users.id')
+            ->where('users.username', 'like', '%' . $search . '%')
+            ->select('authenticated.*') // Avoids column name conflicts
+            ->paginate(8);
+        return view('partials.usersTable', ['users' => $users])->render();
+    }
+
+    public function searchEvents(Request $request)
+    {
+        $search = $request->get('search');
+        if ($search) {
+            $events = Event::whereRaw("to_tsvector('english', title) @@ plainto_tsquery('english', ?)", [$search])
+                ->paginate(8);
+        } else {
+            $now = Carbon::now();
+            Event::where('date', '<', $now)
+                ->where('closed', false)
+                ->update(['closed' => true]);
+            $events = Event::orderBy('date')->paginate(8);
+        }
+        return view('partials.eventsTable', ['events' => $events])->render();
     }
 
 }
