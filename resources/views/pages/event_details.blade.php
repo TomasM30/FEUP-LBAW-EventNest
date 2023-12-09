@@ -54,7 +54,20 @@
                         @endforeach
                     </div>
                 </div>
-                @include('partials.attendeesTable', ['attendees' => $attendees])
+                <div class="event-attendees mt-5">
+                    <div class="capacity d-flex justify-content-around">
+                        <div class="capacity-item d-flex flex-column justify-content-center align-items-center">
+                            <h4>Joined</h4>
+                            <p>{{ $event->eventparticipants()->count() }}</p>
+                        </div>
+                        <div class="capacity-item d-flex flex-column justify-content-center align-items-center">
+                            <h4>Limit</h4>
+                            <p>{{ $event->capacity }}</p>
+                        </div>
+                    </div>
+                    <h3 style="overflow-wrap: break-word;" >Attendees:</h3>
+                    @include('partials.attendeesTable', ['attendees' => $attendees])
+                </div>
             </div>
             <div class="col-lg-3 mt-5">
                 <div class="d-flex flex-wrap justify-content-center position-sticky" style="top: 15%;">

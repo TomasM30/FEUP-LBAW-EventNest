@@ -13,6 +13,8 @@ use App\Http\Controllers\FileController;
 use App\Models\Report;
 use App\Models\Notification;
 use App\Models\EventNotification;
+use App\Models\Hashtag;
+
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\DB;
@@ -30,26 +32,92 @@ class AuthenticatedUserController extends Controller
         
         $this->authorize('userEvents', $authenticatedUser);
     
-        $createdEvents = Event::where('id_user', $authenticatedUser->id_user)->get();
-    
-        $joinedEvents = Event::where('closed', false)->whereHas('eventParticipants', function ($query) use ($authenticatedUser) {
-            $query->where('id_user', $authenticatedUser->id_user);
-        })->get();
-    
-        $favoriteEvents = Event::whereHas('favoriteEvent', function ($query) use ($authenticatedUser) {
-            $query->where('id_user', $authenticatedUser->id_user);
-        })->get();
+        $createdEvents = Event::where('id_user', $authenticatedUser->id_user)->paginate(21);
 
-        $attendedEvents = Event::where('closed', true)->whereHas('eventParticipants', function ($query) use ($authenticatedUser) {
-            $query->where('id_user', $authenticatedUser->id_user);
-        })->get();
+        $hashtags = Hashtag::orderBy('title')->get();
+        $places = Event::getUniquePlaces()->sortBy('place');
     
         return view('pages.user_events', [
             'user' => $authenticatedUser->user,
             'createdEvents' => $createdEvents,
+            'hashtags' => $hashtags,
+            'places' => $places
+        ]);
+    }
+
+    public function showUserjoinedEvents(Request $request)
+    {
+        $authenticatedUser = AuthenticatedUser::find($request->route('id'));
+
+        if (!$authenticatedUser) {
+            return redirect()->back()->with('message', 'User not found');
+        }
+        
+        $this->authorize('userEvents', $authenticatedUser);
+    
+        $joinedEvents = Event::where('closed', false)->whereHas('eventParticipants', function ($query) use ($authenticatedUser) {
+            $query->where('id_user', $authenticatedUser->id_user);
+        })->paginate(21);
+
+        log::info($joinedEvents);
+
+        $hashtags = Hashtag::orderBy('title')->get();
+        $places = Event::getUniquePlaces()->sortBy('place');
+    
+        return view('pages.user_joinedEvents', [
+            'user' => $authenticatedUser->user,
             'joinedEvents' => $joinedEvents,
+            'hashtags' => $hashtags,
+            'places' => $places
+        ]);
+    }
+
+    public function showUserfavoriteEvents(Request $request)
+    {
+        $authenticatedUser = AuthenticatedUser::find($request->route('id'));
+
+        if (!$authenticatedUser) {
+            return redirect()->back()->with('message', 'User not found');
+        }
+        
+        $this->authorize('userEvents', $authenticatedUser);
+    
+        $favoriteEvents = Event::whereHas('favoriteEvent', function ($query) use ($authenticatedUser) {
+            $query->where('id_user', $authenticatedUser->id_user);
+        })->paginate(21);
+
+        $hashtags = Hashtag::orderBy('title')->get();
+        $places = Event::getUniquePlaces()->sortBy('place');
+    
+        return view('pages.user_favoriteEvents', [
+            'user' => $authenticatedUser->user,
             'favoriteEvents' => $favoriteEvents,
+            'hashtags' => $hashtags,
+            'places' => $places
+        ]);
+    }
+
+    public function showUserattendedEvents(Request $request)
+    {
+        $authenticatedUser = AuthenticatedUser::find($request->route('id'));
+
+        if (!$authenticatedUser) {
+            return redirect()->back()->with('message', 'User not found');
+        }
+        
+        $this->authorize('userEvents', $authenticatedUser);
+        $attendedEvents = Event::where('closed', true)->whereHas('eventParticipants', function ($query) use ($authenticatedUser) {
+            $query->where('id_user', $authenticatedUser->id_user);
+        })->paginate(21);
+
+        $hashtags = Hashtag::orderBy('title')->get();
+        $places = Event::getUniquePlaces()->sortBy('place');
+    
+        return view('pages.user_attendedEvents', [
+            'user' => $authenticatedUser->user,
             'attendedEvents' => $attendedEvents,
+            'hashtags' => $hashtags,
+            'places' => $places
         ]);
     }
 

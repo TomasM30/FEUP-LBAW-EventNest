@@ -3,20 +3,15 @@
 @section('content')
 
 <div class="content-container overflow-x-hidden">
-    <div>
-        <div class="row m-5">
-            <div class="col">
-                <div class="form-outline mt-2" id="search-form" data-url="{{ route('search-events') }}">
-                    <input type="search" id="form1" class="form-control" placeholder="Search" aria-label="Search" />
-                </div>
-            </div>
-            <div class="col d-flex align-items-start">
-                @if (App\Models\AuthenticatedUser::where('id_user', Auth::user()->id)->exists())
-                <button id='NEvent-button' type="button" class="btn btn-primary ml-auto" data-toggle="modal" data-target="#newEventModal">New Event</button>
-                @endif
-            </div>
+    <div class="row justify-content-center mt-3">
+        <div class="form-outline mt-2 d-flex align-items-center" id="search-form" data-url="{{ route('search-events') }}" style="width: 55%;">
+            <input type="search" id="form1" class="form-control" placeholder="Search" aria-label="Search" />
+            <input type="hidden" name="type" value="main">
+            @if (App\Models\AuthenticatedUser::where('id_user', Auth::user()->id)->exists())
+                <button id='NEvent-button' type="button" class="btn btn-primary ml-2" data-toggle="modal" data-target="#newEventModal">New Event</button>
+            @endif
         </div>
-        <div class="row m-4">
+        <div class="row m-4 mb-1" style="width: 60%;">
             <div class="col-md-6">
                 <div class="accordion m-4" id="accordionExample">
                     <div class="accordion-item">
@@ -57,7 +52,6 @@
                                         @endforeach
                                     </div>
                                 </div>
-
                                 <div class="col-md-6">
                                     <h5>Places</h5>
                                     <div class="card-body hashtags-body">
@@ -80,7 +74,7 @@
     </div>
 
 
-    <div class="container">
+    <div class="container mt-5">
         @if (!$events->isEmpty())
             <div class="row row-cols-1 row-cols-md-3 g-4 custom-row" id="container">
                 @foreach ($events as $event)

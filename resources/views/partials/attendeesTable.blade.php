@@ -1,5 +1,4 @@
-<div class="attendees-list mt-5">
-    <h3 style="overflow-wrap: break-word;" >Attendees:</h3>
+<div class="attendees-list">
     <div class="table-responsive">
         <table class="table table-hover" style="border: 0;">
             <thead>

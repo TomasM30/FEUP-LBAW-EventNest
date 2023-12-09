@@ -632,15 +632,32 @@ class EventController extends Controller
         $search = $request->input('search');
         $orderBy = $request->input('orderBy', 'date');
         $direction = $request->input('direction', 'asc');
-
+        $type = $request->input('type');
         $query = Event::query();
+        log::info($type);
+
 
         if ($user->isAdmin()) {
-            $query->where('closed', false);
-        } else {
+            $query->where('closed', false)->paginate(21);
+        } elseif ($type == 'main') {
             $query->whereIn('type', ['approval', 'public'])
                 ->where('id_user', '!=', $user->id)
-                ->where('closed', false);
+                ->where('closed', false)->paginate(21);
+        } elseif ($type == 'created') {
+            $query->where('id_user', $user->id)->paginate(21);
+        } elseif ($type == 'joined') {
+            $query->where('closed', false)->whereHas('eventParticipants', function ($query) use ($user) {
+                $query->where('id_user', $user->id);
+            })->paginate(21);
+        } elseif ($type == 'favorite') {
+            $query->whereHas('favoriteEvent', function ($query) use ($user) {
+                $query->where('id_user', $user->id);
+            })->paginate(21);
+        } elseif ($type == 'attended') {
+            $query->where('closed', true)
+                ->whereHas('eventParticipants', function ($query) use ($user) {
+                    $query->where('id_user', $user->id);
+                })->paginate(21);
         }
 
         if (!empty($search)) {
@@ -662,7 +679,7 @@ class EventController extends Controller
                     ->orderBy($orderBy, $direction)
                     ->paginate(21);
 
-        $filteredEventsHtml = view('pages.event_lists', ['events' => $events])->render();
+        $filteredEventsHtml = view('partials.event_lists', ['events' => $events])->render();
         $filteredEventIds = $events->pluck('id')->all();
 
         return response()->json([

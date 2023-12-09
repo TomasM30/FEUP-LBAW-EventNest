@@ -54,7 +54,6 @@ class Event extends Model
     public function favoriteevent(){
         return $this->hasMany(FavoriteEvents::class, 'id_event');
     }
-
     public function hashtags()
     {
         return $this->belongsToMany(Hashtag::class, 'eventhashtag', 'id_event', 'id_hashtag');

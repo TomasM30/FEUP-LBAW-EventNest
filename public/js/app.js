@@ -213,41 +213,49 @@ document.addEventListener('DOMContentLoaded', function () {
 });
 
 window.onload = function () {
-  document.querySelector('.table-responsive').addEventListener('click', function (e) {
-    let paginationLink = e.target.closest('.pagination a');
+  let tableResponsive = document.querySelector('.table-responsive');
 
-    if (paginationLink) {
-      e.preventDefault();
-
-      fetch(paginationLink.href, {
-        headers: {
-          'X-Requested-With': 'XMLHttpRequest'
-        }
-      })
-        .then(response => response.text())
-        .then(html => {
-          document.querySelector('.table-responsive').innerHTML = html;
-        });
-    }
-  });
-
-  document.querySelector('.attendees-list').addEventListener('click', function (e) {
-    let paginationLink = e.target.closest('.pagination a');
+  if (tableResponsive) {
+    tableResponsive.addEventListener('click', function (e) {
+      let paginationLink = e.target.closest('.pagination a');
   
-    if (paginationLink) {
-      e.preventDefault();
+      if (paginationLink) {
+        e.preventDefault();
   
-      fetch(paginationLink.href, {
-        headers: {
-          'X-Requested-With': 'XMLHttpRequest'
-        }
-      })
-        .then(response => response.text())
-        .then(html => {
-          document.querySelector('.table-responsive').innerHTML = html;
-        });
-    }
-  });
+        fetch(paginationLink.href, {
+          headers: {
+            'X-Requested-With': 'XMLHttpRequest'
+          }
+        })
+          .then(response => response.text())
+          .then(html => {
+            tableResponsive.innerHTML = html;
+          });
+      }
+    });
+  }
+
+  let tableResponsive2 = document.querySelector('.table-responsive');
+
+  if (tableResponsive2) {
+    tableResponsive.addEventListener('click', function (e) {
+      let paginationLink = e.target.closest('.pagination a');
+  
+      if (paginationLink) {
+        e.preventDefault();
+  
+        fetch(paginationLink.href, {
+          headers: {
+            'X-Requested-With': 'XMLHttpRequest'
+          }
+        })
+          .then(response => response.text())
+          .then(html => {
+            tableResponsive.innerHTML = html;
+          });
+      }
+    });
+  }
 
 
   let acceptTerms = document.getElementById('acceptTerms');
@@ -420,6 +428,7 @@ document.addEventListener('DOMContentLoaded', function() {
 function fetchEvents(page = 1) {
   let selectedHashtags = Array.from(document.querySelectorAll('input[name="hashtags[]"]:checked')).map(input => input.value);
   let selectedPlaces = Array.from(document.querySelectorAll('input[name^="places"]:checked')).map(input => input.value);
+  let type = document.querySelector('input[name="type"]').value;
 
   let url = `/events/filter`;
   let data = { 
@@ -428,6 +437,7 @@ function fetchEvents(page = 1) {
     search: searchTerm,
     orderBy: orderBy,
     direction: direction,
+    type: type,
     page: page // Use the page parameter
   };
 
