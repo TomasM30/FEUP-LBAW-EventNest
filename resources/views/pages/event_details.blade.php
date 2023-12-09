@@ -73,44 +73,42 @@
                 <div class="d-flex flex-wrap justify-content-center position-sticky" style="top: 15%;">
 
                     @if (!$isAdmin && $alreadyReported == false)
-                        <div class="btn-group">
+                        <div class="btn-group" style="width: 100%;">
                             <button id="reportBtn" type="submit" class="btn btn-primary m-3 ">Report</button>
                          </div>
                     @endif
                     @if ($event->closed == false)
                         @if(!$isParticipant && !$isAdmin && $event->eventparticipants()->count() < $event->capacity)
                             @if($event->type == 'public' || $event->type == 'private')
-                                <form method="POST" action="{{ route('event.join', $event->id) }}">
+                                <form method="POST" action="{{ route('event.join', $event->id) }}" style="width: 100%;" class="d-flex justify-content-center">
                                     {{ csrf_field() }}
                                     <input type="hidden" name="id_user" value="{{ Auth::user()->id }}">
                                     <input type="hidden" name="eventId" value="{{ $event->id }}">
                                     <button type="submit" class="btn btn-primary m-3 ">Join</button>
                                 </form>
                             @elseif($event->type == 'approval')
-                                <form method="POST" action="{{ route('events.notification', $event->id) }}">
+                                <form method="POST" action="{{ route('events.notification', $event->id) }}" style="width: 100%;" class="d-flex justify-content-center">
                                     {{ csrf_field() }}
                                     <input type="hidden" name="id_user" value="{{ $event->id_user }}">
                                     <input type="hidden" name="eventId" value="{{ $event->id }}">
                                     <input type="hidden" name="action" value="request">
-                                    <div class="btn-group">
+                                    <div class="btn-group" style="width: 100%;">
                                         <button type="submit" class="btn btn-primary m-3 ">Request</button>
                                     </div>
                                 </form>
                             @endif
                             @elseif($isParticipant && !$isAdmin && !$isOrganizer)
-                            <form method="POST" action="{{ route('event.leave', $event->id) }}">
+                            <form method="POST" action="{{ route('event.leave', $event->id) }}" style="width: 100%;" class="d-flex justify-content-center">
                                 {{ csrf_field() }}
                                 <input type="hidden" name="id_user" value="{{ Auth::user()->id }}">
                                 <input type="hidden" name="eventId" value="{{ $event->id }}">
-                                <div class="btn-group">
-                                    <button type="submit" class="btn btn-primary m-3  leave ">Leave</button>
-                                </div>
+                                <button type="submit" class="btn btn-primary m-3" style="width: 100%;">Leave</button>
                             </form>
                             @endif
 
                         @if(!$isAdmin && $isParticipant)
-                            <div class="dropdown">
-                                <button class="btn btn-primary m-3  dropdown-toggle invite" type="button" id="dropdownMenuInvite" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                            <div class="dropdown d-flex justify-content-center" style="width: 100%">
+                                <button class="btn btn-primary m-3 dropdown-toggle invite" style="width: 100%;" type="button" id="dropdownMenuInvite" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                                     Invite
                                 </button>
                                 <div class="dropdown-menu" aria-labelledby="dropdownMenuInvite">
@@ -131,14 +129,14 @@
 
                         @if($isAdmin || $isOrganizer)
                             @if($event->eventparticipants()->count() > 1)
-                                <div class="dropdown">
-                                    <button class="btn btn-primary m-3  dropdown-toggle remove" type="button" id="dropdownMenuRemove" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                <div class="dropdown d-flex justify-content-center" style="width: 100%;"> 
+                                    <button class="btn btn-primary m-3  dropdown-toggle remove" style="width: 100%;" type="button" id="dropdownMenuRemove" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                                         Remove
                                     </button>
                                     <div class="dropdown-menu" aria-labelledby="dropdownMenu2">
                                         @foreach ($event->eventparticipants()->get() as $attendee)
                                         @if($attendee->user->id != $event->user->id)
-                                        <form method="POST" action="{{ route('events.remove', $event->id) }}">
+                                        <form method="POST" action="{{ route('events.remove', $event->id) }}" style="width: 100%;" class="d-flex justify-content-center">
                                             {{ csrf_field() }}
                                             <input type="hidden" name="id_user" value="{{ $attendee->user->id }}">
                                             <input type="hidden" name="eventId" value="{{ $event->id }}">
@@ -151,8 +149,8 @@
                             @endif
 
                             @if(count($nonParticipants) > 0 && $event->eventparticipants()->count() < $event->capacity)
-                                <div class="dropdown">
-                                    <button class="btn btn-primary m-3  dropdown-toggle" type="button" id="dropdownMenu2" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                <div class="dropdown d-flex justify-content-center" style="width: 100%;"> 
+                                    <button class="btn btn-primary m-3  dropdown-toggle" style="width: 100%;" type="button" id="dropdownMenu2" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                                         Add
                                     </button>
                                     <div class="dropdown-menu" aria-labelledby="dropdownMenu2">
@@ -171,27 +169,27 @@
                             @endif
                             
                             @if($event->user->authenticated->is_verified == 0)
-                                <form method="POST" action="{{ route('events.cancel', $event->id) }}">
+                                <form method="POST" action="{{ route('events.cancel', $event->id) }}" style="width: 100%;" class="d-flex justify-content-center" >
                                     {{ csrf_field() }}
                                     <input type="hidden" name="id_user" value="{{ Auth::user()->id }}">
                                     <input type="hidden" name="eventId" value="{{ $event->id }}">
-                                    <div class="btn-group">
+                                    <div class="btn-group" style="width: 100%;">
                                         <button type="submit" class="btn btn-primary m-3 ">Cancel</button>
                                     </div>
                                 </form>
                             @endif
 
-                            <div class="btn-group">
+                            <div class="btn-group" style="width: 100%;">
                                 <button id='edit-button' type="button" class="btn btn-primary m-3 " data-toggle="modal" data-target="#newEventModal">Edit</button>
                             </div>
                         @endif
                     @endif
                     @if($isAdmin)
-                        <form method="POST" action="{{ route('events.delete', ['id' => $event->id]) }}">
+                        <form method="POST" action="{{ route('events.delete', ['id' => $event->id]) }}" class="d-flex justify-content-center" style="width: 100%;">
                             {{ csrf_field() }}
                             {{ method_field('DELETE') }}
                             <input type="hidden" name="id" value="{{ $event->id }}">
-                            <div class="btn-group">
+                            <div class="btn-group" style="width: 100%;">
                                 <button type="submit" class="btn btn-primary m-3 ">Delete</button>
                             </div>
                         </form>

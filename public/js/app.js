@@ -533,3 +533,37 @@ document.addEventListener('DOMContentLoaded', function() {
     });
   }
 });
+
+function fetchSearchResults(search, page = 1) {
+  let searchForm = document.getElementById('search-form');
+  let url = searchForm.getAttribute('data-url') + '?search=' + encodeURIComponent(search) + '&page=' + page;
+  fetch(url)
+    .then(response => response.text())
+    .then(data => {
+      let tableClass = searchForm.getAttribute('data-url').includes('users') ? 'usersTable' : 'eventsTable';
+      let table = document.querySelector('.' + tableClass);
+      table.innerHTML = data;
+      // Add 'active' class to the correct pagination link
+      let activePageLink = table.querySelector(`.pagination a[href*="page=${page}"]`);
+      if (activePageLink) {
+        activePageLink.parentNode.classList.add('active');
+      }
+    });
+}
+
+document.addEventListener('DOMContentLoaded', function() {
+  let searchInput = document.getElementById('adminsearch');
+  if(searchInput) {
+    searchInput.addEventListener('keyup', function() {
+      fetchSearchResults(this.value);
+    });
+  }
+
+  document.addEventListener('click', function(event) {
+    if (event.target.matches('.pagination a')) {
+      event.preventDefault();
+      let page = parseInt(event.target.getAttribute('href').split('page=')[1]);
+      fetchSearchResults(searchInput.value, page);
+    }
+  });
+});

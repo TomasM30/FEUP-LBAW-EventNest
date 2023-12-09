@@ -23,7 +23,11 @@ class AdminController extends Controller
 
     public function showUsers(Request $request){
         $this->authorize('viewDashboard', Admin::class);
-        $authenticatedUsers = AuthenticatedUser::paginate(8);
+        $authenticatedUsers = AuthenticatedUser::join('users', 'authenticated.id_user', '=', 'users.id')
+        ->select('authenticated.*', 'users.username') // select columns from authenticated and username from users
+        ->orderBy('users.username')
+        ->paginate(8);        
+        
         if ($request->ajax()) {
             return view('partials.usersTable', ['users' => $authenticatedUsers])->render();
         }
@@ -103,7 +107,8 @@ class AdminController extends Controller
         $search = $request->get('search');
         $users = AuthenticatedUser::join('users', 'authenticated.id_user', '=', 'users.id')
             ->where('users.username', 'like', '%' . $search . '%')
-            ->select('authenticated.*') // Avoids column name conflicts
+            ->select('authenticated.*')
+            ->orderBy('users.username')
             ->paginate(8);
         return view('partials.usersTable', ['users' => $users])->render();
     }

@@ -4,11 +4,15 @@
 
 <div class="content-container overflow-x-hidden">
     <div class="row justify-content-center mt-3">
-        <div class="form-outline mt-2 d-flex align-items-center" id="search-form" data-url="{{ route('search-events') }}" style="width: 55%;">
-            <input type="search" id="form1" class="form-control" placeholder="Search" aria-label="Search" />
-            <input type="hidden" name="type" value="main">
+        <div class="form-outline mt-2 d-flex align-items-center row" id="search-form" data-url="{{ route('search-events') }}" style="width: 55%;">
+            <div class="col-md-8 col-sm-12">
+                <input type="search" id="form1" class="form-control" placeholder="Search" aria-label="Search" />
+                <input type="hidden" name="type" value="main">
+            </div>
             @if (App\Models\AuthenticatedUser::where('id_user', Auth::user()->id)->exists())
+            <div class="col-md-4 col-sm-12 text-sm-left text-md-right">
                 <button id='NEvent-button' type="button" class="btn btn-primary ml-2" data-toggle="modal" data-target="#newEventModal">New Event</button>
+            </div>
             @endif
         </div>
         <div class="row m-4 mb-1" style="width: 60%;">
