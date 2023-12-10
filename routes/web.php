@@ -63,7 +63,7 @@ Route::controller(AuthenticatedUserController::class)->group(function () {
     Route::get('/user/{id}/events', 'showUserEvents')->name('user.events');
     Route::get('/user/{id}/events/created', 'showUserjoinedEvents')->name('user.events.joined');
     Route::get('/user/{id}/events/joined', 'showUserattendedEvents')->name('user.events.attended');
-    Route::get('/user/{id}/events/favorites', 'showUserFavoriteEvents')->name('user.events.favorites');
+    Route::get('/user/{id}/events/favorites', 'showUserFavouriteEvents')->name('user.events.favorites');
     Route::get('/user/{id}/profile', 'showUserProfile')->name('user.profile');
     Route::post('/user/{id}/profile/edit', 'updateUserProfile')->name('user.profile.update');
     Route::post('/user/{id}/password/change', 'updateUserPassword')->name('user.password.update');
@@ -81,6 +81,7 @@ Route::controller(EventController::class)->group(function () {
     Route::post('/events/{id}/leave','leaveEvent')->name('event.leave');
     Route::post('/events/{id}/join','joinEvent')->name('event.join');
     Route::post('/events/{id}/add', 'addUser')->name('events.add');
+    Route::post('/events/{id}/addFavourite', 'addEventAsFavourite')->name('event.favourite');
     Route::post('/events/{id}/remove', 'removeUser')->name('events.remove');
     Route::post('/events/search', 'search')->name('search-events');
     Route::post('/events/{id}/invite', 'addNotification')->name('events.notification');

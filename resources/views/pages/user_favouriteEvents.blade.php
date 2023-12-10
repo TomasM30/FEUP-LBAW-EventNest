@@ -11,6 +11,6 @@
             <a class="nav-link pill-link no-js" href="{{ route('user.events.attended', ['id' => $user->id]) }}">Attended</a>
         </div>
     </div>
-    @include('partials.usersEventList', ['events' => $favoriteEvents, 'type' => 'favorite'])
+    @include('partials.usersEventList', ['events' => $favouriteEvents, 'type' => 'favorite'])
     
 @endsection

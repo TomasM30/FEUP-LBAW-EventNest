@@ -51,8 +51,8 @@ class Event extends Model
         return $this->hasMany(EventParticipant::class, 'id_event');
     }
 
-    public function favoriteevent(){
-        return $this->hasMany(FavoriteEvents::class, 'id_event');
+    public function favouriteevent(){
+        return $this->hasMany(FavouriteEvents::class, 'id_event');
     }
     public function hashtags()
     {
@@ -78,5 +78,27 @@ class Event extends Model
 
     public function getProfileImage() {
         return FileController::get('event', $this->id);
+    }
+
+    public function isFavourite($userId)
+    {
+        return $this->favouriteevent()->where('id_user', $userId)->exists();
+    }
+
+    public function isParticipant($userId)
+    {
+        return $this->eventparticipants()->where('id_user', $userId)->exists();
+    }
+
+    public function alreadyReported($userId)
+    {
+        return $this->report()->where('id_user', $userId)->where('closed', false)->exists();
+    }
+
+    public function alreadyRequested($userId)
+    {
+        return $this->eventnotification()->whereHas('notification', function ($query) use ($userId) {
+            $query->where('id_user', $userId)->where('type', 'request');
+        })->exists();
     }
 }

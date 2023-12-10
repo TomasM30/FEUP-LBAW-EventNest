@@ -7,7 +7,7 @@ use App\Models\AuthenticatedUser;
 use App\Models\Event;
 use App\Models\User;
 use App\Models\EventParticipant;
-use App\Models\FavoriteEvents;
+use App\Models\FavouriteEvents;
 use Illuminate\Support\Facades\Auth;
 use App\Http\Controllers\FileController;
 use App\Models\Report;
@@ -72,7 +72,7 @@ class AuthenticatedUserController extends Controller
         ]);
     }
 
-    public function showUserfavoriteEvents(Request $request)
+    public function showUserfavouriteEvents(Request $request)
     {
         $authenticatedUser = AuthenticatedUser::find($request->route('id'));
 
@@ -82,16 +82,18 @@ class AuthenticatedUserController extends Controller
         
         $this->authorize('userEvents', $authenticatedUser);
     
-        $favoriteEvents = Event::whereHas('favoriteEvent', function ($query) use ($authenticatedUser) {
+        $favouriteEvents = Event::whereHas('favouriteevent', function ($query) use ($authenticatedUser) {
             $query->where('id_user', $authenticatedUser->id_user);
         })->paginate(21);
+        
+        log::info($favouriteEvents);
 
         $hashtags = Hashtag::orderBy('title')->get();
         $places = Event::getUniquePlaces()->sortBy('place');
     
-        return view('pages.user_favoriteEvents', [
+        return view('pages.user_favouriteEvents', [
             'user' => $authenticatedUser->user,
-            'favoriteEvents' => $favoriteEvents,
+            'favouriteEvents' => $favouriteEvents,
             'hashtags' => $hashtags,
             'places' => $places
         ]);
@@ -222,7 +224,7 @@ class AuthenticatedUserController extends Controller
     
         
             EventParticipant::where('id_user', $user->id)->delete();
-            FavoriteEvents::where('id_user', $user->id)->delete();
+            FavouriteEvents::where('id_user', $user->id)->delete();
             $authenticatedUser->delete();
             $user->delete();
     

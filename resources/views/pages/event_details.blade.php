@@ -48,7 +48,7 @@
                 <div id="eventInfo" class="event-info mt-3" style="overflow-wrap: break-word;">
                     <div class="d-flex justify-content-between align-items-center mb-3">
                         <h1>{{ $event->title }}</h1>
-                        @if(!$isAdmin && !$isOrganizer && !$isFavourite)
+                        @if(!$isAdmin && !$isFavourite)
                             <form method="POST" action="{{ route('event.favourite', $event->id) }}">
                                 {{ csrf_field() }}
                                 <input type="hidden" name="id_user" value="{{ Auth::user()->id }}">
@@ -57,7 +57,7 @@
                                     <i class="fa-regular fa-heart"></i>
                                 </button>
                             </form>
-                        @elseif(!$isAdmin && !$isOrganizer && $isFavourite)
+                        @elseif(!$isAdmin && $isFavourite)
                             <form method="POST" action="{{ route('event.removeFavourite', $event->id) }}">
                                 {{ csrf_field() }}
                                 <input type="hidden" name="id_user" value="{{ Auth::user()->id }}">

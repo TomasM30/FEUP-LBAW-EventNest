@@ -44,8 +44,8 @@ class AuthenticatedUser extends Model
         return $this->belongsToMany(Event::class, 'eventparticipants', 'id_user', 'id_event');
     }
 
-    public function favoriteEvents()
+    public function favouriteEvents()
     {
-        return $this->hasMany(FavoriteEvents::class, 'id_user');
+        return $this->hasMany(FavouriteEvents::class, 'id_user');
     }
 }

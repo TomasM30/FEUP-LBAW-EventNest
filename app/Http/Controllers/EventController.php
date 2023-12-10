@@ -3,7 +3,9 @@
 namespace App\Http\Controllers;
 
 use App\Http\Controllers\Controller;
+use App\Models\FavouriteEvent;
 use Carbon\Carbon;
+use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
@@ -19,7 +21,7 @@ use App\Models\AuthenticatedUser;
 use App\Models\Notification;
 use App\Models\EventNotification;
 use App\Models\RequestNotification;
-use App\Models\FavoriteEvents;
+use App\Models\FavouriteEvents;
 use App\Models\Report;
 use App\Http\Controllers\FileController;
 
@@ -131,7 +133,7 @@ class EventController extends Controller
 
 
             $event->eventparticipants()->delete();
-            $event->favoriteevent()->delete();
+            $event->favouriteevent()->delete();
             $event->hashtags()->detach();
 
 
@@ -153,7 +155,7 @@ class EventController extends Controller
 
             DB::BeginTransaction();
 
-            FavoriteEvents::insert([
+            FavouriteEvents::insert([
                 'id_user' => $request->id_user,
                 'id_event' => $request->id_event,
             ]);
@@ -175,7 +177,7 @@ class EventController extends Controller
 
             DB::BeginTransaction();
 
-            FavoriteEvents::where('id_user', $request->id_user)
+            FavouriteEvents::where('id_user', $request->id_user)
                 ->where('id_event', $request->id_event)
                 ->delete();
 
@@ -214,6 +216,7 @@ class EventController extends Controller
     
         $hashtags = Hashtag::orderBy('title')->get();
         $places = Event::getUniquePlaces()->sortBy('place');
+        
     
         return view('pages.events', ['events' => $events, 'user'=> $user, 'hashtags' => $hashtags, 'places' => $places]);
     }   
@@ -227,14 +230,12 @@ class EventController extends Controller
         $data = [];
         $data['event'] = Event::find($id);
         $this->authorize('viewEvent', $data['event']);
-        $data['isParticipant'] = $this->joinedEvent(Auth::user(), $data['event']);
-        $data['isAdmin'] = Admin::where('id_user', Auth::user()->id)->first();
+        $data['isParticipant'] = $data['event']->isParticipant(Auth::id());
+        $data['isAdmin'] = $user->isAdmin();
         $data['isOrganizer'] = $data['event']->id_user == Auth::user()->id;
         $data['hashtags'] = $hashtags;
         $data['attendees'] = $data['event']->eventparticipants()->paginate(15);
-
         $data['participants'] = $data['event']->eventparticipants()->pluck('id_user')->toArray();
-
         $data['invitedUsers'] = DB::table('eventnotification')->join('notification', 'eventnotification.id', '=', 'notification.id')
                                                             ->where('inviter_id', Auth::user()->id)
                                                             ->where('id_event', $data['event']->id)
@@ -246,20 +247,12 @@ class EventController extends Controller
                             ->get();
                             
         $data['nonParticipants'] = AuthenticatedUser::whereNotIn('id_user', $data['participants'])->get();
-        $data['alreadyReported'] = Report::where('id_user', Auth::user()->id)
-                                        ->where('id_event', $data['event']->id)
-                                        ->where('closed', false)
-                                        ->exists();
-        $data['alreadyRequested'] = Notification::where('id_user', $data['event']->id_user)
-                                                ->whereHas('eventnotification', function ($query) use ($data) {
-                                                    $query->where('id_event', $data['event']->id);
-                                                })
-                                                ->where('type', 'request')
-                                                ->exists();
+
+        $data['alreadyReported'] =  $data['event']->alreadyReported(Auth::id());
+                                        
+        $data['alreadyRequested'] =  $data['event']->alreadyRequested(Auth::id());
         
-        $data['isFavourite'] = FavoriteEvents::where('id_user', Auth::user()->id)
-                                                ->where('id_event', $data['event']->id)
-                                                ->exists();
+        $data['isFavourite'] =  $data['event']->isFavourite(Auth::id());
         $data['user'] = $user;
 
 
@@ -706,8 +699,8 @@ class EventController extends Controller
                 $query->where('id_user', $user->id);
             })->paginate(21);
         } elseif ($type == 'favorite') {
-            $query->whereHas('favoriteEvent', function ($query) use ($user) {
-                $query->where('id_user', $user->id);
+            $query->whereHas('favouriteevent', function ($query) use ($authenticatedUser) {
+                $query->where('id_user', $authenticatedUser->id_user);
             })->paginate(21);
         } elseif ($type == 'attended') {
             $query->where('closed', true)
@@ -817,10 +810,5 @@ class EventController extends Controller
             return redirect()->back()->withErrors(['error' => $e->getMessage()]);
         }
     }
-
-
-
-
-
 
 }
