@@ -536,8 +536,10 @@ class EventController extends Controller
                 $uploadResponse = $fileController->upload($request);
 
                 if ($uploadResponse instanceof \Illuminate\Http\RedirectResponse) {
+                    DB::commit();
                     return redirect()->route('events.details', ['id' => $event->id]);
                 } else if (isset($uploadResponse['file'])) {
+                    DB::rollback();
                     return redirect()->back()->withErrors(['file' => $uploadResponse['file']]);
                 }
             }

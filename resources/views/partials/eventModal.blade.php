@@ -106,7 +106,7 @@
                                 @foreach ($hashtags as $hashtag)
                                     <div class="form-check">
                                         <input class="form-check-input" type="checkbox" name="hashtags2[]" value="{{ $hashtag->id }}" id="hashtag{{ $hashtag->id }}">
-                                        <label class="form-check-label" for="hashtag{{ $hashtag->id }}">
+                                        <label class="form-check-label" for="hashtag2{{ $hashtag->id }}">
                                             #{{ $hashtag->title }}
                                         </label>
                                     </div>
