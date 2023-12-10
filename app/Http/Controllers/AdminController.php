@@ -8,30 +8,67 @@ use App\Models\AuthenticatedUser;
 use App\Models\Event;
 use App\Models\Report;
 use App\Models\Hashtag;
+use App\Models\User;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Log;
 
 
 class AdminController extends Controller
 {
-    public function showDashboard()
+    public function showDashboard(Request $request)
     {
         $this->authorize('viewDashboard', Admin::class);
-        $authenticatedUsers = AuthenticatedUser::with('user')->get()->sortBy('user.username');
+        return view('pages.admin_dashboard');
+    }
 
+    public function showUsers(Request $request){
+        $this->authorize('viewDashboard', Admin::class);
+        $authenticatedUsers = AuthenticatedUser::join('users', 'authenticated.id_user', '=', 'users.id')
+        ->select('authenticated.*', 'users.username') // select columns from authenticated and username from users
+        ->orderBy('users.username')
+        ->paginate(8);        
+        
+        if ($request->ajax()) {
+            return view('partials.usersTable', ['users' => $authenticatedUsers])->render();
+        }
+
+        return view('pages.admin_users', ['users' => $authenticatedUsers]);
+    }
+
+    public function showEvents(Request $request){
+        $this->authorize('viewDashboard', Admin::class);
         $now = Carbon::now();
 
         Event::where('date', '<', $now)
             ->where('closed', false)
             ->update(['closed' => true]);
 
-        $events = Event::orderBy('date')->get();
+        $events = Event::orderBy('date')->paginate(8);
+        if ($request->ajax()) {
+            return view('partials.eventsTable', ['events' => $events])->render();
+        }
 
-        $reports = Report::all();
+        return view('pages.admin_events', ['events' => $events]);
+    }
 
-        $tags = Hashtag::all();
-    
-        return view('pages.admin_dashboard', ['users' => $authenticatedUsers, 'events' => $events, 'reports' => $reports, 'tags' => $tags]);
+    public function showReports(Request $request){
+        $this->authorize('viewDashboard', Admin::class);
+        $reports = Report::orderby('closed')->paginate(8);
+        if ($request->ajax()) {
+            return view('partials.reportsTable', ['reports' => $reports])->render();
+        }
+
+        return view('pages.admin_reports', ['reports' => $reports]);
+    }
+
+    public function showTags(Request $request){
+        $this->authorize('viewDashboard', Admin::class);
+        $tags = Hashtag::orderby('title')->paginate(5);
+        if ($request->ajax()) {
+            return view('partials.tagsTable', ['tags' => $tags])->render();
+        }
+
+        return view('pages.admin_tags', ['tags' => $tags]);
     }
 
     public function showReportDetails($id)
@@ -63,6 +100,33 @@ class AdminController extends Controller
         $tag->delete();
     
         return redirect()->back();
+    }
+
+    public function searchUsers(Request $request)
+    {
+        $search = $request->get('search');
+        $users = AuthenticatedUser::join('users', 'authenticated.id_user', '=', 'users.id')
+            ->where('users.username', 'like', '%' . $search . '%')
+            ->select('authenticated.*')
+            ->orderBy('users.username')
+            ->paginate(8);
+        return view('partials.usersTable', ['users' => $users])->render();
+    }
+
+    public function searchEvents(Request $request)
+    {
+        $search = $request->get('search');
+        if ($search) {
+            $events = Event::whereRaw("to_tsvector('english', title) @@ plainto_tsquery('english', ?)", [$search])
+                ->paginate(8);
+        } else {
+            $now = Carbon::now();
+            Event::where('date', '<', $now)
+                ->where('closed', false)
+                ->update(['closed' => true]);
+            $events = Event::orderBy('date')->paginate(8);
+        }
+        return view('partials.eventsTable', ['events' => $events])->render();
     }
 
 }

@@ -7,12 +7,14 @@ use App\Models\AuthenticatedUser;
 use App\Models\Event;
 use App\Models\User;
 use App\Models\EventParticipant;
-use App\Models\FavoriteEvents;
+use App\Models\FavouriteEvents;
 use Illuminate\Support\Facades\Auth;
 use App\Http\Controllers\FileController;
 use App\Models\Report;
 use App\Models\Notification;
 use App\Models\EventNotification;
+use App\Models\Hashtag;
+
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\DB;
@@ -30,26 +32,94 @@ class AuthenticatedUserController extends Controller
         
         $this->authorize('userEvents', $authenticatedUser);
     
-        $createdEvents = Event::where('id_user', $authenticatedUser->id_user)->get();
-    
-        $joinedEvents = Event::where('closed', false)->whereHas('eventParticipants', function ($query) use ($authenticatedUser) {
-            $query->where('id_user', $authenticatedUser->id_user);
-        })->get();
-    
-        $favoriteEvents = Event::whereHas('favoriteEvent', function ($query) use ($authenticatedUser) {
-            $query->where('id_user', $authenticatedUser->id_user);
-        })->get();
+        $createdEvents = Event::where('id_user', $authenticatedUser->id_user)->paginate(21);
 
-        $attendedEvents = Event::where('closed', true)->whereHas('eventParticipants', function ($query) use ($authenticatedUser) {
-            $query->where('id_user', $authenticatedUser->id_user);
-        })->get();
+        $hashtags = Hashtag::orderBy('title')->get();
+        $places = Event::getUniquePlaces()->sortBy('place');
     
         return view('pages.user_events', [
             'user' => $authenticatedUser->user,
             'createdEvents' => $createdEvents,
+            'hashtags' => $hashtags,
+            'places' => $places
+        ]);
+    }
+
+    public function showUserjoinedEvents(Request $request)
+    {
+        $authenticatedUser = AuthenticatedUser::find($request->route('id'));
+
+        if (!$authenticatedUser) {
+            return redirect()->back()->with('message', 'User not found');
+        }
+        
+        $this->authorize('userEvents', $authenticatedUser);
+    
+        $joinedEvents = Event::where('closed', false)->whereHas('eventParticipants', function ($query) use ($authenticatedUser) {
+            $query->where('id_user', $authenticatedUser->id_user);
+        })->paginate(21);
+
+        log::info($joinedEvents);
+
+        $hashtags = Hashtag::orderBy('title')->get();
+        $places = Event::getUniquePlaces()->sortBy('place');
+    
+        return view('pages.user_joinedEvents', [
+            'user' => $authenticatedUser->user,
             'joinedEvents' => $joinedEvents,
-            'favoriteEvents' => $favoriteEvents,
+            'hashtags' => $hashtags,
+            'places' => $places
+        ]);
+    }
+
+    public function showUserfavouriteEvents(Request $request)
+    {
+        $authenticatedUser = AuthenticatedUser::find($request->route('id'));
+
+        if (!$authenticatedUser) {
+            return redirect()->back()->with('message', 'User not found');
+        }
+        
+        $this->authorize('userEvents', $authenticatedUser);
+    
+        $favouriteEvents = Event::whereHas('favouriteevent', function ($query) use ($authenticatedUser) {
+            $query->where('id_user', $authenticatedUser->id_user);
+        })->paginate(21);
+        
+        log::info($favouriteEvents);
+
+        $hashtags = Hashtag::orderBy('title')->get();
+        $places = Event::getUniquePlaces()->sortBy('place');
+    
+        return view('pages.user_favouriteEvents', [
+            'user' => $authenticatedUser->user,
+            'favouriteEvents' => $favouriteEvents,
+            'hashtags' => $hashtags,
+            'places' => $places
+        ]);
+    }
+
+    public function showUserattendedEvents(Request $request)
+    {
+        $authenticatedUser = AuthenticatedUser::find($request->route('id'));
+
+        if (!$authenticatedUser) {
+            return redirect()->back()->with('message', 'User not found');
+        }
+        
+        $this->authorize('userEvents', $authenticatedUser);
+        $attendedEvents = Event::where('closed', true)->whereHas('eventParticipants', function ($query) use ($authenticatedUser) {
+            $query->where('id_user', $authenticatedUser->id_user);
+        })->paginate(21);
+
+        $hashtags = Hashtag::orderBy('title')->get();
+        $places = Event::getUniquePlaces()->sortBy('place');
+    
+        return view('pages.user_attendedEvents', [
+            'user' => $authenticatedUser->user,
             'attendedEvents' => $attendedEvents,
+            'hashtags' => $hashtags,
+            'places' => $places
         ]);
     }
 
@@ -100,20 +170,20 @@ class AuthenticatedUserController extends Controller
             }
         }
 
-        return redirect()->back()->with('message', 'Profile updated successfully!');    
+        return redirect()->back()->with('success', 'Profile updated successfully!');    
     }
 
     public function updateUserPassword(Request $request)
     {
+        $user = Auth::user();
+    
         $request->validate([
-            'current_password' => 'required',
+            'current_password' => $user->password ? 'required' : '',
             'new_password' => 'required|min:8|confirmed',
         ]);
     
-        $user = Auth::user();
-    
         if ($user->password && !Hash::check($request->current_password, $user->password)) {
-            return back()->withErrors(['current_password' => 'Current password is incorrect']);
+            return redirect()->back()->withErrors( ['current_password' => 'Current password is incorrect. Please try again.']);
         }
     
         $user->password = Hash::make($request->new_password);
@@ -154,7 +224,7 @@ class AuthenticatedUserController extends Controller
     
         
             EventParticipant::where('id_user', $user->id)->delete();
-            FavoriteEvents::where('id_user', $user->id)->delete();
+            FavouriteEvents::where('id_user', $user->id)->delete();
             $authenticatedUser->delete();
             $user->delete();
     
@@ -172,7 +242,7 @@ class AuthenticatedUserController extends Controller
         $authenticatedUser->is_verified = true;
         $authenticatedUser->save();
 
-        return redirect()->back()->with('message', 'User verified successfully!');
+        return redirect()->back()->with('success', 'User verified successfully!');
     }
 
 }

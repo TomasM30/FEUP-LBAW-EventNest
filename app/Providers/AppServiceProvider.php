@@ -40,6 +40,5 @@ class AppServiceProvider extends ServiceProvider
             $view->with('notificationsCount', $notificationsCount);
         });
 
-        Paginator::useBootstrapFour();
     }
 }

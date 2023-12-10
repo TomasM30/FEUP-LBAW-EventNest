@@ -11947,3 +11947,10 @@ th {
 input[type="search"]::-webkit-search-cancel-button {
     display: none;
 }
+
+.pagination .active .page-link {
+  background-color: var(--bs-pagination-active-bg);
+  color: var(--bs-pagination-active-color);
+  border-color: var(--bs-pagination-active-border-color);
+}
+
