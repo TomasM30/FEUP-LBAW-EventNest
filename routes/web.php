@@ -88,6 +88,8 @@ Route::controller(EventController::class)->group(function () {
     Route::post('/events/order', 'order')->name('events.order');
     Route::post('/events/filter', 'filter')->name('events.filter');
     Route::post('/events/{id}/report', 'reportEvent')->name('events.report');
+    Route::post('/events/{id}/addFavourite', 'addEventAsFavourite')->name('event.favourite');
+    Route::post('/events/{id}/removeFavourite', 'removeEventAsFavourite')->name('event.removeFavourite');
 });
 
 Route::controller(GoogleController::class)->group(function () {

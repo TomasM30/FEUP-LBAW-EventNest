@@ -45,9 +45,30 @@
 
         <div class="row mt-3">
             <div class="col-lg-9 col-md-12">
-                <div id="eventInfo" class="event-info mt-5" style="overflow-wrap: break-word;">
-                    <h1>{{ $event->title }}</h1>
-                    <h4 class="mt-5">Hosted by:</h4>
+                <div id="eventInfo" class="event-info mt-3" style="overflow-wrap: break-word;">
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <h1>{{ $event->title }}</h1>
+                        @if(!$isAdmin && !$isOrganizer && !$isFavourite)
+                            <form method="POST" action="{{ route('event.favourite', $event->id) }}">
+                                {{ csrf_field() }}
+                                <input type="hidden" name="id_user" value="{{ Auth::user()->id }}">
+                                <input type="hidden" name="id_event" value="{{ $event->id }}">
+                                <button type="submit" class="btn btn-outline-danger p-2 rounded-circle" style="width: 50px; height: 50px;">
+                                    <i class="fa-regular fa-heart"></i>
+                                </button>
+                            </form>
+                        @elseif(!$isAdmin && !$isOrganizer && $isFavourite)
+                            <form method="POST" action="{{ route('event.removeFavourite', $event->id) }}">
+                                {{ csrf_field() }}
+                                <input type="hidden" name="id_user" value="{{ Auth::user()->id }}">
+                                <input type="hidden" name="id_event" value="{{ $event->id }}">
+                                <button type="submit" class="btn btn-outline-secondary p-2 rounded-circle" style="width: 50px; height: 50px;">
+                                    <i class="fa-solid fa-heart-crack"></i>
+                                </button>
+                            </form>
+                        @endif
+                    </div>
+                    <h4 class="m-0">Hosted by:</h4>
                     <div class="d-flex align-items-center mb-3">
                         @if($event->user)
                             <a href="{{ route('user.profile', $event->user->id) }}" style="text-decoration: none; color: inherit; overflow-wrap: break-word;">
@@ -77,8 +98,8 @@
                         @endforeach
                     </div>
                 </div>
-                <div class="event-attendees mt-5">
-                    <div class="capacity d-flex justify-content-around">
+                <div class="event-attendees">
+                    <div class="capacity d-flex justify-content-around  mt-3 mb-3">
                         <div class="capacity-item d-flex flex-column justify-content-center align-items-center">
                             <h4>Joined</h4>
                             <p>{{ $event->eventparticipants()->count() }}</p>
@@ -92,7 +113,7 @@
                     @include('partials.attendeesTable', ['attendees' => $attendees])
                 </div>
             </div>
-            <div class="col-lg-3 mt-5 position-sticky" style="bottom: 0%; background-color: white;"">
+            <div class="col-lg-3 mt-3 position-sticky" style="bottom: 0%; background-color: white;"">
                 <div class="d-flex flex-wrap justify-content-center position-sticky" style="top: 15%;">
                     @if (!$isAdmin && $alreadyReported == false)
                         <div class="btn-group" style="width: 100%;">

@@ -19,7 +19,7 @@ use App\Models\AuthenticatedUser;
 use App\Models\Notification;
 use App\Models\EventNotification;
 use App\Models\RequestNotification;
-use App\Models\FavoriteEvent;
+use App\Models\FavoriteEvents;
 use App\Models\Report;
 use App\Http\Controllers\FileController;
 
@@ -145,6 +145,49 @@ class EventController extends Controller
             return redirect()->back()->with('error', 'Event deletion failed');
         }
     }
+
+    public function addEventAsFavourite (Request $request) {
+        try {
+            if (!(AuthenticatedUser::where('id_user', $request->id_user)->exists())|| !(Event::where('id', $request->id_event)->exists()))
+                return redirect()->back()->with('error', 'User or event not found');
+
+            DB::BeginTransaction();
+
+            FavoriteEvents::insert([
+                'id_user' => $request->id_user,
+                'id_event' => $request->id_event,
+            ]);
+
+            DB::commit();
+
+        } catch(ModelNotFoundException $e) {
+            DB::rollBack();
+            log::info($e->getMessage());
+            return redirect()->back()->with('error', 'User failed to add event as favourite!');
+        }
+        return redirect()->back()->with('success', 'Event added as favourite successfully');
+    }
+
+    public function removeEventAsFavourite (Request $request) {
+        try {
+            if (!(AuthenticatedUser::where('id_user', $request->id_user)->exists())|| !(Event::where('id', $request->id_event)->exists()))
+                return redirect()->back()->with('error', 'User or event not found');
+
+            DB::BeginTransaction();
+
+            FavoriteEvents::where('id_user', $request->id_user)
+                ->where('id_event', $request->id_event)
+                ->delete();
+
+            DB::commit();
+
+        } catch(ModelNotFoundException $e) {
+            DB::rollBack();
+            log::info($e->getMessage());
+            return redirect()->back()->with('error', 'User failed to remove event as favourite!');
+        }
+        return redirect()->back()->with('success', 'Event removed as favourite successfully');
+    }
     
 
     public function listEvents()
@@ -213,7 +256,12 @@ class EventController extends Controller
                                                 })
                                                 ->where('type', 'request')
                                                 ->exists();
+        
+        $data['isFavourite'] = FavoriteEvents::where('id_user', Auth::user()->id)
+                                                ->where('id_event', $data['event']->id)
+                                                ->exists();
         $data['user'] = $user;
+
 
         if ($request->ajax()) {
             return view('partials.attendeesTable', ['attendees' => $data['attendees'], 'event' => $data['event']])->render();
@@ -769,6 +817,10 @@ class EventController extends Controller
             return redirect()->back()->withErrors(['error' => $e->getMessage()]);
         }
     }
+
+
+
+
 
 
 }
