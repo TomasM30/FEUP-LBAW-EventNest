@@ -49,8 +49,8 @@ class EventController extends Controller
                     },
                 ],
                 'place' => 'required|string',
-                'hashtags' => 'array',
-                'hashtags.*' => 'exists:hashtag,id',
+                'hashtags2' => 'array',
+                'hashtags2.*' => 'exists:hashtag,id',
             ]);
             
 
@@ -66,8 +66,8 @@ class EventController extends Controller
                 'image' => null,
             ]);
 
-            if ($request->hashtags) {
-                foreach ($request->hashtags as $hashtagId) {
+            if ($request->hashtags2) {
+                foreach ($request->hashtags2 as $hashtagId) {
                     EventHashtag::create([
                         'id_event' => $event->id,
                         'id_hashtag' => $hashtagId,
@@ -86,7 +86,7 @@ class EventController extends Controller
                 $uploadResponse = $fileController->upload($request);
                 if ($uploadResponse instanceof \Illuminate\Http\RedirectResponse) {
                     DB::commit();
-                    return redirect()->route('events.details', ['id' => $event->id]);
+                    return redirect()->route('events.details', ['id' => $event->id])->with('success', 'Your event was successfully created!');
                 } else if (isset($uploadResponse['file'])) {
                     DB::rollback();
                     return redirect()->back()->withErrors(['file' => $uploadResponse['file']]);
@@ -95,14 +95,12 @@ class EventController extends Controller
 
             DB::commit();
         
-            return redirect()->route('events.details', ['id' => $event->id]);
+            return redirect()->route('events.details', ['id' => $event->id])->with('success', 'Your event was successfully created!');
             
         } catch (ValidationException $e) {
-            log::info($e->getMessage());
             DB::rollback();
             throw $e;
         } catch (\Exception $e) {
-            log::info($e->getMessage());
             DB::rollback();
             throw $e;
         }
@@ -113,7 +111,7 @@ class EventController extends Controller
         $id = $request->id;
         $event = Event::find($id);
         if (!$event) {
-            return redirect()->back()->with('message', 'Event not found');
+            return redirect()->back()->with('error', 'Event not found');
         }
 
         $this->authorize('delete', $event);
@@ -141,11 +139,10 @@ class EventController extends Controller
 
             DB::commit();
 
-            return redirect()->route('events')->with('message', 'Event deletion successful');
+            return redirect()->route('events')->with('success', 'Event deletion successful');
         } catch (\Exception $e) {
             DB::rollback();
-            log::info($e->getMessage());
-            return redirect()->back()->with('message', 'Event deletion failed');
+            return redirect()->back()->with('error', 'Event deletion failed');
         }
     }
     
@@ -210,6 +207,12 @@ class EventController extends Controller
                                         ->where('id_event', $data['event']->id)
                                         ->where('closed', false)
                                         ->exists();
+        $data['alreadyRequested'] = Notification::where('id_user', $data['event']->id_user)
+                                                ->whereHas('eventnotification', function ($query) use ($data) {
+                                                    $query->where('id_event', $data['event']->id);
+                                                })
+                                                ->where('type', 'request')
+                                                ->exists();
         $data['user'] = $user;
 
         if ($request->ajax()) {
@@ -229,7 +232,7 @@ class EventController extends Controller
     {
         $event = Event::find($request->eventId);
         if (!$event) {
-            return redirect()->back()->with('message', 'Event not found');
+            return redirect()->back()->with('error', 'Event not found');
         }
 
 
@@ -237,7 +240,7 @@ class EventController extends Controller
             
         try {
             if (!(AuthenticatedUser::where('id_user', $request->id_user)->exists())|| !(Event::where('id', $request->eventId)->exists())) 
-                return redirect()->back()->with('message', 'User or event not found');
+                return redirect()->back()->with('error', 'User or event not found');
             
             DB::BeginTransaction();
 
@@ -259,36 +262,36 @@ class EventController extends Controller
 
             if($action == 'request'){
                 if (!$this->createNotification('request_accepted', $receiverId, null, $request->eventId)) {
-                    return redirect()->back()->with('message', 'Failed to create notification!');
+                    return redirect()->back()->with('error', 'Failed to create notification!');
                 }
             } else {
                 if (!$this->createNotification('added_to_event', $receiverId, null, $request->eventId)) {
-                    return redirect()->back()->with('message', 'Failed to create notification!');
+                    return redirect()->back()->with('error', 'Failed to create notification!');
                 }
             }
 
             DB::commit();
+            return redirect()->back()->with('success', 'Added user successfully');
 
-            } catch (\Exception $e) {
+        } catch (\Exception $e) {
        
-                DB::rollback();
-                ('User jailed to join event: ' . $e->getMessage()); 
-                return redirect()->back()->with('message', 'User jailed to join event!');
-            }    
-        return redirect()->back()->with('message', 'Added user successfully');
+            DB::rollback();
+            ('User jailed to join event: ' . $e->getMessage()); 
+            return redirect()->back()->with('error', 'User jailed to join event!');
+        }    
     }
 
     public function removeUser(Request $request)
     {
         $event = Event::find($request->eventId);
         if (!$event) {
-            return redirect()->back()->with('message', 'Event not found');
+            return redirect()->back()->with('error', 'Event not found');
         }
         $this->authorize('removeUser', $event);
             
         try {
             if (!(AuthenticatedUser::where('id_user', $request->id_user)->exists())|| !(Event::where('id', $request->eventId)->exists())){
-                return redirect()->back()->with('message', 'User or event not found');  
+                return redirect()->back()->with('error', 'User or event not found');  
             }
             
             DB::BeginTransaction();
@@ -313,18 +316,18 @@ class EventController extends Controller
 
 
             if (!$this->createNotification('removed_from_event', $receiverId, null, $request->eventId)) {
-                return redirect()->back()->with('message', 'Failed to create notification!');
+                return redirect()->back()->with('error', 'Failed to create notification!');
             }
 
             DB::commit();
+            return redirect()->back()->with('success', 'Removed user successfully');
 
-            } catch (\Exception $e) {
-       
-                DB::rollback();
-                ('User jailed to leave event: ' . $e->getMessage()); 
-                return redirect()->back()->with('message', 'User jailed to leave event!');
-            }
-        return redirect()->back()->with('message', 'Removed user successfully');
+        } catch (\Exception $e) {
+    
+            DB::rollback();
+            ('User jailed to leave event: ' . $e->getMessage()); 
+            return redirect()->back()->with('error', 'User jailed to leave event!');
+        }
     }
 
     public function joinEvent(Request $request)
@@ -332,14 +335,14 @@ class EventController extends Controller
 
         $event = Event::find($request->eventId);
         if (!$event) {
-            return redirect()->back()->with('message', 'Event not found');
+            return redirect()->back()->with('error', 'Event not found');
         }
     
         $this->authorize('joinEvent', $event);
             
         try {
             if (!(AuthenticatedUser::where('id_user', $request->id_user)->exists())|| !(Event::where('id', $request->eventId)->exists())){
-                return redirect()->back()->with('message', 'User or event not found');
+                return redirect()->back()->with('error', 'User or event not found');
             }
             
             DB::BeginTransaction();
@@ -351,44 +354,42 @@ class EventController extends Controller
 
             if ($request->has('notificationId')) {
                 $notification = Notification::find($request->notificationId);
+                $receiverId = $notification->eventnotification->inviter_id;
                 $senderId = $notification->id_user;
+                $eventId = $request->eventId;
                 if ($notification) {
                     $notification->eventnotification()->delete();
                     $notification->delete();
                 }
-                
-                $receiverId = $event->id_user;
-                $eventId = $request->eventId;
                 if (!$this->createNotification('invitation_accepted', $receiverId, $senderId, $eventId)) {
-                    return redirect()->back()->with('message', 'Failed to create notification!');
+                    log::info('Failed to create notification!');
+                    return redirect()->back()->with('error', 'Failed to create notification!');
                 }
             }
 
-
-
             DB::commit();
+            return redirect()->route('events.details', ['id' => $request->eventId])->with('success', 'Joined event successfully');
 
         } catch (\Exception $e) {
     
             DB::rollback();
             ('User jailed to join event: ' . $e->getMessage()); 
-            return redirect()->back()->with('message', 'User jailed to join event!');
+            return redirect()->back()->with('error', 'User jailed to join event!');
         }    
-        return redirect()->route('events.details', ['id' => $request->eventId]);
     }
 
     public function leaveEvent(Request $request)
     {
         $event = Event::find($request->eventId);
         if (!$event) {
-            return redirect()->back()->with('message', 'Event not found');
+            return redirect()->back()->with('error', 'Event not found');
         }
     
         $this->authorize('leaveEvent', $event);
             
         try {
             if (!(AuthenticatedUser::where('id_user', $request->id_user)->exists())|| !(Event::where('id', $request->eventId)->exists())) 
-                return redirect()->back()->with('message', 'User or event not found');
+                return redirect()->back()->with('error', 'User or event not found');
             
             DB::BeginTransaction();
 
@@ -401,9 +402,9 @@ class EventController extends Controller
        
                 DB::rollback();
                 ('User jailed to leave event: ' . $e->getMessage()); 
-                return redirect()->back()->with('message', 'User jailed to leave event!');
+                return redirect()->back()->with('error', 'User jailed to leave event!');
             }
-        return redirect()->back()->with('message', 'Left event successfully');
+        return redirect()->back()->with('error', 'Left event successfully');
     }
 
     public function editEvent (Request $request)
@@ -465,15 +466,15 @@ class EventController extends Controller
                 $event->place = ucfirst($request->place);
             }
 
-            if ($request->has('hashtags')) {
+            if ($request->has('hashtags2')) {
                 $request->validate([
-                    'hashtags' => 'array',
-                    'hashtags.*' => 'exists:hashtag,id',
+                    'hashtags2' => 'array',
+                    'hashtags2.*' => 'exists:hashtag,id',
                 ]);
 
                 $event->hashtags()->detach();
 
-                foreach ($request->hashtags as $hashtagId) {
+                foreach ($request->hashtags2 as $hashtagId) {
                     EventHashtag::create([
                         'id_event' => $event->id,
                         'id_hashtag' => $hashtagId,
@@ -502,10 +503,13 @@ class EventController extends Controller
 
             DB::commit();
 
-            return redirect()->back()->with('success', 'Event successfully created');
+            return redirect()->back()->with('success', 'Event successfully edited!');
+        } catch (ValidationException $e) {
+            DB::rollback();
+            throw $e;
         } catch (\Exception $e) {
             DB::rollback();
-            return redirect()->back()->with('error', 'Event creation failed');                                                                      
+            throw $e;
         }
     }
 
@@ -513,7 +517,6 @@ class EventController extends Controller
     {
         try {
             DB::BeginTransaction();
-
 
             $notification = Notification::create([
                 'type' => $notificationType,
@@ -575,7 +578,7 @@ class EventController extends Controller
     {
         $event = Event::find($request->eventId);
         if (!$event) {
-            return redirect()->back()->with('message', 'Event not found');
+            return redirect()->back()->with('error', 'Event not found');
         }
         
         $sender = auth()->user();   
@@ -583,11 +586,11 @@ class EventController extends Controller
         $action = $request->action;
 
         if (!AuthenticatedUser::where('id_user', $sender->id)->exists()) {
-            return redirect()->back()->with('message', 'Sender not found');
+            return redirect()->back()->with('error', 'Sender not found');
         }
 
         if (!AuthenticatedUser::where('id_user', $receiverId)->exists()) {
-            return redirect()->back()->with('message', 'Receiver not found');
+            return redirect()->back()->with('error', 'Receiver not found');
         }
 
 
@@ -604,7 +607,7 @@ class EventController extends Controller
             $receiver = User::where('id', $receiverId)->firstOrFail();
         } catch (ModelNotFoundException $e) {
             log::info($e->getMessage());
-            return redirect()->back()->with('message', 'Receiver not found');
+            return redirect()->back()->with('error', 'Receiver not found');
         }
     
         $notificationExists = Notification::where('id_user', $receiver->id)
@@ -614,14 +617,19 @@ class EventController extends Controller
             })->exists();
         
         if ($notificationExists) {
-            return redirect()->back()->with('message', 'Notification already sent!');
+            return redirect()->back()->with('error', 'Invite already sent!');
         }
     
         if (!$this->createNotification($notificationType, $receiver->id, $sender->id, $request->eventId)) {
-            return redirect()->back()->with('message', 'Failed to send Notification!');
+            return redirect()->back()->with('error', 'Failed to send Invite!');
         }
-    
-        return redirect()->back()->with('success', 'Notification successfully sent!');
+
+        log::info($request->type);
+        if($request->type == "request"){
+            return redirect()->back()->with('success', 'Request successfully sent!');
+        }else{
+         return redirect()->back()->with('success', 'Invite successfully sent!');
+        }
     }
 
     public function filter(Request $request)
@@ -691,7 +699,7 @@ class EventController extends Controller
     public function cancelEvent(Request $request){
         $event = Event::find($request->eventId);
         if (!$event) {
-            return redirect()->back()->with('message', 'Event not found');
+            return redirect()->back()->with('error', 'Event not found');
         }
 
         $this->authorize('cancelEvent', $event);
@@ -714,7 +722,7 @@ class EventController extends Controller
             $this->createNotification('event_canceled', $participant->id_user, null, $event->id);
         }
 
-        return redirect()->back()->with('message', 'Event cancelled successfully');
+        return redirect()->back()->with('success', 'Event cancelled successfully');
     }
 
     public function reportEvent(Request $request, $id){
@@ -739,6 +747,12 @@ class EventController extends Controller
                 $request->merge(['id' => $report->id, 'type' => 'report']);
                 $fileController = new FileController();
                 $uploadResponse = $fileController->upload($request);
+                if ($uploadResponse instanceof \Illuminate\Http\RedirectResponse) {
+                    DB::commit();
+                } else if (isset($uploadResponse['file'])) {
+                    DB::rollback();
+                    return redirect()->back()->withErrors(['file' => $uploadResponse['file']]);
+                }
             }
 
             $admins = Admin::all();

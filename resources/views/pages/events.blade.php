@@ -2,6 +2,31 @@
 
 @section('content')
 
+
+@if ($errors->any())
+    <script>
+        Swal.fire({
+            title: 'Error!',
+            text: '{{ $errors->first() }}',
+            icon: 'error',
+            timer: 1500,
+            showConfirmButton: false
+        });
+    </script>
+@endif
+
+@if (session('success'))
+    <script>
+        Swal.fire({
+            title: 'Success!',
+            text: '{{ session('success') }}',
+            icon: 'success',
+            timer: 1500,
+            showConfirmButton: false
+        });
+    </script>
+@endif
+
 <div class="content-container overflow-x-hidden">
     <div class="row justify-content-center mt-3">
         <div class="form-outline mt-2 d-flex align-items-center row" id="search-form" data-url="{{ route('search-events') }}" style="width: 55%;">

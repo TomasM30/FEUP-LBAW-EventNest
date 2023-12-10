@@ -1,6 +1,31 @@
 @extends('layouts.app')
 
 @section('content')
+
+@if (session('success'))
+    <script>
+        Swal.fire({
+            title: 'Success!',
+            text: '{{ session('success') }}',
+            icon: 'success',
+            timer: 1500,
+            showConfirmButton: false
+        });
+    </script>
+@endif
+
+@if ($errors->any())
+    <script>
+        Swal.fire({
+            title: 'Error!',
+            text: '{{ $errors->first() }}',
+            icon: 'error',
+            timer: 1500,
+            showConfirmButton: false
+        });
+    </script>
+@endif
+
 <div class="d-flex justify-content-center">
     <div class="col-9 content-container m-3" id="details-content-container">
         @if($event->closed)
@@ -12,9 +37,7 @@
         <div class="text-center position-relative overflow-hidden">
             <div id="bluredPic" class="position-absolute w-100 h-100 bluredPic" style="background-image: url('{{ $event->getProfileImage() }}');"></div>
             @if(Auth::user()->id == $event->id_user)
-                <a id="imageedit" href="#" data-toggle="modal" data-target="#uploadModal">
-                    <img class="mx-auto d-block img-fluid" src="{{ $event->getProfileImage() }}" style="max-height: 300px; position: relative; z-index: 1;" />
-                </a>
+                <img class="mx-auto d-block img-fluid" src="{{ $event->getProfileImage() }}" style="max-height: 300px; position: relative; z-index: 1;" />
             @else
                 <img class="mx-auto d-block img-fluid" src="{{ $event->getProfileImage() }}" style="max-height: 300px; position: relative; z-index: 1;" />
             @endif
@@ -69,62 +92,63 @@
                     @include('partials.attendeesTable', ['attendees' => $attendees])
                 </div>
             </div>
-            <div class="col-lg-3 mt-5">
+            <div class="col-lg-3 mt-5 position-sticky" style="bottom: 0%; background-color: white;"">
                 <div class="d-flex flex-wrap justify-content-center position-sticky" style="top: 15%;">
-
                     @if (!$isAdmin && $alreadyReported == false)
                         <div class="btn-group" style="width: 100%;">
                             <button id="reportBtn" type="submit" class="btn btn-primary m-3 ">Report</button>
                          </div>
                     @endif
                     @if ($event->closed == false)
+                        @if(!$isAdmin && $isParticipant)
+                                <div class="dropdown d-flex justify-content-center" style="width: 100%">
+                                    <button class="btn btn-primary m-3 dropdown-toggle invite" style="width: 100%;" type="button" id="dropdownMenuInvite" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                        Invite
+                                    </button>
+                                    <div class="dropdown-menu" aria-labelledby="dropdownMenuInvite">
+                                        @foreach ($notInvited as $authUser)
+                                        @if($authUser->user->id != $event->user->id)
+                                        <form method="POST" action="{{ route('events.notification', $event->id) }}">
+                                            {{ csrf_field() }}
+                                            <input type="hidden" name="id_user" value="{{ $authUser->user->id }}">
+                                            <input type="hidden" name="eventId" value="{{ $event->id }}">
+                                            <input type="hidden" name="action" value="invitation">
+                                            <button type="submit" class="dropdown-item">{{ $authUser->user->name }}</button>
+                                        </form>
+                                        @endif
+                                        @endforeach
+                                    </div>
+                                </div>
+                        @endif
                         @if(!$isParticipant && !$isAdmin && $event->eventparticipants()->count() < $event->capacity)
                             @if($event->type == 'public' || $event->type == 'private')
                                 <form method="POST" action="{{ route('event.join', $event->id) }}" style="width: 100%;" class="d-flex justify-content-center">
                                     {{ csrf_field() }}
                                     <input type="hidden" name="id_user" value="{{ Auth::user()->id }}">
                                     <input type="hidden" name="eventId" value="{{ $event->id }}">
-                                    <button type="submit" class="btn btn-primary m-3 ">Join</button>
+                                    <div class="btn-group" style="width: 100%;">
+                                        <button type="submit" class="btn btn-primary m-3 ">Join</button>
+                                    </div>                                
                                 </form>
-                            @elseif($event->type == 'approval')
+                            @elseif($event->type == 'approval' && $alreadyRequested == false)
                                 <form method="POST" action="{{ route('events.notification', $event->id) }}" style="width: 100%;" class="d-flex justify-content-center">
                                     {{ csrf_field() }}
                                     <input type="hidden" name="id_user" value="{{ $event->id_user }}">
                                     <input type="hidden" name="eventId" value="{{ $event->id }}">
                                     <input type="hidden" name="action" value="request">
+                                    <input type="hidden" name="type" value="request">
                                     <div class="btn-group" style="width: 100%;">
                                         <button type="submit" class="btn btn-primary m-3 ">Request</button>
                                     </div>
                                 </form>
                             @endif
-                            @elseif($isParticipant && !$isAdmin && !$isOrganizer)
+                        @elseif($isParticipant && !$isAdmin && !$isOrganizer)
                             <form method="POST" action="{{ route('event.leave', $event->id) }}" style="width: 100%;" class="d-flex justify-content-center">
                                 {{ csrf_field() }}
                                 <input type="hidden" name="id_user" value="{{ Auth::user()->id }}">
                                 <input type="hidden" name="eventId" value="{{ $event->id }}">
                                 <button type="submit" class="btn btn-primary m-3" style="width: 100%;">Leave</button>
                             </form>
-                            @endif
-
-                        @if(!$isAdmin && $isParticipant)
-                            <div class="dropdown d-flex justify-content-center" style="width: 100%">
-                                <button class="btn btn-primary m-3 dropdown-toggle invite" style="width: 100%;" type="button" id="dropdownMenuInvite" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                                    Invite
-                                </button>
-                                <div class="dropdown-menu" aria-labelledby="dropdownMenuInvite">
-                                    @foreach ($notInvited as $authUser)
-                                    @if($authUser->user->id != $event->user->id)
-                                    <form method="POST" action="{{ route('events.notification', $event->id) }}">
-                                        {{ csrf_field() }}
-                                        <input type="hidden" name="id_user" value="{{ $authUser->user->id }}">
-                                        <input type="hidden" name="eventId" value="{{ $event->id }}">
-                                        <input type="hidden" name="action" value="invitation">
-                                        <button type="submit" class="dropdown-item">{{ $authUser->user->name }}</button>
-                                    </form>
-                                    @endif
-                                    @endforeach
-                                </div>
-                            </div>
                         @endif
 
                         @if($isAdmin || $isOrganizer)
@@ -160,7 +184,7 @@
                                             {{ csrf_field() }}
                                             <input type="hidden" name="id_user" value="{{ $authUser->user->id }}">
                                             <input type="hidden" name="eventId" value="{{ $event->id }}">
-                                            <button type="submit" class="dropdown-item">{{ $authUser->user->name }}</button>
+                                            <button type="submit" class="dropdown-item">{{ $authUser->user->username }}</button>
                                         </form>
                                         @endif
                                         @endforeach

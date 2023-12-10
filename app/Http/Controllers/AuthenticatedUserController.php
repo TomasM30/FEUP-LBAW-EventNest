@@ -168,20 +168,20 @@ class AuthenticatedUserController extends Controller
             }
         }
 
-        return redirect()->back()->with('message', 'Profile updated successfully!');    
+        return redirect()->back()->with('success', 'Profile updated successfully!');    
     }
 
     public function updateUserPassword(Request $request)
     {
+        $user = Auth::user();
+    
         $request->validate([
-            'current_password' => 'required',
+            'current_password' => $user->password ? 'required' : '',
             'new_password' => 'required|min:8|confirmed',
         ]);
     
-        $user = Auth::user();
-    
         if ($user->password && !Hash::check($request->current_password, $user->password)) {
-            return back()->withErrors(['current_password' => 'Current password is incorrect']);
+            return redirect()->back()->withErrors( ['current_password' => 'Current password is incorrect. Please try again.']);
         }
     
         $user->password = Hash::make($request->new_password);
@@ -240,7 +240,7 @@ class AuthenticatedUserController extends Controller
         $authenticatedUser->is_verified = true;
         $authenticatedUser->save();
 
-        return redirect()->back()->with('message', 'User verified successfully!');
+        return redirect()->back()->with('success', 'User verified successfully!');
     }
 
 }
