@@ -18,20 +18,23 @@
                     <a class="nav-link d-flex align-items-center" href="{{ route('user.notifications', ['id' => auth()->user()->id]) }}">
                         Notifications
                         @if($notificationsCount > 0)
-                            <span class="badge bg-danger ms-2">{{ $notificationsCount }}</span>
+                        <span class="badge bg-danger ms-2">{{ $notificationsCount }}</span>
                         @endif
                     </a>
                 </li>
                 @if(!(Auth::user()->isAdmin()))
-                    <li class="nav-item">
-                        <a class="nav-link" href="{{ route('user.profile', ['id' => Auth::id()]) }}">Profile</a>
-                    </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="{{ route('user.profile', ['id' => Auth::id()]) }}">Profile</a>
+                </li>
                 @endif
                 @if(Auth::user()->isAdmin())
                 <li class="nav-item">
                     <a class="nav-link" href="{{ route('dashboard') }}">Dashboard</a>
                 </li>
                 @endif
+                <li class="nav-item">
+                    <a class="nav-link" href=" {{ route('about') }}">About Us</a>
+                </li>
             </ul>
             <ul class="navbar-nav">
                 <li class="nav-item">

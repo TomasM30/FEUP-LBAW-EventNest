@@ -1,6 +1,18 @@
 <!DOCTYPE html>
 <html lang="{{ app()->getLocale() }}">
 
+<style>
+    body {
+        display: flex;
+        flex-direction: column;
+        min-height: 100vh;
+    }
+
+    .main-content {
+        flex: 1 0 auto;
+    }
+</style>
+
 <head>
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
@@ -28,7 +40,10 @@
     @if(!Route::currentRouteNamed('login'))
     @include('partials.navbar')
     @endif
-    @yield('content')
+    <div class="main-content">
+        @yield('content')
+    </div>
+    @include('partials.footer')
 
 
 </body>
