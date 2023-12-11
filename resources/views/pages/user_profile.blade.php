@@ -2,6 +2,30 @@
 
 @section('content')
 
+@if (session('success'))
+    <script>
+        Swal.fire({
+            title: 'Success!',
+            text: '{{ session('success') }}',
+            icon: 'success',
+            timer: 1500,
+            showConfirmButton: false
+        });
+    </script>
+@endif
+
+@if ($errors->any())
+    <script>
+        Swal.fire({
+            title: 'Error!',
+            text: '{{ $errors->first() }}',
+            icon: 'error',
+            timer: 1500,
+            showConfirmButton: false
+        });
+    </script>
+@endif
+
 <div class="container mt-5">
     <div class="row">
         <div class="col-12 col-md-3 mb-3 mb-md-0">
@@ -89,11 +113,9 @@
                 <div class="tab-pane fade" id="v-pills-settings">
                     <h3>Settings</h3>
                     <div class="row mt-4">
-                        @if($user->google_id == null)
-                            <div class="col-12 col-md-6 mb-3">
-                                <a id="changePasswordBtn" href="#" class="btn btn-primary btn-block">Change Password</a>
-                            </div>
-                        @endif
+                        <div class="col-12 col-md-6 mb-3">
+                            <a id="changePasswordBtn" href="#" class="btn btn-primary btn-block">Change Password</a>
+                        </div>
                         <div class="col-12 col-md-6 mb-3">
                             <button id="deleteAccountBtn" type="button" class="btn btn-danger btn-block" >
                                 Delete Account
