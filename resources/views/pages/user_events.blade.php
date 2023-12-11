@@ -1,9 +1,9 @@
 @extends('layouts.app')
 
 @section('content')
-<h1 class="text-center mb-4 mt-4" style="overflow-wrap: break-word;">{{ $user->username }}'s Created Events</h1>
-<div class="col mt-3 justify-content-center">
-    <div class="col-12 col-md-3 mb-3 mb-md-0 mx-auto">
+<div class="col mt-3 justify-content-center p-0">
+    <h1 class="text-center mb-4 mt-4" style="overflow-wrap: break-word;">{{ $user->username }}'s Created Events</h1>
+    <div class="col-12 col-md-4 mb-3 mb-md-0 mx-auto pl-5">
         <div class="nav nav-pills" id="v-pills-tab" role="tablist" aria-orientation="horizontal">
             <a class="nav-link pill-link no-js active" href="{{ route('user.events', ['id' => $user->id]) }}">Created</a>
             <a class="nav-link pill-link no-js " href="{{ route('user.events.joined', ['id' => $user->id]) }}">Joined</a>

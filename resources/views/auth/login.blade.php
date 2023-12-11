@@ -2,6 +2,30 @@
 
 @section('content')
 
+@if ($errors->any())
+    <script>
+        Swal.fire({
+            title: 'Error!',
+            text: '{{ $errors->first() }}',
+            icon: 'error',
+            timer: 1500,
+            showConfirmButton: false
+        });
+    </script>
+@endif
+
+@if (session('success'))
+    <script>
+        Swal.fire({
+            title: 'Success!',
+            text: '{{ session('success') }}',
+            icon: 'success',
+            timer: 1500,
+            showConfirmButton: false
+        });
+    </script>
+@endif
+
 <nav class="navbar navbar-expand-lg bg-primary px-3" data-bs-theme="dark">
     <div class="container-fluid">
         <a class="navbar-brand" href="#">EventNest</a>
