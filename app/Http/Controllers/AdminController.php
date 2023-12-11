@@ -18,16 +18,33 @@ class AdminController extends Controller
     public function showDashboard(Request $request)
     {
         $this->authorize('viewDashboard', Admin::class);
-        return view('pages.admin_dashboard');
-    }
 
-    public function showUsers(Request $request){
+        $allusersCount = User::count();
+        $usersverifiedCount = AuthenticatedUser::where('is_verified', true)->count();
+        $usersnotverifiedCount = AuthenticatedUser::where('is_verified', false)->count();
+        $hasthagsbycount = Hashtag::withCount('events')->orderBy('events_count', 'desc')->take(3)->get();
+        $ongoingevents = Event::where('closed', false)->count();
+        $closedevents = Event::where('closed', true)->count();
+        $eventscount = Event::count();
+
+        return view('pages.admin_dashboard', [
+            'allusersCount' => $allusersCount,
+            'usersverifiedCount' => $usersverifiedCount,
+            'usersnotverifiedCount' => $usersnotverifiedCount,
+            'hasthagsbycount' => $hasthagsbycount,
+            'ongoingevents' => $ongoingevents,
+            'closedevents' => $closedevents,
+            'eventscount' => $eventscount
+        ]);
+    }
+    public function showUsers(Request $request)
+    {
         $this->authorize('viewDashboard', Admin::class);
         $authenticatedUsers = AuthenticatedUser::join('users', 'authenticated.id_user', '=', 'users.id')
-        ->select('authenticated.*', 'users.username') // select columns from authenticated and username from users
-        ->orderBy('users.username')
-        ->paginate(8);        
-        
+            ->select('authenticated.*', 'users.username') // select columns from authenticated and username from users
+            ->orderBy('users.username')
+            ->paginate(8);
+
         if ($request->ajax()) {
             return view('partials.usersTable', ['users' => $authenticatedUsers])->render();
         }
@@ -35,7 +52,8 @@ class AdminController extends Controller
         return view('pages.admin_users', ['users' => $authenticatedUsers]);
     }
 
-    public function showEvents(Request $request){
+    public function showEvents(Request $request)
+    {
         $this->authorize('viewDashboard', Admin::class);
         $now = Carbon::now();
 
@@ -51,7 +69,8 @@ class AdminController extends Controller
         return view('pages.admin_events', ['events' => $events]);
     }
 
-    public function showReports(Request $request){
+    public function showReports(Request $request)
+    {
         $this->authorize('viewDashboard', Admin::class);
         $reports = Report::orderby('closed')->paginate(8);
         if ($request->ajax()) {
@@ -61,7 +80,8 @@ class AdminController extends Controller
         return view('pages.admin_reports', ['reports' => $reports]);
     }
 
-    public function showTags(Request $request){
+    public function showTags(Request $request)
+    {
         $this->authorize('viewDashboard', Admin::class);
         $tags = Hashtag::orderby('title')->paginate(5);
         if ($request->ajax()) {
@@ -94,11 +114,11 @@ class AdminController extends Controller
     {
         //$this->authorize('deleteTag', Admin::class);
         $tag = Hashtag::find($request->id);
-    
-         $tag->events()->detach();
-    
+
+        $tag->events()->detach();
+
         $tag->delete();
-    
+
         return redirect()->back();
     }
 
@@ -128,5 +148,4 @@ class AdminController extends Controller
         }
         return view('partials.eventsTable', ['events' => $events])->render();
     }
-
 }
