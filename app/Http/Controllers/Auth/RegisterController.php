@@ -48,6 +48,6 @@ class RegisterController extends Controller
             'id_user' => $user->id
         ]);
 
-        return redirect()->route('login');
+        return redirect()->route('login')->with('success', 'Account created successfully! Please login.');
     }
 }

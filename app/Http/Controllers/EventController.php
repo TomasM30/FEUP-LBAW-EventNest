@@ -444,8 +444,14 @@ class EventController extends Controller
                 DB::rollback();
                 ('User jailed to leave event: ' . $e->getMessage()); 
                 return redirect()->back()->with('error', 'User jailed to leave event!');
-            }
-        return redirect()->back()->with('error', 'Left event successfully');
+        }
+
+        if ($event->type == 'private'){
+            return redirect()->route('events')->with('success', 'Left event successfully');
+        } else {
+            return redirect()->back()->with('success', 'Left event successfully');
+        }
+        
     }
 
     public function editEvent (Request $request)

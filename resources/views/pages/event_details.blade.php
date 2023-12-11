@@ -2,29 +2,28 @@
 
 @section('content')
 
-@if (session('success'))
-<script>
-    Swal.fire({
-        title: 'Success!',
-        text: '{{ session('
-        success ') }}',
-        icon: 'success',
-        timer: 1500,
-        showConfirmButton: false
-    });
-</script>
+@if ($errors->any())
+    <script>
+        Swal.fire({
+            title: 'Error!',
+            text: '{{ $errors->first() }}',
+            icon: 'error',
+            timer: 1500,
+            showConfirmButton: false
+        });
+    </script>
 @endif
 
-@if ($errors->any())
-<script>
-    Swal.fire({
-        title: 'Error!',
-        text: '{{ $errors->first() }}',
-        icon: 'error',
-        timer: 1500,
-        showConfirmButton: false
-    });
-</script>
+@if (session('success'))
+    <script>
+        Swal.fire({
+            title: 'Success!',
+            text: '{{ session('success') }}',
+            icon: 'success',
+            timer: 1500,
+            showConfirmButton: false
+        });
+    </script>
 @endif
 
 <div class="d-flex justify-content-center">
@@ -214,7 +213,7 @@
                         </div>
                         @endif
 
-                        @if($isOrganizer || $isAdmin)
+                        @if(($isOrganizer && $user->authenticated->is_verified == 0)  || $isAdmin)
                         <form method="POST" action="{{ route('events.cancel', $event->id) }}" style="width: 100%;" class="d-flex justify-content-center">
                             {{ csrf_field() }}
                             <input type="hidden" name="id_user" value="{{ Auth::user()->id }}">
