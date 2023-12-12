@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 use App\Models\AuthenticatedUser;
 use App\Models\Event;
 use App\Models\Report;
@@ -15,6 +16,56 @@ use Illuminate\Support\Facades\Log;
 
 class AdminController extends Controller
 {
+    public function blockUser (Request $request)
+    {
+        
+        $authenticatedUser = AuthenticatedUser::find($request->id);
+
+        try {
+
+            DB::BeginTransaction();
+
+            if ( !($authenticatedUser->is_blocked) )
+            {
+                $authenticatedUser->is_blocked = true;
+                $authenticatedUser->save();
+                DB::commit();
+                return redirect()->back()->with('success', 'User blocked successfuly');
+            }
+        }catch(\Exception $e){
+            DB::rollback();
+            return redirect()->back()->withErrors(['error' => $e->getMessage()]);
+        }
+    }
+
+    public function unblockUser(Request $request)
+    {
+        
+        $authenticatedUser = AuthenticatedUser::find($request->id);
+
+        try {
+            DB::beginTransaction();
+
+            
+            if ($authenticatedUser->is_blocked) 
+            {
+                $authenticatedUser->is_blocked = false; 
+                $authenticatedUser->save();
+                DB::commit();
+                return redirect()->back()->with('success', 'User unblocked successfully');
+            }
+
+            return redirect()->back()->with('error', 'User is not blocked');
+        
+            } catch (\Exception $e) {
+                DB::rollback();
+                return redirect()->back()->withErrors(['error' => $e->getMessage()]);
+            }
+    }
+
+
+
+
     public function showDashboard(Request $request)
     {
         $this->authorize('viewDashboard', Admin::class);

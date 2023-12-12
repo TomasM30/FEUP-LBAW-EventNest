@@ -57,6 +57,8 @@ Route::controller(AdminController::class)->group(function () {
     Route::get('/dashboard/tags', 'showTags')->name('admin.tags');
     Route::get('/search-users', 'searchUsers')->name('admin-search-users');
     Route::get('/search-events', 'searchEvents')->name('admin-search-events');
+    Route::post('/user/{id}/profile/block', 'blockUser')->name('user.block');
+    Route::post('/user/{id}/profile/unblock', 'unblockUser')->name('user.unblock');
 });
 
 Route::controller(AuthenticatedUserController::class)->group(function () {

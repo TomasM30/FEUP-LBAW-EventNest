@@ -19,10 +19,8 @@ class GoogleController extends Controller
         $google_user = Socialite::driver('google')->stateless()->user();
         $user = User::where('google_id', $google_user->getId())->first();
         
-        // If the user does not exist, create one
         if (!$user) {
 
-            // Store the provided name, email, and Google ID in the database
             $new_user = User::create([
                 'name' => $google_user->getName(),
                 'email' => $google_user->getEmail(),
@@ -37,12 +35,18 @@ class GoogleController extends Controller
             Auth::login($new_user);
 
 
-        // Otherwise, simply log in with the existing user
         } else {
-            Auth::login($user);
-        }
 
-        // After login, redirect to homepage
+            if($user->authenticated->is_blocked)
+            {
+                return redirect('login')->withErrors([
+                    'Blocked Account' => 'Your Account has been blocked.',
+                ]);
+            }
+    
+            Auth::login($user); 
+       }
+
         return redirect()->intended('events');
     }
 }
