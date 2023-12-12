@@ -8,11 +8,11 @@
                     </button>
                 </div>
                 <div class="modal-body">
-                    <form method="POST" action="{{ route('user.profile.update', ['id' => Auth::user()->id]) }}" enctype="multipart/form-data">
+                    <form method="POST" action="{{ route('user.profile.update', ['id' => $user->id]) }}" enctype="multipart/form-data">
                     {{ csrf_field() }}
                         <div class="form-group">
                             <label for="username" class="form-label mt-4">Username</label>
-                            <input type="text" class="form-control" id="username" name="username" value="{{ Auth::user()->username }}" required>
+                            <input type="text" class="form-control" id="username" name="username" value="{{ $user->username }}" required>
                             @if ($errors->has('username'))
                                 @foreach ($errors->get('username') as $error)
                                     <div class="alert alert-dismissible alert-danger">
@@ -23,7 +23,7 @@
                         </div>
                         <div class="form-group">
                             <label for="name" class="form-label mt-4">Name</label>
-                            <input type="text" class="form-control" id="name" name="name" value="{{ Auth::user()->name }}" required>
+                            <input type="text" class="form-control" id="name" name="name" value="{{ $user->name }}" required>
                             @if ($errors->has('name'))
                                 @foreach ($errors->get('name') as $error)
                                     <div class="alert alert-dismissible alert-danger">
@@ -34,7 +34,7 @@
                         </div>
                         <div class="form-group">
                             <label for="email" class="form-label mt-4">Email</label>
-                            <input type="email" class="form-control" id="email" name="email" value="{{ Auth::user()->email }}" required>
+                            <input type="email" class="form-control" id="email" name="email" value="{{ $user->email }}" required>
                             @if ($errors->has('email'))
                                 @foreach ($errors->get('email') as $error)
                                     <div class="alert alert-dismissible alert-danger">

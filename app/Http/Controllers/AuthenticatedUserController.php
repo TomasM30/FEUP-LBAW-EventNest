@@ -144,15 +144,19 @@ class AuthenticatedUserController extends Controller
     }
 
 
-    public function updateUserProfile (Request $request) {
+    public function updateUserProfile (Request $request, $id) {
 
         $request->validate([
-            'username' => 'required|string|max:255|unique:users,username,' . Auth::user()->id,
+            'username' => 'required|string|max:255|unique:users,username,' . $id,
             'name' => 'required|string|max:255',
-            'email' => 'required|string|email|max:255|unique:users,email,' . Auth::user()->id,
+            'email' => 'required|string|email|max:255|unique:users,email,' . $id,
         ]);
-
-        $user = Auth::user();
+    
+        $user = User::find($id);
+        if (!$user) {
+            return redirect()->back()->withErrors(['error' => 'User not found.']);
+        }
+    
         $user->username = $request->username;
         $user->name = $request->name;
         $user->email = $request->email;
@@ -173,9 +177,13 @@ class AuthenticatedUserController extends Controller
         return redirect()->back()->with('success', 'Profile updated successfully!');    
     }
 
-    public function updateUserPassword(Request $request)
+    public function updateUserPassword(Request $request, $id)
     {
-        $user = Auth::user();
+        $user = User::find($id);
+        
+        if (!$user) {
+            return redirect()->back()->withErrors(['error' => 'User not found.']);
+        }
     
         $request->validate([
             'current_password' => $user->password ? 'required' : '',
@@ -183,28 +191,33 @@ class AuthenticatedUserController extends Controller
         ]);
     
         if ($user->password && !Hash::check($request->current_password, $user->password)) {
-            return redirect()->back()->withErrors( ['current_password' => 'Current password is incorrect. Please try again.']);
+            return redirect()->back()->withErrors(['current_password' => 'Current password is incorrect. Please try again.']);
         }
     
         $user->password = Hash::make($request->new_password);
         $user->save();
-        Auth::logout();
 
-        return redirect('/login')->with('success', 'Password changed successfully. Please log in with your new password.');
+        if (auth::user()->isAdmin()) {
+            return redirect('/dashboard')->with('success', 'Password changed successfully');
+        } else {
+            Auth::logout();
+            return redirect('/login')->with('success', 'Password changed successfully. Please log in with your new password.');
+        }
     }
 
-    public function deleteUser() {
+    public function deleteUser($id) {
 
         try {
             DB::beginTransaction();
 
-            $user = Auth::user();
-        
+            $user = User::find($id);
+
             $eventController = new EventController;
             $authenticatedUser = $user->authenticated;
-        
+            log::info($authenticatedUser->events);
             $events = $authenticatedUser->events->where('id_user', $user->id);
-    
+            log::info($events);
+
             $eventNotificationIds = EventNotification::where('inviter_id', $user->id)->pluck('id');
             EventNotification::whereIn('id', $eventNotificationIds)->delete();
             Notification::whereIn('id', $eventNotificationIds)->delete();
@@ -231,7 +244,10 @@ class AuthenticatedUserController extends Controller
             DB::commit();
             return redirect('/login')->with('success', 'User deleted successfully.');
         } catch (\Exception $e) {
-            return redirect()->back()->withErrors(['error' => 'Something went wrong. Please try again later.']);
+            Log::error('An error occurred while deleting the user: ' . $e->getMessage());
+            Log::error($e->getTraceAsString());
+            DB::rollback();
+            return redirect()->back()->withErrors(['error' => $e->getMessage()]);
         }
 
     }

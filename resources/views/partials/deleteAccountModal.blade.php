@@ -8,8 +8,8 @@
                 </button>
             </div>
             <div class="modal-body">
-                <p>Are you sure you want to delete your account? This action cannot be undone.</p>
-                <form method="POST" action="{{ route('user.delete', ['id' => Auth::user()->id]) }}">
+                <p>Are you sure you want to delete the account? This action cannot be undone.</p>
+                <form method="POST" action="{{ route('user.delete', ['id' => $user->id]) }}">
                     {{ csrf_field() }}
                     <button type="submit" class="btn btn-danger mt-4">Delete Account</button>
                 </form>

@@ -139,6 +139,8 @@ insert into Event (title, description, type, date, capacity, ticket_limit, place
 
 
 
+
+
 -- Insert data into the table "event_hashtag"
 insert into EventHashtag (id_event, id_hashtag) values (1, 5);
 insert into EventHashtag (id_event, id_hashtag) values (2, 3);
@@ -173,41 +175,49 @@ insert into EventHashtag (id_event, id_hashtag) values (23, 21);
 
 
 -- Insert data into the table "event_participants"
+insert into EventParticipants (id_user, id_event) values (3, 1);
+insert into EventParticipants (id_user, id_event) values (13, 2);
+insert into EventParticipants (id_user, id_event) values (9, 3);
+insert into EventParticipants (id_user, id_event) values (12, 4);
+insert into EventParticipants (id_user, id_event) values (10, 5);
+insert into EventParticipants (id_user, id_event) values (8, 7);
+insert into EventParticipants (id_user, id_event) values (11, 10);
+insert into EventParticipants (id_user, id_event) values (22, 15);
+insert into EventParticipants (id_user, id_event) values (23, 16);
+insert into EventParticipants (id_user, id_event) values (24, 17);
+insert into EventParticipants (id_user, id_event) values (25, 18);
+insert into EventParticipants (id_user, id_event) values (32, 20);
+insert into EventParticipants (id_user, id_event) values (33, 21);
+insert into EventParticipants (id_user, id_event) values (34, 22);
+insert into EventParticipants (id_user, id_event) values (35, 23);
 insert into EventParticipants (id_user, id_event) values (4, 1);
 insert into EventParticipants (id_user, id_event) values (5, 1);
 insert into EventParticipants (id_user, id_event) values (6, 1);
 insert into EventParticipants (id_user, id_event) values (7, 1);
---
 insert into EventParticipants (id_user, id_event) values (4, 2);
 insert into EventParticipants (id_user, id_event) values (5, 2);
 insert into EventParticipants (id_user, id_event) values (6, 2);
 insert into EventParticipants (id_user, id_event) values (7, 2);
---
 insert into EventParticipants (id_user, id_event) values (4, 3);
 insert into EventParticipants (id_user, id_event) values (5, 3);
 insert into EventParticipants (id_user, id_event) values (6, 3);
 insert into EventParticipants (id_user, id_event) values (7, 3);
---
 insert into EventParticipants (id_user, id_event) values (4, 4);
 insert into EventParticipants (id_user, id_event) values (5, 4);
 insert into EventParticipants (id_user, id_event) values (6, 4);
 insert into EventParticipants (id_user, id_event) values (7, 4);
---
 insert into EventParticipants (id_user, id_event) values (4, 5);
 insert into EventParticipants (id_user, id_event) values (5, 5);
 insert into EventParticipants (id_user, id_event) values (6, 5);
 insert into EventParticipants (id_user, id_event) values (7, 5);
---
 insert into EventParticipants (id_user, id_event) values (4, 6);
 insert into EventParticipants (id_user, id_event) values (5, 6);
 insert into EventParticipants (id_user, id_event) values (6, 6);
 insert into EventParticipants (id_user, id_event) values (7, 6);
---
 insert into EventParticipants (id_user, id_event) values (4, 7);
 insert into EventParticipants (id_user, id_event) values (5, 7);
 insert into EventParticipants (id_user, id_event) values (6, 7);
 insert into EventParticipants (id_user, id_event) values (7, 7);
---
 insert into EventParticipants (id_user, id_event) values (14, 8);
 insert into EventParticipants (id_user, id_event) values (15, 9);
 insert into EventParticipants (id_user, id_event) values (13, 10);
