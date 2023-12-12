@@ -25,7 +25,7 @@ class Message extends Model
      */
     public function authenticated()
     {
-        return $this->hasOne(Authenticated::class, 'id_user', 'id');
+        return $this->belongsTo(AuthenticatedUser::class, 'id_user');
     }
 
     /**

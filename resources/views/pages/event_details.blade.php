@@ -125,10 +125,7 @@
                                 </div>
                                 <div class="tab-pane fade" id="v-pills-chat" data-event-id="{{ $event->id }}"> 
                                     <!-- Chat content goes here -->
-                                    <div id="chat">
-                                        <!-- Messages will be added here -->
-                                    </div>
-
+        
                                     <form id="message-form">
                                         <input type="text" id="message-input">
                                         <button type="submit">Send</button>

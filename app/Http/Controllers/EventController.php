@@ -24,6 +24,7 @@ use App\Models\RequestNotification;
 use App\Models\FavouriteEvents;
 use App\Models\Report;
 use App\Http\Controllers\FileController;
+use App\Models\Message;
 
 
 class EventController extends Controller
@@ -254,6 +255,7 @@ class EventController extends Controller
         
         $data['isFavourite'] =  $data['event']->isFavourite(Auth::id());
         $data['user'] = $user;
+        $data['messages'] = $messages = Message::where('id_event', $data['event']->id)->get();
 
 
         if ($request->ajax()) {
