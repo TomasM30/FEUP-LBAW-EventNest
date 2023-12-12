@@ -40,7 +40,7 @@
         <div class="col-12 col-md-9">
             <div class="tab-content" id="v-pills-tabContent">
                 <div class="tab-pane fade show active" id="v-pills-profile">
-                    <div class="container m-0" style="max-width: 800px;">
+                    <div class="container m-0" style="max-width: 700px;">
                         <div class="row">
                             <div class="col-md-8">
                                 <div class="card" style="max-width: 90%;">
@@ -125,18 +125,18 @@
                         </div>
                     </div>
                     @if( Auth::user()->isAdmin() )
-                        <div class="row mt-5">
+                        <div class="row mt-1">
                             <div class="col-12 col-md-6 mb-3">
                                 @if($user->authenticated->is_blocked == false)
                                     <form method="POST" action="{{ route('user.block', ['id' => $user->id]) }}">
-                                        @csrf
+                                        {{ csrf_field() }}
                                         <button type="submit "id="blockUserBtn" href="#" class="btn btn-primary btn-block">Block User</button>
                                     </form>
                                 @endif
 
                                 @if($user->authenticated->is_blocked == true)
                                     <form method="POST" action="{{ route('user.unblock', ['id' => $user->id]) }}">  
-                                        @csrf 
+                                        {{ csrf_field() }}
                                         <button type="submit "id="unblockUserBtn" href="#" class="btn btn-primary btn-block">Unblock User</button>
                                     </form>
                                 @endif

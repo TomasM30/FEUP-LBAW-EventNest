@@ -30,7 +30,7 @@ class AdminController extends Controller
                 $authenticatedUser->is_blocked = true;
                 $authenticatedUser->save();
                 DB::commit();
-                return redirect()->back()->with('sucess', 'User blocked successfuly');
+                return redirect()->back()->with('success', 'User blocked successfuly');
             }
         }catch(\Exception $e){
             DB::rollback();
