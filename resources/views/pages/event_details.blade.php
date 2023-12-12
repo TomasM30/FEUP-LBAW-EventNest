@@ -97,9 +97,7 @@
                         <span class="hashtag">#{{ $hashtag->title }}</span>
                         @endforeach
                     </div>
-                </div>
-                <div class="event-attendees">
-                    <div class="capacity d-flex justify-content-around  mt-3 mb-3">
+                    <div class="capacity d-flex justify-content-around  mt-5 mb-3">
                         <div class="capacity-item d-flex flex-column justify-content-center align-items-center">
                             <h4>Joined</h4>
                             <p>{{ $event->eventparticipants()->count() }}</p>
@@ -109,8 +107,31 @@
                             <p>{{ $event->capacity }}</p>
                         </div>
                     </div>
-                    <h3 style="overflow-wrap: break-word;">Attendees:</h3>
-                    @include('partials.attendeesTable', ['attendees' => $attendees])
+                </div>
+                <div class="container mt-5">
+                    <div class="row">
+                        <div class="col-12 col-md-3 mb-3 mb-md-0">
+                            <div class="nav flex-column nav-pills" id="v-pills-tab" role="tablist" aria-orientation="vertical">
+                                <a class="nav-link active" id="v-pills-attendees-tab" data-toggle="pill" href="#v-pills-attendees">Attendees</a>
+                                <a class="nav-link" id="v-pills-chat-tab" data-toggle="pill" href="#v-pills-chat">Chat</a>
+                                <a class="nav-link" id="v-pills-comments-tab" data-toggle="pill" href="#v-pills-comments">Comments</a>
+                            </div>
+                        </div>
+                        <div class="col-12 col-md-9">
+                            <div class="tab-content" id="v-pills-tabContent">
+                                <div class="tab-pane fade show active" id="v-pills-attendees">
+                                    <!-- Attendees content goes here -->
+                                    @include('partials.attendeesTable', ['attendees' => $attendees])
+                                </div>
+                                <div class="tab-pane fade" id="v-pills-chat">
+                                    <!-- Chat content goes here -->
+                                </div>
+                                <div class="tab-pane fade" id="v-pills-comments">
+                                    <!-- Comments content goes here -->
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
             <div class="col-lg-3 mt-3 position-sticky" style="bottom: 0%; background-color: white;"">
