@@ -8,9 +8,9 @@
                 </button>
             </div>
             <div class="modal-body">
-                <form method="POST" action="{{ route('user.password.update', ['id' => Auth::user()->id]) }}" enctype="multipart/form-data">                    
+                <form method="POST" action="{{ route('user.password.update', ['id' => $user->id]) }}" enctype="multipart/form-data">                    
                     {{ csrf_field() }}
-                    @if(Auth::user()->password != null)
+                    @if($user->password != null)
                         <div class="form-group">
                             <label for="current_password">Current Password</label>
                             <input type="password" class="form-control" id="current_password" name="current_password" placeholder="Current password" required>

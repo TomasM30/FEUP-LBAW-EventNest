@@ -32,7 +32,7 @@
             <div class="nav flex-column nav-pills" id="v-pills-tab" role="tablist" aria-orientation="vertical">
                 <a class="nav-link active" id="v-pills-profile-tab" href="#v-pills-profile">Profile</a>
                 <a class="nav-link" id="v-pills-events-tab" href="#v-pills-events">Events</a>
-                @if($user->id == Auth::user()->id)
+                @if($user->id == Auth::user()->id || Auth::user()->isAdmin())
                     <a class="nav-link" id="v-pills-settings-tab" href="#v-pills-settings">Settings</a>
                 @endif
             </div>
@@ -54,9 +54,11 @@
                                         </h5>
                                         <p class="card-text">{{ $user->name }}</p>
                                         <p class="card-text">{{ $user->email }}</p>
-                                        <button type="button" id="editProfileButton" class="btn btn-primary" data-toggle="modal" data-target="#editProfileModal">
-                                            Edit Profile
-                                        </button>
+                                        @if($user->id == Auth::user()->id || Auth::user()->isAdmin())
+                                            <button type="button" id="editProfileButton" class="btn btn-primary" data-toggle="modal" data-target="#editProfileModal">
+                                                Edit Profile
+                                            </button>
+                                        @endif
                                     </div>
                                 </div>
                             </div>
@@ -128,8 +130,8 @@
     </div>
 </div>
 <div id="overlay" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0, 0, 0, 0.5); z-index: 1000;"></div>
-@if($user->id == Auth::user()->id)
-    @include('partials.profileModal', ['id' => $user->id, 'type' => 'profile'])
+@if($user->id == Auth::user()->id || Auth::user()->isAdmin())
+    @include('partials.profileModal', ['type' => 'profile'])
     @include('partials.passwordChangeModal')
     @include('partials.deleteAccountModal')
     @include('partials.verificationModal')

@@ -9,6 +9,9 @@
             <a class="nav-link pill-link no-js " href="{{ route('user.events.joined', ['id' => $user->id]) }}">Joined</a>
             <a class="nav-link pill-link no-js" href="{{ route('user.events.favorites', ['id' => $user->id]) }}">Favorites</a>
             <a class="nav-link pill-link no-js" href="{{ route('user.events.attended', ['id' => $user->id]) }}">Attended</a>
+            @if(Auth::user()->isAdmin())
+                <a class="nav-link pill-link no-js" href="{{ route('user.profile', ['id' => $user->id]) }}">Profile</a>
+            @endif
         </div>
     </div>
     @include('partials.usersEventList', ['events' => $createdEvents, 'type' => 'created'])

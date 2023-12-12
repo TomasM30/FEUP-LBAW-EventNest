@@ -683,7 +683,6 @@ class EventController extends Controller
 
     public function filter(Request $request)
     {
-        $user = Auth::user();
         $hashtags = $request->input('hashtags');
         $places = $request->input('places');
         $search = $request->input('search');
@@ -691,10 +690,17 @@ class EventController extends Controller
         $direction = $request->input('direction', 'asc');
         $type = $request->input('type');
         $query = Event::query();
-        log::info($type);
+
+        if($type == 'main'){
+            $user = Auth::user();
+        }else{
+            $user = AuthenticatedUser::where('id_user', $request->route('id'))->firstOrFail();
+        }
+
+        log::info($user);
 
 
-        if ($user->isAdmin()) {
+        if ($user->isAdmin() && $type == 'main') {
             $query->where('closed', false)->paginate(21);
         } elseif ($type == 'main') {
             $query->whereIn('type', ['approval', 'public'])
