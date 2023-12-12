@@ -68,6 +68,7 @@ CREATE TABLE Admin (
 CREATE TABLE Authenticated (
     id_user INT PRIMARY KEY,
     is_verified BOOLEAN DEFAULT FALSE,
+    is_blocked BOOLEAN DEFAULT FALSE,
     FOREIGN KEY (id_user) REFERENCES users(id)
 );
 

@@ -124,6 +124,25 @@
                             </button>
                         </div>
                     </div>
+                    @if( Auth::user()->isAdmin() )
+                        <div class="row mt-5">
+                            <div class="col-12 col-md-6 mb-3">
+                                @if($user->authenticated->is_blocked == false)
+                                    <form method="POST" action="{{ route('user.block', ['id' => $user->id]) }}">
+                                        @csrf
+                                        <button type="submit "id="blockUserBtn" href="#" class="btn btn-primary btn-block">Block User</button>
+                                    </form>
+                                @endif
+
+                                @if($user->authenticated->is_blocked == true)
+                                    <form method="POST" action="{{ route('user.unblock', ['id' => $user->id]) }}">  
+                                        @csrf 
+                                        <button type="submit "id="unblockUserBtn" href="#" class="btn btn-primary btn-block">Unblock User</button>
+                                    </form>
+                                @endif
+                             </div>
+                        </div>
+                    @endif
                 </div>
             </div>
         </div>
