@@ -34,6 +34,7 @@ Route::redirect('/', '/login');
 Route::controller(UserController::class)->group(function () {
     Route::get('/user/findAll', 'findAll');
     Route::get('/user/{id}/notifications', 'showUserNotifications')->name('user.notifications');
+    Route::get('/users/{id}', 'getUserById')->name('getUsersById');
 });
 
 Route::controller(LoginController::class)->group(function () {

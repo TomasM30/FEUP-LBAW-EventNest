@@ -113,7 +113,9 @@
                         <div class="col-12 col-md-3 mb-3 mb-md-0">
                             <div class="nav flex-column nav-pills" id="v-pills-tab" role="tablist" aria-orientation="vertical">
                                 <a class="nav-link active" id="v-pills-attendees-tab" data-toggle="pill" href="#v-pills-attendees">Attendees</a>
-                                <a class="nav-link" id="v-pills-chat-tab" data-toggle="pill" href="#v-pills-chat">Chat</a>
+                                @if($isParticipant || $isAdmin)
+                                    <a class="nav-link" id="v-pills-chat-tab" data-toggle="pill" href="#v-pills-chat">Chat</a>
+                                @endif
                                 <a class="nav-link" id="v-pills-comments-tab" data-toggle="pill" href="#v-pills-comments">Comments</a>
                             </div>
                         </div>
@@ -125,11 +127,32 @@
                                 </div>
                                 <div class="tab-pane fade" id="v-pills-chat" data-event-id="{{ $event->id }}"> 
                                     <!-- Chat content goes here -->
-        
-                                    <form id="message-form">
-                                        <input type="text" id="message-input">
-                                        <button type="submit">Send</button>
-                                    </form>
+                                    <div id="chat">
+                                        <div id="messages" style="height: 500px; overflow-y: auto;">
+                                            @foreach($messages as $message)
+                                            <div class="message">
+                                                <div class="message-header">
+                                                    <div style="display: flex; align-items: center;">
+                                                        <div style="width: 50px; height: 50px; border-radius: 50%; background-image: url('{{$message->authenticated->user->getProfileImage() }}'); background-size: cover; background-position: center; background-repeat: no-repeat;"></div>
+                                                        <p class="ml-3 mr-1" style="margin: 0; padding: 0;">{{ $message->authenticated->user->username }}</p>
+                                                        @if($message->authenticated->user->authenticated->is_verified == 1)
+                                                            <i class="fa-solid fa-circle-check"></i>
+                                                        @endif
+                                                    </div>
+                                                </div>
+                                                    <p class="message-content" style="max-width: 100%; overflow-wrap: break-word;">{{ $message->content }}</p>
+                                            </div>
+                                            @endforeach
+                                        </div>
+                                    </div>
+                                    <div class="container mt-5">
+                                        <form id="message-form" class="form-inline">
+                                            <div class="form-group mb-2" style="flex-grow: 1;">
+                                                <input type="text" class="form-control w-100" id="message-input" placeholder="Type your message here...">
+                                            </div>
+                                            <button type="submit" class="btn btn-primary mb-2 ml-2">Send</button>
+                                        </form>
+                                    </div>
                                 </div>
                                 <div class="tab-pane fade" id="v-pills-comments">
                                     <!-- Comments content goes here -->
