@@ -11,6 +11,7 @@ use App\Http\Controllers\AdminController;
 use App\Http\Controllers\AuthenticatedUserController;
 use App\Http\Controllers\GoogleController;
 use App\Http\Controllers\FileController;
+use App\Http\Controllers\MessageController;
 
 
 use App\Http\Controllers\Auth\LoginController;
@@ -105,3 +106,8 @@ Route::controller(FileController::class)->group(function () {
 });
 
 Route::get('/about', 'App\Http\Controllers\AboutController@index')->name('about');
+
+Route::controller(MessageController::class)->group(function () {
+    Route::get('/fetch-message', 'fetchMessages');
+    Route::post('/send-message', 'sendMessage');
+});

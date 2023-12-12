@@ -8,8 +8,7 @@ DROP TABLE IF EXISTS EventHashtag CASCADE;
 DROP TABLE IF EXISTS PollVotes CASCADE;
 DROP TABLE IF EXISTS Notification CASCADE;
 DROP TABLE IF EXISTS EventNotification CASCADE;
-DROP TABLE IF EXISTS MessageReaction CASCADE;
-DROP TABLE IF EXISTS EventMessage CASCADE;
+DROP TABLE IF EXISTS messages CASCADE;
 DROP TABLE IF EXISTS Ticket CASCADE;
 DROP TABLE IF EXISTS Hashtag CASCADE;
 DROP TABLE IF EXISTS Report CASCADE;
@@ -40,7 +39,6 @@ DROP FUNCTION IF EXISTS admin_event CASCADE;
 
 -- Create types
 CREATE TYPE TypesEvent AS ENUM ('public', 'private', 'approval');
-CREATE TYPE TypesMessage AS ENUM ('chat', 'comment');
 CREATE TYPE TypesNotification AS ENUM ('invitation_received', 'request', 'invitation_accepted', 
                                         'invitation_rejected', 'request_rejected', 'request_accepted',
                                         'removed_from_event', 'added_to_event', 'event_canceled',
@@ -88,23 +86,14 @@ CREATE TABLE Event (
     FOREIGN KEY (id_user) REFERENCES Authenticated(id_user)
 );
 
-CREATE TABLE EventMessage (
+CREATE TABLE messages (
     id SERIAL PRIMARY KEY,
-    type TypesMessage NOT NULL,
     content TEXT NOT NULL,
     id_event INT NOT NULL,
     id_user INT NOT NULL,
     date DATE DEFAULT CURRENT_DATE,
     FOREIGN KEY (id_event) REFERENCES Event(id),
     FOREIGN KEY (id_user) REFERENCES Authenticated(id_user)
-);
-
-CREATE TABLE MessageReaction (
-    id_user INT NOT NULL,
-    id_message INT NOT NULL,
-    FOREIGN KEY (id_user) REFERENCES Authenticated(id_user),
-    FOREIGN KEY (id_message) REFERENCES EventMessage(id),
-    PRIMARY KEY (id_user, id_message)
 );
 
 CREATE TABLE Report (

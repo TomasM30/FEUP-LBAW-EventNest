@@ -567,3 +567,51 @@ document.addEventListener('DOMContentLoaded', function() {
     }
   });
 });
+
+
+
+document.addEventListener('DOMContentLoaded', function() {
+
+  
+  let pusher = new Pusher('57eb230bb0a09d49e0ae', {
+      cluster: 'eu',
+      encrypted: true
+  });
+
+  pusher.connection.bind('connected', function() {
+    console.log('Connected to Pusher!');
+  });
+
+  let chatRoomId = document.getElementById('v-pills-chat').dataset.eventId;
+  let channel = pusher.subscribe('chat-room-' + chatRoomId);
+
+  channel.bind('App\\Events\\MessageSent', function(data) {
+    let chat = document.getElementById('chat');
+    let message = document.createElement('p');
+    message.textContent = data.message.content;
+    console.log(data.message.content);
+    chat.appendChild(message);
+  });
+
+  let csrfToken = document.querySelector('meta[name="csrf-token"]').content;
+  let form = document.getElementById('message-form');
+  form.addEventListener('submit', function(event) {
+    event.preventDefault();
+    let messageInput = document.getElementById('message-input');
+    fetch('/send-message', {
+        method: 'POST',
+        body: JSON.stringify({
+            content: messageInput.value,
+            id_event: chatRoomId
+        }),
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRF-TOKEN': csrfToken
+        }
+    }).then(function(response) {
+        if (response.ok) {
+            messageInput.value = '';
+        }
+    });
+  });
+});
