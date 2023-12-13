@@ -13,7 +13,7 @@
                         <ul style="list-style-type: none; color: white;">
                             <li><a style="color: white;" href="{{ route('events') }}">Events</a></li>
                             <li><a style="color: white;" href="{{ route('about') }}">AboutUs</a></li>
-                            <li><a style="color: white;" href="/page3">ContactUs</a></li>
+                            <li><a style="color: white;" href="{{ route('contactus') }}">ContactUs</a></li>
                     </div>
                     <div class="col-md-6">
                         <ul style="list-style-type: none; color: white;">

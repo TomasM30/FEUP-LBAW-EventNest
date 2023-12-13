@@ -35,6 +35,9 @@
                 <li class="nav-item">
                     <a class="nav-link" href=" {{ route('about') }}">About Us</a>
                 </li>
+                <li class="nav-item">
+                    <a class="nav-link" href=" {{ route('contactus') }}">Contact Us</a>
+                </li>
             </ul>
             <ul class="navbar-nav">
                 <li class="nav-item">
