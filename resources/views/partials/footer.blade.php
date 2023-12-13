@@ -27,8 +27,6 @@
                             <li><a style="color: white;" href="{{ route('user.notifications', ['id' => auth()->user()->id]) }}">Notifications</a></li>
                             @endif
                         </ul>
-
-                        </ul>
                     </div>
                 </div>
             </div>
