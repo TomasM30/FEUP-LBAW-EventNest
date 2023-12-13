@@ -7,7 +7,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use App\Http\Controllers\FileController;
 
-class TicketType
+class TicketType extends Model
 {
     public $timestamps  = false;
 

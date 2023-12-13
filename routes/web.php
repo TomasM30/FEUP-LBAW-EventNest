@@ -76,7 +76,7 @@ Route::controller(EventController::class)->group(function () {
     Route::post('/events/search', 'search')->name('search-events');
     Route::post('/events/{id}/invite', 'addNotification')->name('events.notification');
     Route::delete('/notifications/{notificationId}/delete', 'deleteNotification')->name('notification.delete');
-    Route::post('/events/order', 'order')->name('events.order');
+    Route::post('/events/order', 'makeOrder')->name('events.order');
     Route::post('/events/filter', 'filter')->name('events.filter');
     Route::post('/events/{id}/report', 'reportEvent')->name('events.report');
 });

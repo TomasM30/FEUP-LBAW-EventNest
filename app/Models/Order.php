@@ -6,12 +6,13 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
-class Order
+class Order extends Model
 {
     public $timestamps  = false;
 
     protected $fillable = [
         'id_user',
+        'quantity',
     ];
 
     use HasFactory;

@@ -181,6 +181,7 @@ CREATE TABLE TicketType (
 CREATE TABLE Orders (
     id SERIAL PRIMARY KEY,
     id_user INT NOT NULL,
+    quantity INT NOT NULL,
     FOREIGN KEY (id_user) REFERENCES Authenticated(id_user)
 );
 
@@ -191,13 +192,6 @@ CREATE TABLE Ticket (
     id_ticket_type INT NOT NULL,
     FOREIGN KEY (id_order) REFERENCES Orders(id),
     FOREIGN KEY (id_ticket_type) REFERENCES TicketType(id)
-);
-
-CREATE TABLE OrderDetail (
-    id_order INT NOT NULL,
-    quantity INT NOT NULL,
-    FOREIGN KEY (id_order) REFERENCES Orders(id),
-    PRIMARY KEY (id_order)
 );
 
 CREATE TABLE Poll (

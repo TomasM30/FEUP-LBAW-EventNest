@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Http\Controllers\Controller;
+use App\Models\Order;
 use App\Models\TicketType;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
@@ -20,7 +21,7 @@ use App\Models\AuthenticatedUser;
 use App\Models\Notification;
 use App\Models\EventNotification;
 use App\Models\RequestNotification;
-use App\Models\FavoriteEvent;
+use App\Models\FavoriteEvents;
 use App\Models\Report;
 use App\Http\Controllers\FileController;
 use PHPUnit\Framework\Attributes\Ticket;
@@ -32,6 +33,7 @@ class EventController extends Controller
     {
         try {
             $this->authorize('create', Event::class);
+            //$this->authorize('create', TicketType::class);
 
             DB::BeginTransaction();
             
@@ -125,10 +127,35 @@ class EventController extends Controller
         if (!$ticketType) {
             return redirect()->back()->with('message', 'Tickets not found');
         }
+        try {
+            if (!(AuthenticatedUser::where('id_user', $request->id_user)->exists())|| !(Event::where('id', $request->eventId)->exists())){
+                return redirect()->back()->with('message', 'User or event not found');
+            }
+            //$this->authorize('create', Order::class);
+            //$this->authorize('edit', Event::class);
 
-        $this->authorize('makeOrder', Order::class);
+            DB::beginTransaction();
 
-        DB::beginTransaction();
+            $event = Event::find($request->id_event);
+            if($event->ticket_limit < $request->amount) return redirect()->back()->with('message', 'Exceeded ticket limit');
+            else if($event->capacity < $request->amount) return redirect()->back()->with('message', 'Not enough tickets available for this order');
+            else $event->capacity -= $request->amount;
+
+            Order::create([
+                'id_event' => $event->id,
+                'quantity' => $request->amount,
+            ]);
+
+            $event->save();
+            DB::commit();
+
+            return redirect()->route('events')->with('message', 'Order completed successfully');
+
+        } catch (\Exception $e) {
+            log::info($e->getMessage());
+            DB::rollback();
+            throw $e;
+        }
     }
 
     public function deleteEvent(Request $request)
