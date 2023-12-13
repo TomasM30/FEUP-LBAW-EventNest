@@ -6,6 +6,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use App\Http\Controllers\FileController;
+use PHPUnit\Framework\Attributes\Ticket;
 
 class Event extends Model
 {
@@ -79,5 +80,9 @@ class Event extends Model
 
     public function getProfileImage() {
         return FileController::get('event', $this->id);
+    }
+
+    public function hasTickets() {
+        return $this->hasOne(TicketType::class, 'id_event')->exists();
     }
 }

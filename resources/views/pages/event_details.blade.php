@@ -104,6 +104,13 @@
                                     <input type="hidden" name="eventId" value="{{ $event->id }}">
                                     <button type="submit" class="btn btn-primary m-3 ">Join</button>
                                 </form>
+                            @elseif($event->hasTickets())
+                                    <form method="POST" action="{{ route('event.order', $event->id) }}">
+                                        {{ csrf_field() }}
+                                        <input type="hidden" name="id_user" value="{{ Auth::user()->id }}">
+                                        <input type="hidden" name="eventId" value="{{ $event->id }}">
+                                        <button type="submit" class="btn btn-primary m-3 ">Order</button>
+                                    </form>
                             @elseif($event->type == 'approval')
                                 <form method="POST" action="{{ route('events.notification', $event->id) }}">
                                     {{ csrf_field() }}

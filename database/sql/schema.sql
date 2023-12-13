@@ -39,7 +39,7 @@ DROP FUNCTION IF EXISTS admin_event CASCADE;
 
 
 -- Create types
-CREATE TYPE TypesEvent AS ENUM ('public', 'private', 'approval');
+CREATE TYPE TypesEvent AS ENUM ('public', 'private', 'approval', 'by tickets');
 CREATE TYPE TypesMessage AS ENUM ('chat', 'comment');
 CREATE TYPE TypesNotification AS ENUM ('invitation_received', 'request', 'invitation_accepted', 
                                         'invitation_rejected', 'request_rejected', 'request_accepted',
@@ -180,7 +180,6 @@ CREATE TABLE TicketType (
 
 CREATE TABLE Orders (
     id SERIAL PRIMARY KEY,
-    order_number INT NOT NULL,
     id_user INT NOT NULL,
     FOREIGN KEY (id_user) REFERENCES Authenticated(id_user)
 );

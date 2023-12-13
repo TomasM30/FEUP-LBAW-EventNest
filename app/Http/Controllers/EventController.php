@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Http\Controllers\Controller;
+use App\Models\TicketType;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -22,6 +23,7 @@ use App\Models\RequestNotification;
 use App\Models\FavoriteEvent;
 use App\Models\Report;
 use App\Http\Controllers\FileController;
+use PHPUnit\Framework\Attributes\Ticket;
 
 
 class EventController extends Controller
@@ -48,6 +50,7 @@ class EventController extends Controller
                         }
                     },
                 ],
+                'ticket_price' => 'required|integer|min:1',
                 'place' => 'required|string',
                 'hashtags' => 'array',
                 'hashtags.*' => 'exists:hashtag,id',
@@ -64,6 +67,14 @@ class EventController extends Controller
                 'place' => ucfirst($request->place),
                 'id_user' => Auth::user()->id,
                 'image' => null,
+            ]);
+
+            $ticket_type = TicketType::create([
+                'title' => $request->title,
+                'id_event' => $event->id,
+                'price' => $request->ticket_price,
+                'category' => null,
+                'availability' => $request->capacity,
             ]);
 
             if ($request->hashtags) {
@@ -106,6 +117,18 @@ class EventController extends Controller
             DB::rollback();
             throw $e;
         }
+    }
+
+    public function makeOrder(Request $request) {
+
+        $ticketType = TicketType::find($request->id_event);
+        if (!$ticketType) {
+            return redirect()->back()->with('message', 'Tickets not found');
+        }
+
+        $this->authorize('makeOrder', Order::class);
+
+        DB::beginTransaction();
     }
 
     public function deleteEvent(Request $request)
