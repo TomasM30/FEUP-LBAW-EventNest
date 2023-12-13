@@ -62,6 +62,7 @@ Route::controller(AdminController::class)->group(function () {
 });
 
 Route::controller(AuthenticatedUserController::class)->group(function () {
+    Route::get('/contactus', 'showContactUsForm')->name('contactus');
     Route::get('/user/{id}/events', 'showUserEvents')->name('user.events');
     Route::get('/user/{id}/events/created', 'showUserjoinedEvents')->name('user.events.joined');
     Route::get('/user/{id}/events/joined', 'showUserattendedEvents')->name('user.events.attended');
