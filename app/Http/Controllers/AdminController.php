@@ -175,6 +175,7 @@ class AdminController extends Controller
 
     public function searchUsers(Request $request)
     {
+        $this->authorize('viewDashboard', Admin::class);
         $search = $request->get('search');
         $users = AuthenticatedUser::join('users', 'authenticated.id_user', '=', 'users.id')
             ->where('users.username', 'like', '%' . $search . '%')
@@ -186,6 +187,7 @@ class AdminController extends Controller
 
     public function searchEvents(Request $request)
     {
+        $this->authorize('viewDashboard', Admin::class);
         $search = $request->get('search');
         if ($search) {
             $events = Event::whereRaw("to_tsvector('english', title) @@ plainto_tsquery('english', ?)", [$search])

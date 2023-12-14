@@ -594,10 +594,6 @@ document.addEventListener('DOMContentLoaded', function() {
       encrypted: true
   });
 
-  pusher.connection.bind('connected', function() {
-    console.log('Connected to Pusher!');
-  });
-
   let chatRoomId = document.getElementById('v-pills-chat').dataset.eventId;
   let channel = pusher.subscribe('chat-room-' + chatRoomId);
   let userDataCache = {};
@@ -619,7 +615,6 @@ document.addEventListener('DOMContentLoaded', function() {
   });
   
   function appendMessage(message, userData) {
-      console.log(userData);
       let messages = document.getElementById('messages');
       let messageDiv = document.createElement('div');
       messageDiv.className = 'message';
@@ -695,3 +690,13 @@ document.addEventListener('DOMContentLoaded', function() {
     }
   });
 });
+
+window.showAlert = function(title, text, icon) {
+  Swal.fire({
+      title: title,
+      text: text,
+      icon: icon,
+      timer: 1500,
+      showConfirmButton: false
+  });
+}

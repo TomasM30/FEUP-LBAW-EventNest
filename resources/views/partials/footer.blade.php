@@ -11,22 +11,23 @@
                 <div class="row">
                     <div class="col-md-6">
                         <ul style="list-style-type: none; color: white;">
-                            <li><a style="color: white;" href="{{ route('events') }}">Events</a></li>
+                            @if(Auth::check())
+                                <li><a style="color: white;" href="{{ route('events') }}">Events</a></li>
+                            @endif
                             <li><a style="color: white;" href="{{ route('about') }}">AboutUs</a></li>
                             <li><a style="color: white;" href="{{ route('contactus') }}">ContactUs</a></li>
+                        </ul>
                     </div>
                     <div class="col-md-6">
+                        @if(Auth::check())
                         <ul style="list-style-type: none; color: white;">
-                            @if(!(Auth::user()->isAdmin()))
-                            <li><a style="color: white;" href="{{ route('user.profile', ['id' => Auth::id()]) }}">Profile</a></li>
+                            @if(!Auth::user()->isAdmin())
+                                <li><a style="color: white;" href="{{ route('user.profile', ['id' => Auth::id()]) }}">Profile</a></li>
+                                <li><a style="color: white;" href="{{ route('user.events', ['id' => Auth::user()->id]) }}">MyEvents</a></li>
                             @endif
-                            @if(!(Auth::user()->isAdmin()))
-                            <li><a style="color: white;" href="{{ route('user.events', ['id' => Auth::user()->id]) }}">MyEvents</a></li>
-                            @endif
-                            @if(!(Auth::user()->isAdmin()))
                             <li><a style="color: white;" href="{{ route('user.notifications', ['id' => auth()->user()->id]) }}">Notifications</a></li>
-                            @endif
                         </ul>
+                        @endif
                     </div>
                 </div>
             </div>

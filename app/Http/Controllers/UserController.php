@@ -17,7 +17,12 @@ class UserController extends Controller
     }
 
     public function showUserNotifications(Request $request) {
-        $userId = $request->route('id');    
+
+        $userId = $request->route('id');
+        $user = User::find($userId);  
+        
+        $this->authorize('userNotifications', $user);
+
         $notifications = Notification::where('id_user', $userId)
             ->with(['eventnotification', 'eventnotification.event'])
             ->get();
@@ -25,12 +30,17 @@ class UserController extends Controller
         return view('pages.user_notifications', ['notifications' => $notifications]);
     }
 
-    public function getUserById($id) {
+    public function getUserById(Request $request, $id)
+    {
+        if ($request->user()->id != $id) {
+            return redirect('/events')->with('error', 'You do not have permission to view this page.');
+        }
+    
         $user = User::find($id);
         if ($user) {
             return response()->json($user);
         } else {
             return response()->json(['error' => 'User not found'], 404);
-        } 
+        }
     }
 }

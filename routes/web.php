@@ -69,7 +69,7 @@ Route::controller(AuthenticatedUserController::class)->group(function () {
     Route::get('/user/{id}/events/created', 'showUserjoinedEvents')->name('user.events.joined');
     Route::get('/user/{id}/events/joined', 'showUserattendedEvents')->name('user.events.attended');
     Route::get('/user/{id}/events/favorites', 'showUserFavouriteEvents')->name('user.events.favorites');
-    Route::get('/user/{id}/profile', 'showUserProfile')->name('user.profile');
+    Route::get('/user/{id}/profile', 'showUserProfile')->name('user.profile')->middleware('auth');
     Route::post('/user/{id}/profile/edit', 'updateUserProfile')->name('user.profile.update');
     Route::post('/user/{id}/password/change', 'updateUserPassword')->name('user.password.update');
     Route::post('/user/{id}/delete', 'deleteUser')->name('user.delete');
@@ -81,8 +81,8 @@ Route::controller(EventController::class)->group(function () {
     Route::post('/events/edit/{id}', 'editEvent')->name('events.edit');
     Route::delete('/events/delete/{id}', 'deleteEvent')->name('events.delete');
     Route::post('/events/cancel/{id}', 'cancelEvent')->name('events.cancel');
-    Route::get('/events', 'listEvents')->name('events');
-    Route::get('/events/{id}/details', 'showEventDetails')->name('events.details');
+    Route::get('/events', 'listEvents')->name('events')->middleware('auth');
+    Route::get('/events/{id}/details', 'showEventDetails')->name('events.details')->middleware('auth');
     Route::post('/events/{id}/leave', 'leaveEvent')->name('event.leave');
     Route::post('/events/{id}/join', 'joinEvent')->name('event.join');
     Route::post('/events/{id}/add', 'addUser')->name('events.add');
