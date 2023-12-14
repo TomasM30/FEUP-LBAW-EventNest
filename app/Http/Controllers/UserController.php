@@ -7,6 +7,7 @@ use App\Models\User;
 use Illuminate\Support\Facades\DB;
 use App\Models\Notification;
 use App\Models\EventNotification;
+use Illuminate\Support\Facades\Log;
 
 class UserController extends Controller
 {
@@ -32,15 +33,18 @@ class UserController extends Controller
 
     public function getUserById(Request $request, $id)
     {
-        if ($request->user()->id != $id) {
-            return redirect('/events')->with('error', 'You do not have permission to view this page.');
-        }
-    
+
+
         $user = User::find($id);
         if ($user) {
-            return response()->json($user);
+            return response()->json([
+                'id' => $user->id,
+                'username' => $user->username,
+                'profile_image' => $user->profile_image
+            ]);
         } else {
             return response()->json(['error' => 'User not found'], 404);
         }
+
     }
 }
