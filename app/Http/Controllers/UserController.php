@@ -24,4 +24,13 @@ class UserController extends Controller
     
         return view('pages.user_notifications', ['notifications' => $notifications]);
     }
+
+    public function getUserById($id) {
+        $user = User::find($id);
+        if ($user) {
+            return response()->json($user);
+        } else {
+            return response()->json(['error' => 'User not found'], 404);
+        } 
+    }
 }

@@ -24,6 +24,7 @@ use App\Models\RequestNotification;
 use App\Models\FavouriteEvents;
 use App\Models\Report;
 use App\Http\Controllers\FileController;
+use App\Models\Message;
 
 
 class EventController extends Controller
@@ -125,13 +126,15 @@ class EventController extends Controller
             $event = Event::findOrFail($id);
 
             if ($event->eventnotification) {
+                $eventNot = $event->eventnotification;
                 $event->eventnotification()->delete();
-                $event->eventnotification->notification()->delete();
+                log::info($eventNot);
+                $eventNot->delete();
             }
 
             $event->report()->delete();
 
-
+            $event->messages()->delete();
             $event->eventparticipants()->delete();
             $event->favouriteevent()->delete();
             $event->hashtags()->detach();
@@ -254,6 +257,7 @@ class EventController extends Controller
         
         $data['isFavourite'] =  $data['event']->isFavourite(Auth::id());
         $data['user'] = $user;
+        $data['messages'] = $messages = Message::where('id_event', $data['event']->id)->get();
 
 
         if ($request->ajax()) {
@@ -299,6 +303,27 @@ class EventController extends Controller
                 $notification->delete();
             }
 
+            $notifications = Notification::where('id_user', $request->id_user)
+                ->whereHas('eventnotification', function ($query) use ($request) {
+                    $query->where('id_event', $request->eventId);
+                })->get();
+
+            foreach ($notifications as $notification) {
+                $notification->eventnotification()->delete();
+                $notification->delete();
+            }
+            
+            $notificationAdded = Notification::where('id_user', Auth::id())
+            ->whereHas('eventnotification', function ($query) use ($request) {
+                $query->where('id_event', $request->eventId);
+            })->get();
+
+            foreach ($notificationAdded as $notification) {
+                $notification->eventnotification()->delete();
+                $notification->delete();
+            }
+        
+            
             $receiverId = $request->id_user;
 
             if($action == 'request'){
@@ -407,6 +432,26 @@ class EventController extends Controller
                     return redirect()->back()->with('error', 'Failed to create notification!');
                 }
             }
+            $notifications = Notification::where('id_user', Auth::id())
+                    ->whereHas('eventnotification', function ($query) use ($request) {
+                        $query->where('id_event', $request->eventId);
+                    })->get();
+            
+            foreach ($notifications as $notification) {
+                $notification->eventnotification()->delete();
+                $notification->delete();
+            }
+
+            $notificationsOrg = Notification::where('id_user', $event->id_user)
+                    ->whereHas('eventnotification', function ($query) use ($request) {
+                        $query->where('id_event', $request->eventId);
+                    })->get();
+            
+            foreach ($notificationsOrg as $notification) {
+                $notification->eventnotification()->delete();
+                $notification->delete();
+            }
+
 
             DB::commit();
             return redirect()->route('events.details', ['id' => $request->eventId])->with('success', 'Joined event successfully');
@@ -464,6 +509,7 @@ class EventController extends Controller
 
             $this->authorize('editEvent', $event);
 
+
             if (!$event) {
                 return redirect()->back()->with('error', 'Event not found');
             }
@@ -493,7 +539,9 @@ class EventController extends Controller
                 $event->capacity = $request->capacity;
             }
 
-            if ($request->has('ticket_limit') && !empty($request->ticket_limit)) {
+            if(!($request->has('ticket_limit'))) {
+                $event->ticket_limit = $request->capacity;
+            } else if ($request->has('ticket_limit') && !empty($request->ticket_limit)) {
                 $request->validate([
                     'ticket_limit' => [
                         'integer',
@@ -760,7 +808,7 @@ class EventController extends Controller
         $this->authorize('cancelEvent', $event);
         $event->update(['closed' => true]);
 
-        $participants = $event->eventparticipants()->where('id_user', '!=', $event->id_user)->get();
+        $participants = $event->eventparticipants()->get();
 
         foreach ($participants as $participant) {
 

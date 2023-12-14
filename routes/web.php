@@ -11,6 +11,7 @@ use App\Http\Controllers\AdminController;
 use App\Http\Controllers\AuthenticatedUserController;
 use App\Http\Controllers\GoogleController;
 use App\Http\Controllers\FileController;
+use App\Http\Controllers\MessageController;
 
 
 use App\Http\Controllers\Auth\LoginController;
@@ -33,6 +34,7 @@ Route::redirect('/', '/login');
 Route::controller(UserController::class)->group(function () {
     Route::get('/user/findAll', 'findAll');
     Route::get('/user/{id}/notifications', 'showUserNotifications')->name('user.notifications');
+    Route::get('/users/{id}', 'getUserById')->name('getUsersById');
 });
 
 Route::controller(LoginController::class)->group(function () {
@@ -106,3 +108,8 @@ Route::controller(FileController::class)->group(function () {
 });
 
 Route::get('/about', 'App\Http\Controllers\AboutController@index')->name('about');
+
+Route::controller(MessageController::class)->group(function () {
+    Route::get('/fetch-message', 'fetchMessages');
+    Route::post('/send-message', 'sendMessage');
+});

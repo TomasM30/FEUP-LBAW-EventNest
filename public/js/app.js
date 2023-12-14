@@ -213,6 +213,7 @@ document.addEventListener('DOMContentLoaded', function () {
 });
 
 window.onload = function () {
+
   let tableResponsive = document.querySelector('.table-responsive');
 
   if (tableResponsive) {
@@ -328,6 +329,21 @@ window.onload = function () {
   handleModal('verificationModal', 'verifiedBTn', 'overlay');
   handleModal('verificationModal', 'questionBtn', 'overlay');
   handleModal('tagModal', 'tagBtn', 'overlay');
+
+  let chatTabLink = document.querySelector('a[href="#v-pills-chat"]');
+  let messages = document.querySelector('#messages');
+  let messageForm = document.querySelector('#message-form');
+  
+  if (chatTabLink && messages && messageForm) {
+      chatTabLink.addEventListener('click', function() {
+          setTimeout(function() {
+              if (chatTabLink.classList.contains('active')) {
+                  messages.scrollTop = messages.scrollHeight;
+                  messageForm.scrollIntoView({ behavior: 'smooth', block: 'end' });
+              }
+          }, 0);
+      });
+  }
 
 };
 
@@ -564,6 +580,118 @@ document.addEventListener('DOMContentLoaded', function() {
       event.preventDefault();
       let page = parseInt(event.target.getAttribute('href').split('page=')[1]);
       fetchSearchResults(searchInput.value, page);
+    }
+  });
+});
+
+
+
+document.addEventListener('DOMContentLoaded', function() {
+
+  
+  let pusher = new Pusher('57eb230bb0a09d49e0ae', {
+      cluster: 'eu',
+      encrypted: true
+  });
+
+  pusher.connection.bind('connected', function() {
+    console.log('Connected to Pusher!');
+  });
+
+  let chatRoomId = document.getElementById('v-pills-chat').dataset.eventId;
+  let channel = pusher.subscribe('chat-room-' + chatRoomId);
+  let userDataCache = {};
+
+  channel.bind('App\\Events\\MessageSent', function(data) {
+      let userId = data.message.id_user;
+  
+      if (!userDataCache[userId]) {
+          // Make a request to your server to get the user's data
+          fetch('/users/' + userId)
+              .then(response => response.json())
+              .then(userData => {
+                  userDataCache[userId] = userData;
+                  appendMessage(data.message, userData);
+              });
+      } else {
+          appendMessage(data.message, userDataCache[userId]);
+      }
+  });
+  
+  function appendMessage(message, userData) {
+      console.log(userData);
+      let messages = document.getElementById('messages');
+      let messageDiv = document.createElement('div');
+      messageDiv.className = 'message';
+  
+      // Create the message header with the user's data
+      let messageHeader = document.createElement('div');
+      messageHeader.className = 'message-header';
+  
+      let headerContent = document.createElement('div');
+      headerContent.style.cssText = 'display: flex; align-items: center;';
+  
+      let profileImage = document.createElement('div');
+      profileImage.style.cssText = 'width: 50px; height: 50px; border-radius: 50%; background-size: cover; background-position: center; background-repeat: no-repeat;';
+      if (userData.profile_image) {
+        profileImage.style.backgroundImage = 'url(/profile/'  + userData.profile_image + ')';
+      } else {
+        profileImage.style.backgroundImage = 'url(/profile/default.png)';
+      }   
+           
+      let username = document.createElement('p');
+      username.className = 'ml-3 mr-1';
+      username.style.cssText = 'margin: 0; padding: 0;';
+      username.textContent = userData.username;
+  
+      let isVerified = userData.is_verified;
+      if (isVerified == 1) {
+          let verifiedIcon = document.createElement('i');
+          verifiedIcon.className = 'fa-solid fa-circle-check';
+          headerContent.appendChild(verifiedIcon);
+      }
+  
+      let messageContent = document.createElement('p');
+      messageContent.className = 'message-content';
+      messageContent.textContent = message.content;
+      messageContent.style.cssText = 'max-width: 100%; overflow-wrap: break-word;';
+  
+      headerContent.appendChild(profileImage);
+      headerContent.appendChild(username);
+      messageHeader.appendChild(headerContent);
+      messageDiv.appendChild(messageHeader);
+      messageDiv.appendChild(messageContent);
+  
+      messages.appendChild(messageDiv);
+
+      messages.scrollTop = messages.scrollHeight;
+  }
+
+  let csrfToken = document.querySelector('meta[name="csrf-token"]').content;
+  let form = document.getElementById('message-form');
+  form.addEventListener('submit', function(event) {
+    event.preventDefault();
+    let messageInput = document.getElementById('message-input');
+    if (!messageInput.value.trim()) {
+      event.preventDefault();
+      return;
+    }
+    else {
+      fetch('/send-message', {
+        method: 'POST',
+        body: JSON.stringify({
+            content: messageInput.value,
+            id_event: chatRoomId
+        }),
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRF-TOKEN': csrfToken
+        }
+    }).then(function(response) {
+        if (response.ok) {
+            messageInput.value = '';
+        }
+    });
     }
   });
 });

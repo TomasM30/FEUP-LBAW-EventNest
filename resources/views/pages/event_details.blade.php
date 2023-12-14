@@ -113,7 +113,9 @@
                         <div class="col-12 col-md-3 mb-3 mb-md-0">
                             <div class="nav flex-column nav-pills" id="v-pills-tab" role="tablist" aria-orientation="vertical">
                                 <a class="nav-link active" id="v-pills-attendees-tab" data-toggle="pill" href="#v-pills-attendees">Attendees</a>
-                                <a class="nav-link" id="v-pills-chat-tab" data-toggle="pill" href="#v-pills-chat">Chat</a>
+                                @if($isParticipant || $isAdmin)
+                                    <a class="nav-link" id="v-pills-chat-tab" data-toggle="pill" href="#v-pills-chat">Chat</a>
+                                @endif
                                 <a class="nav-link" id="v-pills-comments-tab" data-toggle="pill" href="#v-pills-comments">Comments</a>
                             </div>
                         </div>
@@ -123,8 +125,40 @@
                                     <!-- Attendees content goes here -->
                                     @include('partials.attendeesTable', ['attendees' => $attendees])
                                 </div>
-                                <div class="tab-pane fade" id="v-pills-chat">
+                                <div class="tab-pane fade" id="v-pills-chat" data-event-id="{{ $event->id }}"> 
                                     <!-- Chat content goes here -->
+                                    <div id="chat">
+                                        <div id="messages" style="height: 250px; overflow-y: auto;">
+                                            @foreach($messages as $message)
+                                            <div class="message">
+                                                <div class="message-header">
+                                                    <div style="display: flex; align-items: center;">
+                                                        @if ($message->id_user != null)
+                                                            <div style="width: 50px; height: 50px; border-radius: 50%; background-image: url('{{$message->authenticated->user->getProfileImage() }}'); background-size: cover; background-position: center; background-repeat: no-repeat;"></div>
+                                                            <p class="ml-3 mr-1" style="margin: 0; padding: 0;">{{ $message->authenticated->user->username }}</p>
+                                                            @if($message->authenticated->user->authenticated->is_verified == 1)
+                                                                <i class="fa-solid fa-circle-check"></i>
+                                                            @endif
+                                                        @else
+                                                            <div style="width: 50px; height: 50px; border-radius: 50%; background-image: url('{{ asset('profile/default.png') }}'); background-size: cover; background-position: center; background-repeat: no-repeat;"></div>
+                                                            <p class="ml-3 mr-1" style="margin: 0; padding: 0; color: red; font-weight: bold;">User deleted</p>
+                                                        @endif
+                       
+                                                    </div>
+                                                </div>
+                                                    <p class="message-content" style="max-width: 100%; overflow-wrap: break-word;">{{ $message->content }}</p>
+                                            </div>
+                                            @endforeach
+                                        </div>
+                                    </div>
+                                    <div class="container mt-5">
+                                        <form id="message-form" class="form-inline">
+                                            <div class="form-group mb-2" style="flex-grow: 1;">
+                                                <input type="text" class="form-control w-100" id="message-input" placeholder="Type your message here..." {{ $event->closed || Auth::user()->isAdmin() ? 'disabled' : '' }}>
+                                            </div>
+                                            <button type="submit" class="btn btn-primary mb-2 ml-2" {{ $event->closed || Auth::user()->isAdmin() ? 'disabled' : '' }}>Send</button>
+                                        </form>
+                                    </div>
                                 </div>
                                 <div class="tab-pane fade" id="v-pills-comments">
                                     <!-- Comments content goes here -->
@@ -134,7 +168,7 @@
                     </div>
                 </div>
             </div>
-            <div class="col-lg-3 mt-3 position-sticky" style="bottom: 0%; background-color: white;"">
+            <div class="col-lg-3 mt-3" style=" background-color: white;">
                 <div class=" d-flex flex-wrap justify-content-center position-sticky" style="top: 15%;">
                 @if (!$isAdmin && $alreadyReported == false)
                 <div class="btn-group" style="width: 100%;">

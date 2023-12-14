@@ -48,4 +48,9 @@ class AuthenticatedUser extends Model
     {
         return $this->hasMany(FavouriteEvents::class, 'id_user');
     }
+
+    public function messages()
+    {
+        return $this->hasMany(Message::class, 'id_user', 'id_user');
+    }
 }

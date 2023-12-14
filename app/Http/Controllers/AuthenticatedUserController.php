@@ -14,6 +14,7 @@ use App\Models\Report;
 use App\Models\Notification;
 use App\Models\EventNotification;
 use App\Models\Hashtag;
+use App\Models\Message;
 
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Log;
@@ -217,7 +218,6 @@ class AuthenticatedUserController extends Controller
 
             $eventController = new EventController;
             $authenticatedUser = $user->authenticated;
-            log::info($authenticatedUser->events);
             $events = $authenticatedUser->events->where('id_user', $user->id);
             log::info($events);
 
@@ -237,7 +237,6 @@ class AuthenticatedUserController extends Controller
                 $eventController->cancelEvent($request);
                 $event->update(['id_user' => null]);
             }
-
 
             EventParticipant::where('id_user', $user->id)->delete();
             FavouriteEvents::where('id_user', $user->id)->delete();
