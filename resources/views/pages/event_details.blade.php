@@ -128,16 +128,22 @@
                                 <div class="tab-pane fade" id="v-pills-chat" data-event-id="{{ $event->id }}"> 
                                     <!-- Chat content goes here -->
                                     <div id="chat">
-                                        <div id="messages" style="height: 500px; overflow-y: auto;">
+                                        <div id="messages" style="height: 250px; overflow-y: auto;">
                                             @foreach($messages as $message)
                                             <div class="message">
                                                 <div class="message-header">
                                                     <div style="display: flex; align-items: center;">
-                                                        <div style="width: 50px; height: 50px; border-radius: 50%; background-image: url('{{$message->authenticated->user->getProfileImage() }}'); background-size: cover; background-position: center; background-repeat: no-repeat;"></div>
-                                                        <p class="ml-3 mr-1" style="margin: 0; padding: 0;">{{ $message->authenticated->user->username }}</p>
-                                                        @if($message->authenticated->user->authenticated->is_verified == 1)
-                                                            <i class="fa-solid fa-circle-check"></i>
+                                                        @if ($message->id_user != null)
+                                                            <div style="width: 50px; height: 50px; border-radius: 50%; background-image: url('{{$message->authenticated->user->getProfileImage() }}'); background-size: cover; background-position: center; background-repeat: no-repeat;"></div>
+                                                            <p class="ml-3 mr-1" style="margin: 0; padding: 0;">{{ $message->authenticated->user->username }}</p>
+                                                            @if($message->authenticated->user->authenticated->is_verified == 1)
+                                                                <i class="fa-solid fa-circle-check"></i>
+                                                            @endif
+                                                        @else
+                                                            <div style="width: 50px; height: 50px; border-radius: 50%; background-image: url('{{ asset('profile/default.png') }}'); background-size: cover; background-position: center; background-repeat: no-repeat;"></div>
+                                                            <p class="ml-3 mr-1" style="margin: 0; padding: 0; color: red; font-weight: bold;">User deleted</p>
                                                         @endif
+                       
                                                     </div>
                                                 </div>
                                                     <p class="message-content" style="max-width: 100%; overflow-wrap: break-word;">{{ $message->content }}</p>
@@ -148,9 +154,9 @@
                                     <div class="container mt-5">
                                         <form id="message-form" class="form-inline">
                                             <div class="form-group mb-2" style="flex-grow: 1;">
-                                                <input type="text" class="form-control w-100" id="message-input" placeholder="Type your message here...">
+                                                <input type="text" class="form-control w-100" id="message-input" placeholder="Type your message here..." {{ $event->closed || Auth::user()->isAdmin() ? 'disabled' : '' }}>
                                             </div>
-                                            <button type="submit" class="btn btn-primary mb-2 ml-2">Send</button>
+                                            <button type="submit" class="btn btn-primary mb-2 ml-2" {{ $event->closed || Auth::user()->isAdmin() ? 'disabled' : '' }}>Send</button>
                                         </form>
                                     </div>
                                 </div>

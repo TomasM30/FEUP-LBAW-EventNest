@@ -14,6 +14,7 @@ use App\Models\Report;
 use App\Models\Notification;
 use App\Models\EventNotification;
 use App\Models\Hashtag;
+use App\Models\Message;
 
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Log;
@@ -214,17 +215,7 @@ class AuthenticatedUserController extends Controller
 
             $eventController = new EventController;
             $authenticatedUser = $user->authenticated;
-            log::info($authenticatedUser->events);
             $events = $authenticatedUser->events->where('id_user', $user->id);
-            log::info($events);
-
-            $eventNotificationIds = EventNotification::where('inviter_id', $user->id)->pluck('id');
-            EventNotification::whereIn('id', $eventNotificationIds)->delete();
-            Notification::whereIn('id', $eventNotificationIds)->delete();
-    
-            $notificationIds = Notification::where('id_user', $user->id)->pluck('id');
-            EventNotification::whereIn('id', $notificationIds)->delete();
-            Notification::whereIn('id', $notificationIds)->delete();
     
             Report::where('id_user', $user->id)
             ->update(['closed' => true, 'id_user' => null]);
@@ -234,6 +225,15 @@ class AuthenticatedUserController extends Controller
                 $eventController->cancelEvent($request);
                 $event->update(['id_user' => null]);
             }
+
+            $eventNotificationIds = EventNotification::where('inviter_id', $user->id)->pluck('id');
+            EventNotification::whereIn('id', $eventNotificationIds)->delete();
+            Notification::whereIn('id', $eventNotificationIds)->delete();
+    
+            $notificationIds = Notification::where('id_user', $user->id)->pluck('id');
+            EventNotification::whereIn('id', $notificationIds)->delete();
+            Notification::whereIn('id', $notificationIds)->delete();
+            Message::where('id_user', $user->id)->update(['id_user' => null]);
     
         
             EventParticipant::where('id_user', $user->id)->delete();

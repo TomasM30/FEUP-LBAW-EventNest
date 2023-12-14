@@ -90,7 +90,7 @@ CREATE TABLE messages (
     id SERIAL PRIMARY KEY,
     content TEXT NOT NULL,
     id_event INT NOT NULL,
-    id_user INT NOT NULL,
+    id_user INT,
     date DATE DEFAULT CURRENT_DATE,
     FOREIGN KEY (id_event) REFERENCES Event(id),
     FOREIGN KEY (id_user) REFERENCES Authenticated(id_user)
