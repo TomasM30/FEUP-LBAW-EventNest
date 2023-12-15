@@ -9,8 +9,7 @@ DROP TABLE IF EXISTS EventHashtag CASCADE;
 DROP TABLE IF EXISTS PollVotes CASCADE;
 DROP TABLE IF EXISTS Notification CASCADE;
 DROP TABLE IF EXISTS EventNotification CASCADE;
-DROP TABLE IF EXISTS MessageReaction CASCADE;
-DROP TABLE IF EXISTS EventMessage CASCADE;
+DROP TABLE IF EXISTS messages CASCADE;
 DROP TABLE IF EXISTS Ticket CASCADE;
 DROP TABLE IF EXISTS Hashtag CASCADE;
 DROP TABLE IF EXISTS Report CASCADE;
@@ -90,12 +89,11 @@ CREATE TABLE Event (
     FOREIGN KEY (id_user) REFERENCES Authenticated(id_user)
 );
 
-CREATE TABLE EventMessage (
+CREATE TABLE messages (
     id SERIAL PRIMARY KEY,
-    type TypesMessage NOT NULL,
     content TEXT NOT NULL,
     id_event INT NOT NULL,
-    id_user INT NOT NULL,
+    id_user INT,
     date DATE DEFAULT CURRENT_DATE,
     FOREIGN KEY (id_event) REFERENCES Event(id),
     FOREIGN KEY (id_user) REFERENCES Authenticated(id_user)

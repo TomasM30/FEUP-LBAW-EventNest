@@ -105,4 +105,9 @@ class Event extends Model
             $query->where('id_user', $userId)->where('type', 'request');
         })->exists();
     }
+
+    public function messages()
+    {
+        return $this->hasMany(Message::class, 'id_event');
+    }
 }

@@ -114,7 +114,9 @@
             <div class="col-12 col-md-3 mb-3 mb-md-0">
               <div class="nav flex-column nav-pills" id="v-pills-tab" role="tablist" aria-orientation="vertical">
                 <a class="nav-link active" id="v-pills-attendees-tab" data-toggle="pill" href="#v-pills-attendees">Attendees</a>
-                <a class="nav-link" id="v-pills-chat-tab" data-toggle="pill" href="#v-pills-chat">Chat</a>
+                                @if($isParticipant || $isAdmin)
+                    <a class="nav-link" id="v-pills-chat-tab" data-toggle="pill" href="#v-pills-chat">Chat</a>
+                                @endif
                 <a class="nav-link" id="v-pills-comments-tab" data-toggle="pill" href="#v-pills-comments">Comments</a>
               </div>
             </div>
@@ -124,8 +126,40 @@
                   <!-- Attendees content goes here -->
                   @include('partials.attendeesTable', ['attendees' => $attendees])
                 </div>
-                <div class="tab-pane fade" id="v-pills-chat">
+                <div class="tab-pane fade" id="v-pills-chat" data-event-id="{{ $event->id }}"> 
                   <!-- Chat content goes here -->
+                                    <div id="chat">
+                                        <div id="messages" style="height: 250px; overflow-y: auto;">
+                                            @foreach($messages as $message)
+                                            <div class="message">
+                                                <div class="message-header">
+                                                    <div style="display: flex; align-items: center;">
+                                                        @if ($message->id_user != null)
+                                                            <div style="width: 50px; height: 50px; border-radius: 50%; background-image: url('{{$message->authenticated->user->getProfileImage() }}'); background-size: cover; background-position: center; background-repeat: no-repeat;"></div>
+                                                            <p class="ml-3 mr-1" style="margin: 0; padding: 0;">{{ $message->authenticated->user->username }}</p>
+                                                            @if($message->authenticated->user->authenticated->is_verified == 1)
+                                                                <i class="fa-solid fa-circle-check"></i>
+                                                            @endif
+                                                        @else
+                                                            <div style="width: 50px; height: 50px; border-radius: 50%; background-image: url('{{ asset('profile/default.png') }}'); background-size: cover; background-position: center; background-repeat: no-repeat;"></div>
+                                                            <p class="ml-3 mr-1" style="margin: 0; padding: 0; color: red; font-weight: bold;">User deleted</p>
+                                                        @endif
+                       
+                                                    </div>
+                                                </div>
+                                                    <p class="message-content" style="max-width: 100%; overflow-wrap: break-word;">{{ $message->content }}</p>
+                                            </div>
+                                            @endforeach
+                                        </div>
+                                    </div>
+                                    <div class="container mt-5">
+                                        <form id="message-form" class="form-inline">
+                                            <div class="form-group mb-2" style="flex-grow: 1;">
+                                                <input type="text" class="form-control w-100" id="message-input" placeholder="Type your message here..." {{ $event->closed || Auth::user()->isAdmin() ? 'disabled' : '' }}>
+                                            </div>
+                                            <button type="submit" class="btn btn-primary mb-2 ml-2" {{ $event->closed || Auth::user()->isAdmin() ? 'disabled' : '' }}>Send</button>
+                                        </form>
+                                    </div>
                 </div>
                 <div class="tab-pane fade" id="v-pills-comments">
                   <!-- Comments content goes here -->
@@ -196,67 +230,64 @@
                 </div>
               </div>
             </div>
-          </div>
-        </div>
-      </div>
-      <div class="col-lg-3 mt-3 position-sticky" style="bottom: 0%; background-color: white;">
-        <div class=" d-flex flex-wrap justify-content-center position-sticky" style="top: 15%;">
-          @if (!$isAdmin && $alreadyReported == false)
-          <div class="btn-group" style="width: 100%;">
-            <button id="reportBtn" type="submit" class="btn btn-primary m-3 ">Report</button>
-          </div>
-          @endif
-          @if ($event->closed == false)
-          @if(!$isAdmin && $isParticipant)
-          <div class="dropdown d-flex justify-content-center" style="width: 100%">
-            <button class="btn btn-primary m-3 dropdown-toggle invite" style="width: 100%;" type="button" id="dropdownMenuInvite" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-              Invite
-            </button>
-            <div class="dropdown-menu" aria-labelledby="dropdownMenuInvite">
-              @foreach ($notInvited as $authUser)
-              @if($authUser->user->id != $event->user->id)
-              <form method="POST" action="{{ route('events.notification', $event->id) }}">
-                {{ csrf_field() }}
-                <input type="hidden" name="id_user" value="{{ $authUser->user->id }}">
-                <input type="hidden" name="eventId" value="{{ $event->id }}">
-                <input type="hidden" name="action" value="invitation">
-                <button type="submit" class="dropdown-item">{{ $authUser->user->name }}</button>
-              </form>
-              @endif
-              @endforeach
-            </div>
-          </div>
-          @endif
-          @if(!$isParticipant && !$isAdmin && $event->eventparticipants()->count() < $event->capacity)
-            @if($event->type == 'public' || $event->type == 'private')
-            <form method="POST" action="{{ route('event.join', $event->id) }}" style="width: 100%;" class="d-flex justify-content-center">
-              {{ csrf_field() }}
-              <input type="hidden" name="id_user" value="{{ Auth::user()->id }}">
-              <input type="hidden" name="eventId" value="{{ $event->id }}">
-              <div class="btn-group" style="width: 100%;">
-                <button type="submit" class="btn btn-primary m-3 ">Join</button>
-              </div>
-            </form>
-            @elseif($event->type == 'approval' && $alreadyRequested == false)
-            <form method="POST" action="{{ route('events.notification', $event->id) }}" style="width: 100%;" class="d-flex justify-content-center">
-              {{ csrf_field() }}
-              <input type="hidden" name="id_user" value="{{ $event->id_user }}">
-              <input type="hidden" name="eventId" value="{{ $event->id }}">
-              <input type="hidden" name="action" value="request">
-              <input type="hidden" name="type" value="request">
-              <div class="btn-group" style="width: 100%;">
-                <button type="submit" class="btn btn-primary m-3 ">Request</button>
-              </div>
-            </form>
-            @endif
-            @elseif($isParticipant && !$isAdmin && !$isOrganizer)
-            <form method="POST" action="{{ route('event.leave', $event->id) }}" style="width: 100%;" class="d-flex justify-content-center">
-              {{ csrf_field() }}
-              <input type="hidden" name="id_user" value="{{ Auth::user()->id }}">
-              <input type="hidden" name="eventId" value="{{ $event->id }}">
-              <button type="submit" class="btn btn-primary m-3" style="width: 100%;">Leave</button>
-            </form>
-            @endif
+            <div class="col-lg-3 mt-3 position-sticky" style="bottom: 0%; background-color: white;"">
+                <div class=" d-flex flex-wrap justify-content-center position-sticky" style="top: 15%;">
+                @if (!$isAdmin && $alreadyReported == false)
+                <div class="btn-group" style="width: 100%;">
+                    <button id="reportBtn" type="submit" class="btn btn-primary m-3 ">Report</button>
+                </div>
+                @endif
+                @if ($event->closed == false)
+                @if(!$isAdmin && $isParticipant)
+                <div class="dropdown d-flex justify-content-center" style="width: 100%">
+                    <button class="btn btn-primary m-3 dropdown-toggle invite" style="width: 100%;" type="button" id="dropdownMenuInvite" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                        Invite
+                    </button>
+                    <div class="dropdown-menu" aria-labelledby="dropdownMenuInvite">
+                        @foreach ($notInvited as $authUser)
+                        @if($authUser->user->id != $event->user->id)
+                        <form method="POST" action="{{ route('events.notification', $event->id) }}">
+                            {{ csrf_field() }}
+                            <input type="hidden" name="id_user" value="{{ $authUser->user->id }}">
+                            <input type="hidden" name="eventId" value="{{ $event->id }}">
+                            <input type="hidden" name="action" value="invitation">
+                            <button type="submit" class="dropdown-item">{{ $authUser->user->name }}</button>
+                        </form>
+                        @endif
+                        @endforeach
+                    </div>
+                </div>
+                @endif
+                @if(!$isParticipant && !$isAdmin && $event->eventparticipants()->count() < $event->capacity)
+                    @if($event->type == 'public' || $event->type == 'private')
+                    <form method="POST" action="{{ route('event.join', $event->id) }}" style="width: 100%;" class="d-flex justify-content-center">
+                        {{ csrf_field() }}
+                        <input type="hidden" name="id_user" value="{{ Auth::user()->id }}">
+                        <input type="hidden" name="eventId" value="{{ $event->id }}">
+                        <div class="btn-group" style="width: 100%;">
+                            <button type="submit" class="btn btn-primary m-3 ">Join</button>
+                        </div>
+                    </form>
+                    @elseif($event->type == 'approval' && $alreadyRequested == false)
+                    <form method="POST" action="{{ route('events.notification', $event->id) }}" style="width: 100%;" class="d-flex justify-content-center">
+                        {{ csrf_field() }}
+                        <input type="hidden" name="id_user" value="{{ $event->id_user }}">
+                        <input type="hidden" name="eventId" value="{{ $event->id }}">
+                        <input type="hidden" name="action" value="request">
+                        <input type="hidden" name="type" value="request">
+                        <div class="btn-group" style="width: 100%;">
+                            <button type="submit" class="btn btn-primary m-3 ">Request</button>
+                        </div>
+                    </form>
+                    @endif
+                    @elseif($isParticipant && !$isAdmin && !$isOrganizer)
+                    <form method="POST" action="{{ route('event.leave', $event->id) }}" style="width: 100%;" class="d-flex justify-content-center">
+                        {{ csrf_field() }}
+                        <input type="hidden" name="id_user" value="{{ Auth::user()->id }}">
+                        <input type="hidden" name="eventId" value="{{ $event->id }}">
+                        <button type="submit" class="btn btn-primary m-3" style="width: 100%;">Leave</button>
+                    </form>
+                    @endif
 
             @if($isAdmin || $isOrganizer)
             @if($event->eventparticipants()->count() > 1)
