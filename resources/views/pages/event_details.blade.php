@@ -115,7 +115,7 @@
                                             <input type="number" name="amount" id="ticketQuantity" class="form-control" min="1" required>
                                         </div>
 
-                                        <button type="submit" class="btn btn-primary m-3">Order</button>
+                                        <button type="submit" class="btn btn-primary m-3" href="{{ route('paypal.payment') }}">Order</button>
                                     </form>
                             @elseif($event->type == 'approval')
                                 <form method="POST" action="{{ route('events.notification', $event->id) }}">

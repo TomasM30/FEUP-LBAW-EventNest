@@ -33,7 +33,7 @@ class EventController extends Controller
     {
         try {
             $this->authorize('create', Event::class);
-            //$this->authorize('create', TicketType::class);
+            $this->authorize('create', TicketType::class);
 
             DB::BeginTransaction();
             
@@ -131,8 +131,8 @@ class EventController extends Controller
             if (!(AuthenticatedUser::where('id_user', $request->id_user)->exists())|| !(Event::where('id', $request->eventId)->exists())){
                 return redirect()->back()->with('message', 'User or event not found');
             }
-            //$this->authorize('create', Order::class);
-            //$this->authorize('edit', Event::class);
+            $this->authorize('create', Order::class);
+            $this->authorize('edit', Event::class);
 
             DB::beginTransaction();
 
