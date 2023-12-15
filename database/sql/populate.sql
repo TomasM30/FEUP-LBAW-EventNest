@@ -243,6 +243,15 @@ insert into EventParticipants (id_user, id_event) values (36, 22);
 insert into EventParticipants (id_user, id_event) values (37, 23);
 
 
+insert into EventComment (type, content, id_event, id_user) values('comment','Super ansioso!',5, 40);
+insert into EventComment (type, content, id_event, id_user) values('comment','Espero que seja um grande jogo.',5, 39);
+insert into EventComment (type, content, id_event, id_user) values('comment','Que ganhe o melhor',5, 38);
+insert into EventComment (type, content, id_event, id_user) values('comment','Como adepto neutro, espero que seja sobretudo um grande jogo...' ,5, 37);
+insert into EventComment (type, content, id_event, id_user) values('comment','Fácil! força scp!',5, 36);
+insert into EventComment (type, content, id_event, id_user) values('comment','Vou levar toda a família',5, 35);
+
+
+
 
 -- Insert data into the table "favorite_event"
 insert into FavoriteEvent (id_user, id_event) values (4, 1);

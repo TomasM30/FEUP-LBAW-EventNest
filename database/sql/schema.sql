@@ -4,6 +4,7 @@ SET search_path TO lbaw23144;
 
 DROP TABLE IF EXISTS EventParticipants CASCADE;
 DROP TABLE IF EXISTS FavoriteEvent CASCADE;
+
 DROP TABLE IF EXISTS EventHashtag CASCADE;
 DROP TABLE IF EXISTS PollVotes CASCADE;
 DROP TABLE IF EXISTS Notification CASCADE;
@@ -23,6 +24,7 @@ DROP TABLE IF EXISTS Users CASCADE;
 DROP TABLE IF EXISTS OrderDetail CASCADE;
 DROP TABLE IF EXISTS TicketType CASCADE;
 DROP TABLE IF EXISTS Orders CASCADE;
+DROP TABLE IF EXISTS EventComment CASCADE;
 
 DROP TYPE IF EXISTS TypesNotification CASCADE;
 DROP TYPE IF EXISTS TypesMessage CASCADE;
@@ -89,6 +91,17 @@ CREATE TABLE Event (
 );
 
 CREATE TABLE EventMessage (
+    id SERIAL PRIMARY KEY,
+    type TypesMessage NOT NULL,
+    content TEXT NOT NULL,
+    id_event INT NOT NULL,
+    id_user INT NOT NULL,
+    date DATE DEFAULT CURRENT_DATE,
+    FOREIGN KEY (id_event) REFERENCES Event(id),
+    FOREIGN KEY (id_user) REFERENCES Authenticated(id_user)
+);
+
+CREATE TABLE EventComment (
     id SERIAL PRIMARY KEY,
     type TypesMessage NOT NULL,
     content TEXT NOT NULL,
