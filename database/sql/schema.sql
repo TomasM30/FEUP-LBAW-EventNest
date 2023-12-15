@@ -114,7 +114,7 @@ CREATE TABLE MessageReaction (
     id_user INT NOT NULL,
     id_message INT NOT NULL,
     FOREIGN KEY (id_user) REFERENCES Authenticated(id_user),
-    FOREIGN KEY (id_message) REFERENCES EventMessage(id),
+    FOREIGN KEY (id_message) REFERENCES messages(id),
     PRIMARY KEY (id_user, id_message)
 );
 
