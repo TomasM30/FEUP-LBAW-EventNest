@@ -229,6 +229,8 @@ class AuthenticatedUserController extends Controller
             EventNotification::whereIn('id', $notificationIds)->delete();
             Notification::whereIn('id', $notificationIds)->delete();
 
+            Message::where('id_user', $user->id)->update(['id_user' => null]);
+
             Report::where('id_user', $user->id)
                 ->update(['closed' => true, 'id_user' => null]);
 
