@@ -13,7 +13,7 @@
                     {{ csrf_field() }}
                     <input type="hidden" name="id_user" value="{{ Auth::user()->id }}">
                     <input type="hidden" name="eventId" value="{{ $event->id }}">
-                    <div class="d-flex justify-content-center">
+                    <div class="d-flex">
                         <button type="submit" class="btn btn-danger">Cancel</button>
                     </div>
                 </form>

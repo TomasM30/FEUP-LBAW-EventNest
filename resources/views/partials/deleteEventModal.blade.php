@@ -13,7 +13,7 @@
                     {{ csrf_field() }}
                     {{ method_field('DELETE') }}
                     <input type="hidden" name="id" value="{{ $event->id }}">
-                    <div class="d-flex justify-content-center">
+                    <div class="d-flex">
                         <button type="submit" class="btn btn-danger">Delete</button>
                     </div>
                 </form>

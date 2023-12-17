@@ -607,7 +607,6 @@ document.addEventListener('DOMContentLoaded', function() {
       let userId = data.message.id_user;
   
       if (!userDataCache[userId]) {
-          // Make a request to your server to get the user's data
           fetch('/users/' + userId)
               .then(response => response.json())
               .then(userData => {
