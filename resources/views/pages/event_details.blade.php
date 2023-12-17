@@ -222,72 +222,36 @@
                     @endif
 
                     @if($isAdmin || $isOrganizer)
-                    @if($event->eventparticipants()->count() > 1)
-                    <div class="dropdown d-flex justify-content-center" style="width: 100%;">
-                        <button class="btn btn-primary m-3  dropdown-toggle remove" style="width: 100%;" type="button" id="dropdownMenuRemove" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                            Remove
-                        </button>
-                        <div class="dropdown-menu" aria-labelledby="dropdownMenu2">
-                            @foreach ($event->eventparticipants()->get() as $attendee)
-                            @if($attendee->user->id != $event->user->id)
-                            <form method="POST" action="{{ route('events.remove', $event->id) }}" style="width: 100%;" class="d-flex justify-content-center">
-                                {{ csrf_field() }}
-                                <input type="hidden" name="id_user" value="{{ $attendee->user->id }}">
-                                <input type="hidden" name="eventId" value="{{ $event->id }}">
-                                <button type="submit" class="dropdown-item">{{ $attendee->user->name }}</button>
-                            </form>
-                            @endif
-                            @endforeach
+                        <div class="btn-group" style="width: 100%;">
+                            <button id='manage-btn' type="button" class="btn btn-primary m-3 ">Manage Users</button>
                         </div>
-                    </div>
-                    @endif
-
-                    @if(count($nonParticipants) > 0 && $event->eventparticipants()->count() < $event->capacity)
-                        <div class="dropdown d-flex justify-content-center" style="width: 100%;">
-                            <button class="btn btn-primary m-3  dropdown-toggle" style="width: 100%;" type="button" id="dropdownMenu2" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                                Add
-                            </button>
-                            <div class="dropdown-menu" aria-labelledby="dropdownMenu2">
-                                @foreach ($nonParticipants as $authUser)
-                                @if($authUser->user->id != $event->user->id)
-                                <form method="POST" action="{{ route('events.add', $event->id) }}">
-                                    {{ csrf_field() }}
-                                    <input type="hidden" name="id_user" value="{{ $authUser->user->id }}">
-                                    <input type="hidden" name="eventId" value="{{ $event->id }}">
-                                    <button type="submit" class="dropdown-item">{{ $authUser->user->username }}</button>
-                                </form>
-                                @endif
-                                @endforeach
-                            </div>
-                        </div>
-                        @endif
 
                         @if(($isOrganizer && $user->authenticated->is_verified == 0)  || $isAdmin)
-                        <form method="POST" action="{{ route('events.cancel', $event->id) }}" style="width: 100%;" class="d-flex justify-content-center">
-                            {{ csrf_field() }}
-                            <input type="hidden" name="id_user" value="{{ Auth::user()->id }}">
-                            <input type="hidden" name="eventId" value="{{ $event->id }}">
-                            <div class="btn-group" style="width: 100%;">
-                                <button type="submit" class="btn btn-primary m-3 ">Cancel</button>
-                            </div>
-                        </form>
+                            <form method="POST" action="{{ route('events.cancel', $event->id) }}" style="width: 100%;" class="d-flex justify-content-center">
+                                {{ csrf_field() }}
+                                <input type="hidden" name="id_user" value="{{ Auth::user()->id }}">
+                                <input type="hidden" name="eventId" value="{{ $event->id }}">
+                                <div class="btn-group" style="width: 100%;">
+                                    <button type="submit" class="btn btn-primary m-3 ">Cancel</button>
+                                </div>
+                            </form>
                         @endif
 
                         <div class="btn-group" style="width: 100%;">
                             <button id='edit-button' type="button" class="btn btn-primary m-3 " data-toggle="modal" data-target="#newEventModal">Edit</button>
                         </div>
-                        @endif
-                        @endif
-                        @if($isAdmin)
-                        <form method="POST" action="{{ route('events.delete', ['id' => $event->id]) }}" class="d-flex justify-content-center" style="width: 100%;">
-                            {{ csrf_field() }}
-                            {{ method_field('DELETE') }}
-                            <input type="hidden" name="id" value="{{ $event->id }}">
-                            <div class="btn-group" style="width: 100%;">
-                                <button type="submit" class="btn btn-primary m-3 ">Delete</button>
-                            </div>
-                        </form>
-                        @endif
+                    @endif
+                @endif
+                @if($isAdmin)
+                    <form method="POST" action="{{ route('events.delete', ['id' => $event->id]) }}" class="d-flex justify-content-center" style="width: 100%;">
+                        {{ csrf_field() }}
+                        {{ method_field('DELETE') }}
+                        <input type="hidden" name="id" value="{{ $event->id }}">
+                        <div class="btn-group" style="width: 100%;">
+                            <button type="submit" class="btn btn-primary m-3 ">Delete</button>
+                        </div>
+                    </form>
+                @endif
             </div>
         </div>
     </div>
@@ -297,4 +261,5 @@
 <div id="overlay" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0, 0, 0, 0.5); z-index: 1000;"></div>
 @include('partials.eventModal', ['formAction' => route('events.edit', $event->id), 'hashtags' => $hashtags])
 @include('partials.reportModal')
+@include('partials.manageUserModal')
 @endsection

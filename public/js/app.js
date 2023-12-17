@@ -329,6 +329,7 @@ window.onload = function () {
   handleModal('verificationModal', 'verifiedBTn', 'overlay');
   handleModal('verificationModal', 'questionBtn', 'overlay');
   handleModal('tagModal', 'tagBtn', 'overlay');
+  handleModal('userModal', 'manage-btn', 'overlay');
 
   let chatTabLink = document.querySelector('a[href="#v-pills-chat"]');
   let messages = document.querySelector('#messages');
@@ -559,7 +560,6 @@ function fetchSearchResults(search, page = 1) {
       let tableClass = searchForm.getAttribute('data-url').includes('users') ? 'usersTable' : 'eventsTable';
       let table = document.querySelector('.' + tableClass);
       table.innerHTML = data;
-      // Add 'active' class to the correct pagination link
       let activePageLink = table.querySelector(`.pagination a[href*="page=${page}"]`);
       if (activePageLink) {
         activePageLink.parentNode.classList.add('active');
@@ -577,9 +577,12 @@ document.addEventListener('DOMContentLoaded', function() {
 
   document.addEventListener('click', function(event) {
     if (event.target.matches('.pagination a')) {
-      event.preventDefault();
-      let page = parseInt(event.target.getAttribute('href').split('page=')[1]);
-      fetchSearchResults(searchInput.value, page);
+      // Check if the clicked link is inside the specific modal
+      if (!event.target.closest('#userModal')) {
+        event.preventDefault();
+        let page = parseInt(event.target.getAttribute('href').split('page=')[1]);
+        fetchSearchResults(searchInput.value, page);
+      }
     }
   });
 });
@@ -700,3 +703,45 @@ window.showAlert = function(title, text, icon) {
       showConfirmButton: false
   });
 }
+
+document.addEventListener('DOMContentLoaded', function() {
+  let userSearch = document.getElementById('userSearch');
+  let eventId = document.querySelector('#userSearch').dataset.eventId;
+  if (userSearch) {
+    userSearch.addEventListener('input', function() {
+      fetch('/events/' + eventId + '/searchUsers?query=' + encodeURIComponent(this.value))
+        .then(response => response.json())
+        .then(authenticatedUsers => {
+          let tableBody = document.querySelector('#userTable tbody');
+          tableBody.innerHTML = '';
+          authenticatedUsers.forEach(authenticatedUser => {
+            let user = authenticatedUser.user;
+            let row = document.createElement('tr');
+            let csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+            row.innerHTML = `
+              <td>
+                <a class="text-decoration-none" style="text-decoration: none; color: inherit;" href="/user/events/${user.id}">${user.username}</a>
+              </td>
+              <td class="text-right">
+                ${authenticatedUser.is_participant ? 
+                  `<form method="POST" action="/events/${eventId}/remove">
+                     <input type="hidden" name="_token" value="${csrfToken}">
+                     <input type="hidden" name="id_user" value="${user.id}">
+                     <input type="hidden" name="eventId" value="${eventId}">
+                     <button type="submit" class="btn btn-danger removeUser">Remove</button>
+                   </form>` :
+                  `<form method="POST" action="/events/${eventId}/add">
+                     <input type="hidden" name="_token" value="${csrfToken}">
+                     <input type="hidden" name="id_user" value="${user.id}">
+                     <input type="hidden" name="eventId" value="${eventId}">
+                     <button type="submit" class="btn btn-success addUser">Add</button>
+                   </form>`
+                }
+              </td>
+            `;
+            tableBody.appendChild(row);
+          });
+        });
+    });
+  }
+});

@@ -258,7 +258,8 @@ class EventController extends Controller
         $data['isFavourite'] =  $data['event']->isFavourite(Auth::id());
         $data['user'] = $user;
         $data['messages'] = $messages = Message::where('id_event', $data['event']->id)->get();
-
+        $data['users'] = AuthenticatedUser::all()->where('id_user', '!=', $data['event']->id_user);
+        log::info($data['users']->count());
 
         if ($request->ajax()) {
             return view('partials.attendeesTable', ['attendees' => $data['attendees'], 'event' => $data['event']])->render();
@@ -871,6 +872,23 @@ class EventController extends Controller
             DB::rollback();
             return redirect()->back()->withErrors(['error' => $e->getMessage()]);
         }
+    }
+
+    public function searchUsers(Request $request, $eventId)
+    {
+        $search = $request->get('query');
+        $event = Event::find($eventId);
+    
+        $authenticatedUsers = AuthenticatedUser::whereHas('user', function ($query) use ($search, $event) {
+            $query->where('username', 'ILIKE', '%' . $search . '%')
+                  ->where('id', '!=', $event->id_user);
+        })->with('user')->get();
+    
+        foreach ($authenticatedUsers as $authenticatedUser) {
+            $authenticatedUser->is_participant = $event->eventparticipants()->where('id_user', $authenticatedUser->user->id)->exists();
+        }
+    
+        return response()->json($authenticatedUsers);
     }
 
 }
