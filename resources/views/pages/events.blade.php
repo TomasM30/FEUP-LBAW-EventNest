@@ -56,9 +56,9 @@
                 <div class="accordion m-4" id="accordionExample">
                     <div class="accordion-item">
                         <h2 class="accordion-header" id="headingTwo">
-                            <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#collapseTwo" aria-expanded="false" aria-controls="collapseTwo">
-                                Filter
-                            </button>
+                        <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#collapseTwo" aria-expanded="false" aria-controls="collapseTwo">
+                            Filter
+                        </button>
                         </h2>
                         <div id="collapseTwo" class="accordion-collapse collapse" aria-labelledby="headingTwo" data-bs-parent="#accordionExample">
                             <div class="accordion-body row">
@@ -98,6 +98,7 @@
 
 
     <div class="container mt-5">
+        <div id="selected-filters" class="d-flex flex-wrap mb-3"></div>
         @if (!$events->isEmpty())
             <div class="row row-cols-1 row-cols-md-3 g-4 custom-row" id="container">
                 @foreach ($events as $event)

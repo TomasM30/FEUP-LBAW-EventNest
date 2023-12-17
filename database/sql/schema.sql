@@ -306,12 +306,12 @@ CREATE INDEX search_created ON Event USING GIN (tsvectors);
 CREATE FUNCTION event_search_update() RETURNS TRIGGER AS $$
 BEGIN
     IF TG_OP = 'INSERT' THEN
-        NEW.tsvectors = to_tsvector('english', NEW.title);
+        NEW.tsvectors = to_tsvector('english', coalesce(NEW.title, '') || ' ' || coalesce(NEW.description, ''));
     END IF;
 
     IF TG_OP = 'UPDATE' THEN
-        IF (NEW.title <> OLD.title) THEN
-            NEW.tsvectors = to_tsvector('english', NEW.title);
+        IF (NEW.title <> OLD.title OR NEW.description <> OLD.description) THEN
+            NEW.tsvectors = to_tsvector('english', coalesce(NEW.title, '') || ' ' || coalesce(NEW.description, ''));
         END IF;
     END IF;
 

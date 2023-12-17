@@ -11953,3 +11953,14 @@ input[type="search"]::-webkit-search-cancel-button {
   color: var(--bs-pagination-active-color);
   border-color: var(--bs-pagination-active-border-color);
 }
+
+.filter-tag {
+  display: inline-block;
+  padding: 5px 10px;
+  background-color: #000;
+  color: #ffffff;
+  margin-right: 1%;
+  margin-bottom: 1%;
+  border-radius: 20px;
+  font-size: 0.8em;
+}

@@ -745,3 +745,22 @@ document.addEventListener('DOMContentLoaded', function() {
     });
   }
 });
+
+document.addEventListener('DOMContentLoaded', function() {
+  document.querySelectorAll('.form-check-input').forEach(function(checkbox) {
+      checkbox.addEventListener('change', function() {
+          var selectedFilters = Array.from(document.querySelectorAll('.form-check-input:checked')).map(function(checkbox) {
+              return checkbox.nextElementSibling.textContent.trim();
+          });
+
+          var selectedFiltersContainer = document.getElementById('selected-filters');
+          selectedFiltersContainer.innerHTML = '';
+          selectedFilters.forEach(function(filter) {
+              var filterTag = document.createElement('span');
+              filterTag.textContent = filter;
+              filterTag.className = 'filter-tag';
+              selectedFiltersContainer.appendChild(filterTag);
+          });
+      });
+  });
+});
