@@ -891,4 +891,29 @@ class EventController extends Controller
         return response()->json($authenticatedUsers);
     }
 
+    public function searchUsersInvite (Request $request, $eventId)
+    {
+        $search = $request->get('query');
+        $event = Event::find($eventId);
+    
+        $invitedUsers = DB::table('eventnotification')
+        ->join('notification', 'eventnotification.id', '=', 'notification.id')
+        ->where('inviter_id', Auth::user()->id)
+        ->where('id_event', $event->id)
+        ->pluck('notification.id_user')
+        ->toArray();
+    
+        $authenticatedUsers = AuthenticatedUser::whereHas('user', function ($query) use ($search, $event, $invitedUsers) {
+            $query->where('username', 'ILIKE', '%' . $search . '%')
+                ->where('id', '!=', $event->id_user)
+                ->whereNotIn('id', $invitedUsers);
+        })->with('user')->get();
+        
+        foreach ($authenticatedUsers as $authenticatedUser) {
+            $authenticatedUser->is_participant = $event->eventparticipants()->where('id_user', $authenticatedUser->user->id)->exists();
+        }
+    
+        return response()->json($authenticatedUsers);
+    }
+
 }

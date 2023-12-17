@@ -11,7 +11,7 @@
                 @foreach ($users as $authenticatedUser)
                     <tr>
                         <td>
-                            <a class="text-decoration-none" style="text-decoration: none; color: inherit;" href="{{ route('user.events', $authenticatedUser->user->id) }}">{{ $authenticatedUser->user->username }}</a>
+                            <p style="text-decoration: none; color: inherit;">{{ $authenticatedUser->user->username }}</p>
                         </td>
                         <td class="text-right">
                             @if($event->eventparticipants()->where('id_user', $authenticatedUser->user->id)->exists())
@@ -21,7 +21,6 @@
                                     <input type="hidden" name="eventId" value="{{ $event->id }}">
                                     <button type="submit" class="btn btn-danger removeUser">Remove</button>
                                 </form>
-
                             @else
                                 <form method="POST" action="{{ route('events.add', $event->id) }}">
                                     {{ csrf_field() }}

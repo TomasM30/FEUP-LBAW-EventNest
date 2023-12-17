@@ -291,7 +291,6 @@ window.onload = function () {
     let overlay = document.getElementById(overlayId);
 
     if (!modal || !trigger || !overlay) {
-      console.error('One or more elements could not be found.');
       return;
     }
 
@@ -330,6 +329,9 @@ window.onload = function () {
   handleModal('verificationModal', 'questionBtn', 'overlay');
   handleModal('tagModal', 'tagBtn', 'overlay');
   handleModal('userModal', 'manage-btn', 'overlay');
+  handleModal('inviteUserModal', 'invitebtn', 'overlay');
+  handleModal('deleteEventModal', 'deletebtn', 'overlay');
+  handleModal('cancelEventModal', 'cancelbtn', 'overlay');
 
   let chatTabLink = document.querySelector('a[href="#v-pills-chat"]');
   let messages = document.querySelector('#messages');
@@ -709,6 +711,7 @@ document.addEventListener('DOMContentLoaded', function() {
   let eventId = document.querySelector('#userSearch').dataset.eventId;
   if (userSearch) {
     userSearch.addEventListener('input', function() {
+      console.log('input event triggered');
       fetch('/events/' + eventId + '/searchUsers?query=' + encodeURIComponent(this.value))
         .then(response => response.json())
         .then(authenticatedUsers => {
@@ -720,7 +723,7 @@ document.addEventListener('DOMContentLoaded', function() {
             let csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
             row.innerHTML = `
               <td>
-                <a class="text-decoration-none" style="text-decoration: none; color: inherit;" href="/user/events/${user.id}">${user.username}</a>
+                <p style="text-decoration: none; color: inherit;"${user.id}">${user.username}</p>
               </td>
               <td class="text-right">
                 ${authenticatedUser.is_participant ? 
@@ -737,6 +740,41 @@ document.addEventListener('DOMContentLoaded', function() {
                      <button type="submit" class="btn btn-success addUser">Add</button>
                    </form>`
                 }
+              </td>
+            `;
+            tableBody.appendChild(row);
+          });
+        });
+    });
+  }
+});
+
+document.addEventListener('DOMContentLoaded', function() {
+  let userSearch = document.getElementById('inviteSearch');
+  let eventId = document.querySelector('#inviteSearch').dataset.eventId;
+  console.log(eventId);
+  if (userSearch) {
+    userSearch.addEventListener('input', function() {
+      fetch('/events/' + eventId + '/searchUsers/invite?query=' + encodeURIComponent(this.value))
+        .then(response => response.json())
+        .then(authenticatedUsers => {
+          let tableBody = document.querySelector('#inviteTable tbody');
+          tableBody.innerHTML = '';
+          authenticatedUsers.forEach(authenticatedUser => {
+            let user = authenticatedUser.user;
+            let row = document.createElement('tr');
+            let csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+            row.innerHTML = `
+              <td>
+                <p style="text-decoration: none; color: inherit;"${user.id}">${user.username}</p>
+              </td>
+              <td class="text-right">
+                  <form method="POST" action="/events/${user.id}/invite">
+                    <input type="hidden" name="_token" value="${csrfToken}">
+                    <input type="hidden" name="id_user" value="${user.id}">
+                    <input type="hidden" name="eventId" value="${eventId}">
+                    <button type="submit" class="btn btn-outline-primary">Invite</button>
+                  </form>
               </td>
             `;
             tableBody.appendChild(row);

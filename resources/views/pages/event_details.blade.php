@@ -171,24 +171,9 @@
                 @endif
                 @if ($event->closed == false)
                 @if(!$isAdmin && $isParticipant)
-                <div class="dropdown d-flex justify-content-center" style="width: 100%">
-                    <button class="btn btn-primary m-3 dropdown-toggle invite" style="width: 100%;" type="button" id="dropdownMenuInvite" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                        Invite
-                    </button>
-                    <div class="dropdown-menu" aria-labelledby="dropdownMenuInvite">
-                        @foreach ($notInvited as $authUser)
-                        @if($authUser->user->id != $event->user->id)
-                        <form method="POST" action="{{ route('events.notification', $event->id) }}">
-                            {{ csrf_field() }}
-                            <input type="hidden" name="id_user" value="{{ $authUser->user->id }}">
-                            <input type="hidden" name="eventId" value="{{ $event->id }}">
-                            <input type="hidden" name="action" value="invitation">
-                            <button type="submit" class="dropdown-item">{{ $authUser->user->name }}</button>
-                        </form>
-                        @endif
-                        @endforeach
+                    <div class="btn-group" style="width: 100%;">
+                        <button id='invitebtn' type="button" class="btn btn-primary m-3 " data-toggle="modal">Invite</button>
                     </div>
-                </div>
                 @endif
                 @if(!$isParticipant && !$isAdmin && $event->eventparticipants()->count() < $event->capacity)
                     @if($event->type == 'public' || $event->type == 'private')
@@ -227,14 +212,9 @@
                         </div>
 
                         @if(($isOrganizer && $user->authenticated->is_verified == 0)  || $isAdmin)
-                            <form method="POST" action="{{ route('events.cancel', $event->id) }}" style="width: 100%;" class="d-flex justify-content-center">
-                                {{ csrf_field() }}
-                                <input type="hidden" name="id_user" value="{{ Auth::user()->id }}">
-                                <input type="hidden" name="eventId" value="{{ $event->id }}">
-                                <div class="btn-group" style="width: 100%;">
-                                    <button type="submit" class="btn btn-primary m-3 ">Cancel</button>
-                                </div>
-                            </form>
+                            <div class="btn-group" style="width: 100%;">
+                                <button id='cancelbtn' type="button" class="btn btn-primary m-3 ">Cancel</button>
+                            </div>
                         @endif
 
                         <div class="btn-group" style="width: 100%;">
@@ -243,14 +223,9 @@
                     @endif
                 @endif
                 @if($isAdmin)
-                    <form method="POST" action="{{ route('events.delete', ['id' => $event->id]) }}" class="d-flex justify-content-center" style="width: 100%;">
-                        {{ csrf_field() }}
-                        {{ method_field('DELETE') }}
-                        <input type="hidden" name="id" value="{{ $event->id }}">
-                        <div class="btn-group" style="width: 100%;">
-                            <button type="submit" class="btn btn-primary m-3 ">Delete</button>
-                        </div>
-                    </form>
+                    <div class="btn-group" style="width: 100%;">
+                        <button id='deletebtn' type="button" class="btn btn-primary m-3 ">Delete</button>
+                    </div>
                 @endif
             </div>
         </div>
@@ -262,4 +237,7 @@
 @include('partials.eventModal', ['formAction' => route('events.edit', $event->id), 'hashtags' => $hashtags])
 @include('partials.reportModal')
 @include('partials.manageUserModal')
+@include('partials.inviteUserModal')
+@include('partials.deleteEventModal')
+@include('partials.cancelEventModal')
 @endsection
