@@ -155,7 +155,64 @@
                                     </div>
                                 </div>
                                 <div class="tab-pane fade" id="v-pills-comments">
-                                    <!-- Comments content goes here -->
+                                    <section class="gradient-custom">
+                                        <div class="row d-flex justify-content-center">
+                                            <div class="col-md-12 col-lg-10">
+                                                <div class="card-body p-4">
+                                                    <h5 class="mb-0">Recent comments</h5>
+                                                    <p class="fw-light mb-4 pb-2">Latest Comments</p>
+                                                    @foreach($event->comments as $comment)
+                                                        <div class="card mb-3">
+                                                            <div class="d-flex flex-start p-3">
+                                                                <img class="rounded-circle shadow-1-strong me-3" src="{{ url($comment -> authenticated -> user -> getProfileImage()) }}" alt="avatar" width="40" height="40" />
+                                                                <div>
+                                                                <a href="{{ route('user.profile', [ 'id' => $comment->id_user]) }}" style="text-decoration: none; color: inherit;">
+                                                                <h6 class="fw-bold mb-1">{{ $comment->authenticated->user->name }}
+                                                                    @if($comment->authenticated->is_verified == true)
+                                                                        <i class="fa-solid fa-circle-check"></i>
+                                                                    @endif
+                                                                    </h6>
+                                                                </a>
+                                                                <div class="d-flex align-items-center mb-3">
+                                                                    <p class="mb-0" style="font-size: 13px;">
+                                                                    {{ $comment->date }}
+                                                                    <span class="badge bg-primary">Posted</span>
+                                                                    </p>
+                                                                    @if( Auth::user()->id == $comment->id_user || $isAdmin )
+                                                                        <form action="{{ route('event.removeComment', ['id' => $event->id, 'commentId' => $comment->id]) }}" method="post">
+                                                                            @csrf
+                                                                            @method('DELETE')
+                                                                            <button type ="submit" class="link-muted" style="border: none; background: none; padding: 0; cursor: pointer;">
+                                                                            <i class="fas fa-trash-alt ms-2"></i>
+                                                                            </button>
+                                                                        </form>
+                                                                    @endif
+                                                                </div>
+                                                                <p class="mb-0">
+                                                                    {{ $comment->content }}
+                                                                </p>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+
+                                                    @endforeach
+                                                    <div class="card">
+                                                    <div class="card-body p-4">
+                                                        <h5 class="text-center mb-4 pb-2">Add a Comment</h5>
+                                                        <form action="{{ route('event.addComment', ['id' => $event->id]) }}" method="post">
+                                                            @csrf
+                                                            <div class="mb-3">
+                                                                <textarea class="form-control" name="content" rows="1" placeholder="Your comment" required></textarea>
+                                                            </div>
+                                                            <input type="hidden" name="type" value="Some Type"> <!-- Change this value if needed -->
+                                                            <button type="submit" class="btn btn-primary">Add Comment</button>
+                                                        </form>
+                                                    </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </section>
                                 </div>
                             </div>
                         </div>
