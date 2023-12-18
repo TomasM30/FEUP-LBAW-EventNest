@@ -15,6 +15,7 @@ use App\Models\Notification;
 use App\Models\EventNotification;
 use App\Models\Hashtag;
 use App\Models\Message;
+use App\Models\EventComment;
 
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Log;
@@ -226,6 +227,9 @@ class AuthenticatedUserController extends Controller
 
             Report::where('id_user', $user->id)
                 ->update(['closed' => true, 'id_user' => null]);
+
+            EventComment::where('id_user', $user->id)
+                ->update(['id_user' => null]);
 
             foreach ($events as $event) {
                 $request = new Request(['eventId' => $event->id]);

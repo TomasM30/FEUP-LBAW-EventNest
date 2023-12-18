@@ -161,12 +161,13 @@
                                                     <h5 class="mb-0">Recent comments</h5>
                                                     <p class="fw-light mb-4 pb-2">Latest Comments</p>
                                                     <div id="comments" class="overflow-auto" style="max-height: 450px;">
-                                                        @if($event->comments != null)
-                                                            @foreach($event->comments as $comment)
-                                                                <div class="card mb-3">
-                                                                    <div class="d-flex flex-start p-3">
-                                                                        <img class="rounded-circle shadow-1-strong me-3" src="{{ url($comment -> authenticated -> user -> getProfileImage()) }}" alt="avatar" width="40" height="40" />
-                                                                        <div>
+                                                    @if($event->comments != null)
+                                                        @foreach($event->comments as $comment)
+                                                            <div class="card mb-3">
+                                                                <div class="d-flex flex-start p-3">
+                                                                    <img class="rounded-circle shadow-1-strong me-3" src="{{ url($comment->authenticated && $comment->authenticated->user ? $comment->authenticated->user->getProfileImage() : asset('profile/default.png')) }}" alt="avatar" width="40" height="40" />
+                                                                <div>
+                                                                        @if($comment->id_user != null)
                                                                             <a href="{{ route('user.profile', [ 'id' => $comment->id_user]) }}" class="text-decoration-none text-dark">
                                                                                 <h6 class="fw-bold mb-1">{{ $comment->authenticated->user->name }}
                                                                                     @if($comment->authenticated->is_verified == true)
@@ -174,29 +175,32 @@
                                                                                     @endif
                                                                                 </h6>
                                                                             </a>
-                                                                            <div class="d-flex align-items-center mb-3">
-                                                                                <p class="mb-0 small">
-                                                                                    {{ $comment->date }}
-                                                                                    <span class="badge bg-primary">Posted</span>
-                                                                                </p>
-                                                                                @if( Auth::user()->id == $comment->id_user || $isAdmin )
-                                                                                    <form action="{{ route('event.removeComment', ['id' => $event->id, 'commentId' => $comment->id]) }}" method="post" class="ms-2">
-                                                                                        @csrf
-                                                                                        @method('DELETE')
-                                                                                        <button type="submit" class="btn btn-link p-0 ms-2 text-danger">
-                                                                                            <i class="fas fa-trash-alt"></i>
-                                                                                        </button>
-                                                                                    </form>
-                                                                                @endif
-                                                                            </div>
-                                                                            <p class="mb-0">
-                                                                                {{ $comment->content }}
+                                                                        @else
+                                                                            <p class="mr-1" style="margin: 0; padding: 0; color: red; font-weight: bold;">User deleted</p>
+                                                                        @endif
+                                                                        <div class="d-flex align-items-center mb-3">
+                                                                            <p class="mb-0 small">
+                                                                                {{ $comment->date }}
+                                                                                <span class="badge bg-primary">Posted</span>
                                                                             </p>
+                                                                            @if( Auth::user()->id == $comment->id_user || $isAdmin )
+                                                                                <form action="{{ route('event.removeComment', ['id' => $event->id, 'commentId' => $comment->id]) }}" method="post" class="ms-2">
+                                                                                    @csrf
+                                                                                    @method('DELETE')
+                                                                                    <button type="submit" class="btn btn-link p-0 ms-2 text-danger">
+                                                                                        <i class="fas fa-trash-alt"></i>
+                                                                                    </button>
+                                                                                </form>
+                                                                            @endif
                                                                         </div>
+                                                                        <p class="mb-0">
+                                                                            {{ $comment->content }}
+                                                                        </p>
                                                                     </div>
                                                                 </div>
-                                                            @endforeach
-                                                        @endif
+                                                            </div>
+                                                        @endforeach
+                                                    @endif
                                                     </div>
                                                     <div class="card mt-4 shadow">
                                                         <div class="card-body p-4">

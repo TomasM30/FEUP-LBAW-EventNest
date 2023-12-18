@@ -133,6 +133,7 @@ class EventController extends Controller
             }
 
             $event->report()->delete();
+            $event->comments()->delete();
 
             $event->messages()->delete();
             $event->eventparticipants()->delete();
