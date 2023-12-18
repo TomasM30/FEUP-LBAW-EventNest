@@ -12,9 +12,9 @@
         </div>
         <div class="col-md-6">
             <h2>Follow us on social media</h2>
-            <a href="https://www.facebook.com/yourfacebookpage" class="btn btn-primary"><i class="fab fa-facebook"></i> Facebook</a>
-            <a href="https://www.instagram.com/yourinstagram" class="btn btn-primary"><i class="fab fa-instagram"></i> Instagram</a>
-            <a href="https://twitter.com/yourtwitter" class="btn btn-primary"><i class="fab fa-x-twitter"></i> Twitter</a>
+            <a href="https://www.facebook.com/yourfacebookpage" class="btn btn-primary mb-2"><i class="fab fa-facebook"></i> Facebook</a>
+            <a href="https://www.instagram.com/yourinstagram" class="btn btn-primary mb-2"><i class="fab fa-instagram"></i> Instagram</a>
+            <a href="https://twitter.com/yourtwitter" class="btn btn-primary mb-2"><i class="fab fa-x-twitter"></i> Twitter</a>
         </div>
     </div>
 </div>

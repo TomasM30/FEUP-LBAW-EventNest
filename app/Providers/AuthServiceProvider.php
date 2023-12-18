@@ -16,6 +16,7 @@ class AuthServiceProvider extends ServiceProvider
         Event::class => EventPolicy::class,
         Admin::class => AdminPolicy::class,
         AuthenticatedUser::class => AuthenticatedUserPolicy::class,
+        User::class => UserPolicy::class,
     ];
 
     /**

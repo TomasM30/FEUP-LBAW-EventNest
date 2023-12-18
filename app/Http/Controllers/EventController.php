@@ -20,6 +20,7 @@ use App\Models\Hashtag;
 use App\Models\AuthenticatedUser;
 use App\Models\Notification;
 use App\Models\EventNotification;
+use App\Models\EventComment;
 use App\Models\RequestNotification;
 use App\Models\FavouriteEvents;
 use App\Models\Report;
@@ -35,7 +36,7 @@ class EventController extends Controller
             $this->authorize('create', Event::class);
 
             DB::BeginTransaction();
-            
+
             $request->validate([
                 'title' => 'required|string',
                 'description' => 'required|string|max:500',
@@ -47,7 +48,7 @@ class EventController extends Controller
                     'min:1',
                     function ($attribute, $value, $fail) use ($request) {
                         if ($value > $request->capacity) {
-                            $fail($attribute.' must be less than or equal to capacity.');
+                            $fail($attribute . ' must be less than or equal to capacity.');
                         }
                     },
                 ],
@@ -55,7 +56,7 @@ class EventController extends Controller
                 'hashtags2' => 'array',
                 'hashtags2.*' => 'exists:hashtag,id',
             ]);
-            
+
 
             $event = Event::create([
                 'title' => $request->title,
@@ -81,8 +82,8 @@ class EventController extends Controller
             EventParticipant::insert([
                 'id_user' => Auth::user()->id,
                 'id_event' => $event->id,
-                ]);
-            
+            ]);
+
             if ($request->hasFile('file')) {
                 $request->merge(['id' => $event->id, 'type' => 'event']);
                 $fileController = new FileController();
@@ -97,9 +98,8 @@ class EventController extends Controller
             }
 
             DB::commit();
-        
+
             return redirect()->route('events.details', ['id' => $event->id])->with('success', 'Your event was successfully created!');
-            
         } catch (ValidationException $e) {
             DB::rollback();
             throw $e;
@@ -123,16 +123,19 @@ class EventController extends Controller
 
         try {
 
-            $event = Event::findOrFail($id);
+            $eventNotifications = EventNotification::where('id_event', $event->id)->get();
 
-            if ($event->eventnotification) {
-                $eventNot = $event->eventnotification;
-                $event->eventnotification()->delete();
-                log::info($eventNot);
-                $eventNot->delete();
-            }
+            // Store the IDs of the EventNotifications in an array
+            $eventNotificationIds = $eventNotifications->pluck('id')->toArray();
+            
+            // Delete the EventNotifications
+            EventNotification::whereIn('id', $eventNotificationIds)->delete();
+            
+            // Then delete the Notifications
+            Notification::whereIn('id', $eventNotificationIds)->delete();
 
             $event->report()->delete();
+            $event->comments()->delete();
 
             $event->messages()->delete();
             $event->eventparticipants()->delete();
@@ -147,13 +150,15 @@ class EventController extends Controller
             return redirect()->route('events')->with('success', 'Event deletion successful');
         } catch (\Exception $e) {
             DB::rollback();
-            return redirect()->back()->with('error', 'Event deletion failed');
+            log::info($e->getMessage());
+            return redirect()->back()->with('error', 'Event deletion failed: ');
         }
     }
 
-    public function addEventAsFavourite (Request $request) {
+    public function addEventAsFavourite(Request $request)
+    {
         try {
-            if (!(AuthenticatedUser::where('id_user', $request->id_user)->exists())|| !(Event::where('id', $request->id_event)->exists()))
+            if (!(AuthenticatedUser::where('id_user', $request->id_user)->exists()) || !(Event::where('id', $request->id_event)->exists()))
                 return redirect()->back()->with('error', 'User or event not found');
 
             DB::BeginTransaction();
@@ -164,8 +169,7 @@ class EventController extends Controller
             ]);
 
             DB::commit();
-
-        } catch(ModelNotFoundException $e) {
+        } catch (ModelNotFoundException $e) {
             DB::rollBack();
             log::info($e->getMessage());
             return redirect()->back()->with('error', 'User failed to add event as favourite!');
@@ -173,9 +177,10 @@ class EventController extends Controller
         return redirect()->back()->with('success', 'Event added as favourite successfully');
     }
 
-    public function removeEventAsFavourite (Request $request) {
+    public function removeEventAsFavourite(Request $request)
+    {
         try {
-            if (!(AuthenticatedUser::where('id_user', $request->id_user)->exists())|| !(Event::where('id', $request->id_event)->exists()))
+            if (!(AuthenticatedUser::where('id_user', $request->id_user)->exists()) || !(Event::where('id', $request->id_event)->exists()))
                 return redirect()->back()->with('error', 'User or event not found');
 
             DB::BeginTransaction();
@@ -185,47 +190,46 @@ class EventController extends Controller
                 ->delete();
 
             DB::commit();
-
-        } catch(ModelNotFoundException $e) {
+        } catch (ModelNotFoundException $e) {
             DB::rollBack();
             log::info($e->getMessage());
             return redirect()->back()->with('error', 'User failed to remove event as favourite!');
         }
         return redirect()->back()->with('success', 'Event removed as favourite successfully');
     }
-    
+
 
     public function listEvents()
-    {   
+    {
         $now = Carbon::now();
-    
+
         Event::where('date', '<', $now)
             ->where('closed', false)
             ->update(['closed' => true]);
-    
+
         $user = Auth::user();
-    
+
         $query = Event::query();
-    
+
         if ($user->isAdmin()) {
             $query->where('closed', false);
         } else {
             $query->whereIn('type', ['approval', 'public'])
-                  ->where('id_user', '!=', $user->id)
-                  ->where('closed', false);
+                ->where('id_user', '!=', $user->id)
+                ->where('closed', false);
         }
-    
+
         $events = $query->orderBy('date')->paginate(21);
-    
+
         $hashtags = Hashtag::orderBy('title')->get();
         $places = Event::getUniquePlaces()->sortBy('place');
-        
-    
-        return view('pages.events', ['events' => $events, 'user'=> $user, 'hashtags' => $hashtags, 'places' => $places]);
-    }   
 
 
-    public function showEventDetails(Request $request) 
+        return view('pages.events', ['events' => $events, 'user' => $user, 'hashtags' => $hashtags, 'places' => $places]);
+    }
+
+
+    public function showEventDetails(Request $request)
     {
         $id = $request->id;
         $user = Auth::user();
@@ -240,24 +244,27 @@ class EventController extends Controller
         $data['attendees'] = $data['event']->eventparticipants()->paginate(15);
         $data['participants'] = $data['event']->eventparticipants()->pluck('id_user')->toArray();
         $data['invitedUsers'] = DB::table('eventnotification')->join('notification', 'eventnotification.id', '=', 'notification.id')
-                                                            ->where('inviter_id', Auth::user()->id)
-                                                            ->where('id_event', $data['event']->id)
-                                                            ->pluck('notification.id_user')
-                                                            ->toArray(); 
+            ->where('inviter_id', Auth::user()->id)
+            ->where('id_event', $data['event']->id)
+            ->pluck('notification.id_user')
+            ->toArray();
 
         $data['notInvited'] = AuthenticatedUser::whereNotIn('id_user', $data['participants'])
-                            ->whereNotIn('id_user', $data['invitedUsers'])
-                            ->get();
-                            
+            ->whereNotIn('id_user', $data['invitedUsers'])
+            ->get();
+
         $data['nonParticipants'] = AuthenticatedUser::whereNotIn('id_user', $data['participants'])->get();
 
         $data['alreadyReported'] =  $data['event']->alreadyReported(Auth::id());
-                                        
+
         $data['alreadyRequested'] =  $data['event']->alreadyRequested(Auth::id());
-        
+
         $data['isFavourite'] =  $data['event']->isFavourite(Auth::id());
         $data['user'] = $user;
         $data['messages'] = $messages = Message::where('id_event', $data['event']->id)->get();
+        $data['users'] = AuthenticatedUser::all()->where('id_user', '!=', $data['event']->id_user);
+        log::info($data['users']->count());
+        $data['comments'] = EventComment::where('id_event', $id);
 
 
         if ($request->ajax()) {
@@ -267,10 +274,11 @@ class EventController extends Controller
         return view('pages.event_details', $data);
     }
 
-    public function joinedEvent($user, $event){
+    public function joinedEvent($user, $event)
+    {
         return EventParticipant::where('id_user', $user->id)
-                                ->where('id_event', $event->id)
-                                ->exists();
+            ->where('id_event', $event->id)
+            ->exists();
     }
 
     public function addUser(Request $request)
@@ -282,22 +290,22 @@ class EventController extends Controller
 
 
         $this->authorize('addUser', $event);
-            
+
         try {
-            if (!(AuthenticatedUser::where('id_user', $request->id_user)->exists())|| !(Event::where('id', $request->eventId)->exists())) 
+            if (!(AuthenticatedUser::where('id_user', $request->id_user)->exists()) || !(Event::where('id', $request->eventId)->exists()))
                 return redirect()->back()->with('error', 'User or event not found');
-            
+
             DB::BeginTransaction();
 
 
             EventParticipant::insert([
-            'id_user' => $request->id_user,
-            'id_event' => $request->eventId,
+                'id_user' => $request->id_user,
+                'id_event' => $request->eventId,
             ]);
 
             $notification = Notification::find($request->notificationId);
             $action = $request->action;
-            
+
             if ($notification) {
                 $notification->eventnotification()->delete();
                 $notification->delete();
@@ -326,7 +334,7 @@ class EventController extends Controller
             
             $receiverId = $request->id_user;
 
-            if($action == 'request'){
+            if ($action == 'request') {
                 if (!$this->createNotification('request_accepted', $receiverId, null, $request->eventId)) {
                     return redirect()->back()->with('error', 'Failed to create notification!');
                 }
@@ -338,13 +346,12 @@ class EventController extends Controller
 
             DB::commit();
             return redirect()->back()->with('success', 'Added user successfully');
-
         } catch (\Exception $e) {
-       
+
             DB::rollback();
-            ('User jailed to join event: ' . $e->getMessage()); 
+            ('User jailed to join event: ' . $e->getMessage());
             return redirect()->back()->with('error', 'User jailed to join event!');
-        }    
+        }
     }
 
     public function removeUser(Request $request)
@@ -354,27 +361,27 @@ class EventController extends Controller
             return redirect()->back()->with('error', 'Event not found');
         }
         $this->authorize('removeUser', $event);
-            
+
         try {
-            if (!(AuthenticatedUser::where('id_user', $request->id_user)->exists())|| !(Event::where('id', $request->eventId)->exists())){
-                return redirect()->back()->with('error', 'User or event not found');  
+            if (!(AuthenticatedUser::where('id_user', $request->id_user)->exists()) || !(Event::where('id', $request->eventId)->exists())) {
+                return redirect()->back()->with('error', 'User or event not found');
             }
-            
+
             DB::BeginTransaction();
 
             EventParticipant::where('id_user', $request->id_user)
-                            ->where('id_event', $request->eventId)
-                            ->delete();
+                ->where('id_event', $request->eventId)
+                ->delete();
 
-            
+
             $user = User::find($request->id_user);
             $receiverId = $request->id_user;
 
             $notificationIds = Notification::where('id_user', $request->id_user)
-            ->whereHas('eventnotification', function ($query) use ($request) {
-                $query->where('id_event', $request->eventId);
-            })
-            ->pluck('id');
+                ->whereHas('eventnotification', function ($query) use ($request) {
+                    $query->where('id_event', $request->eventId);
+                })
+                ->pluck('id');
 
             EventNotification::whereIn('id', $notificationIds)->delete();
 
@@ -387,11 +394,10 @@ class EventController extends Controller
 
             DB::commit();
             return redirect()->back()->with('success', 'Removed user successfully');
-
         } catch (\Exception $e) {
-    
+
             DB::rollback();
-            ('User jailed to leave event: ' . $e->getMessage()); 
+            ('User jailed to leave event: ' . $e->getMessage());
             return redirect()->back()->with('error', 'User jailed to leave event!');
         }
     }
@@ -403,19 +409,19 @@ class EventController extends Controller
         if (!$event) {
             return redirect()->back()->with('error', 'Event not found');
         }
-    
+
         $this->authorize('joinEvent', $event);
-            
+
         try {
-            if (!(AuthenticatedUser::where('id_user', $request->id_user)->exists())|| !(Event::where('id', $request->eventId)->exists())){
+            if (!(AuthenticatedUser::where('id_user', $request->id_user)->exists()) || !(Event::where('id', $request->eventId)->exists())) {
                 return redirect()->back()->with('error', 'User or event not found');
             }
-            
+
             DB::BeginTransaction();
 
             EventParticipant::insert([
-            'id_user' => $request->id_user,
-            'id_event' => $request->eventId,
+                'id_user' => $request->id_user,
+                'id_event' => $request->eventId,
             ]);
 
             if ($request->has('notificationId')) {
@@ -455,13 +461,12 @@ class EventController extends Controller
 
             DB::commit();
             return redirect()->route('events.details', ['id' => $request->eventId])->with('success', 'Joined event successfully');
-
         } catch (\Exception $e) {
-    
+
             DB::rollback();
-            ('User jailed to join event: ' . $e->getMessage()); 
+            ('User jailed to join event: ' . $e->getMessage());
             return redirect()->back()->with('error', 'User jailed to join event!');
-        }    
+        }
     }
 
     public function leaveEvent(Request $request)
@@ -470,39 +475,37 @@ class EventController extends Controller
         if (!$event) {
             return redirect()->back()->with('error', 'Event not found');
         }
-    
+
         $this->authorize('leaveEvent', $event);
-            
+
         try {
-            if (!(AuthenticatedUser::where('id_user', $request->id_user)->exists())|| !(Event::where('id', $request->eventId)->exists())) 
+            if (!(AuthenticatedUser::where('id_user', $request->id_user)->exists()) || !(Event::where('id', $request->eventId)->exists()))
                 return redirect()->back()->with('error', 'User or event not found');
-            
+
             DB::BeginTransaction();
 
             EventParticipant::where('id_user', $request->id_user)
-                            ->where('id_event', $request->eventId)
-                            ->delete();
+                ->where('id_event', $request->eventId)
+                ->delete();
             DB::commit();
+        } catch (\Exception $e) {
 
-            } catch (\Exception $e) {
-       
-                DB::rollback();
-                ('User jailed to leave event: ' . $e->getMessage()); 
-                return redirect()->back()->with('error', 'User jailed to leave event!');
+            DB::rollback();
+            ('User jailed to leave event: ' . $e->getMessage());
+            return redirect()->back()->with('error', 'User jailed to leave event!');
         }
 
-        if ($event->type == 'private'){
+        if ($event->type == 'private') {
             return redirect()->route('events')->with('success', 'Left event successfully');
         } else {
             return redirect()->back()->with('success', 'Left event successfully');
         }
-        
     }
 
-    public function editEvent (Request $request)
+    public function editEvent(Request $request)
     {
 
-        try{
+        try {
             DB::BeginTransaction();
 
             $event = Event::find($request->id);
@@ -548,7 +551,7 @@ class EventController extends Controller
                         'min:0',
                         function ($attribute, $value, $fail) use ($request) {
                             if ($value > $request->capacity) {
-                                $fail($attribute.' must be less than or equal to capacity.');
+                                $fail($attribute . ' must be less than or equal to capacity.');
                             }
                         },
                     ],
@@ -620,15 +623,15 @@ class EventController extends Controller
                 'id_user' => $receiverId,
                 'report_id' => $reportId,
             ]);
-    
+
             EventNotification::create([
-                    'id' => $notification->id,
-                    'inviter_id' => $senderId,
-                    'id_event' => $eventId,
+                'id' => $notification->id,
+                'inviter_id' => $senderId,
+                'id_event' => $eventId,
             ]);
-    
+
             DB::commit();
-        } catch (\Exception $e){
+        } catch (\Exception $e) {
             log::info($e->getMessage());
             DB::rollback();
             return false;
@@ -640,7 +643,7 @@ class EventController extends Controller
     {
         $notification = Notification::find($notificationId);
         if ($notification) {
-    
+
             $newNotificationType = '';
             if ($notification->type == 'invitation_received') {
                 $newNotificationType = 'invitation_rejected';
@@ -650,7 +653,7 @@ class EventController extends Controller
                 $notification->report->update(['closed' => true]);
                 $newNotificationType = 'report_closed';
             }
-    
+
             if ($newNotificationType != '') {
                 $receiverId = $notification->eventnotification->inviter_id;
                 $senderId = $notification->id_user;
@@ -659,7 +662,7 @@ class EventController extends Controller
                     return redirect()->back()->with('message', 'Failed to create notification!');
                 }
             }
-    
+
             if ($notification->eventnotification) {
                 $notification->eventnotification->delete();
             }
@@ -677,9 +680,9 @@ class EventController extends Controller
         if (!$event) {
             return redirect()->back()->with('error', 'Event not found');
         }
-        
-        $sender = auth()->user();   
-        $receiverId = $request->id_user; 
+
+        $sender = auth()->user();
+        $receiverId = $request->id_user;
         $action = $request->action;
 
         if (!AuthenticatedUser::where('id_user', $sender->id)->exists()) {
@@ -694,38 +697,37 @@ class EventController extends Controller
         if ($event->type == 'public' || ($event->type == 'approval' && $action == 'invitation') || ($event->type == 'private' && $action == 'invitation')) {
             $notificationType = 'invitation_received';
             $this->authorize('inviteUser', $event);
-        } 
-        elseif ($event->type == 'approval' && $action == 'request') {
+        } elseif ($event->type == 'approval' && $action == 'request') {
             $notificationType = 'request';
             $this->authorize('requestToJoin', $event);
         }
-    
+
         try {
             $receiver = User::where('id', $receiverId)->firstOrFail();
         } catch (ModelNotFoundException $e) {
             log::info($e->getMessage());
             return redirect()->back()->with('error', 'Receiver not found');
         }
-    
+
         $notificationExists = Notification::where('id_user', $receiver->id)
             ->whereHas('eventnotification', function ($query) use ($sender, $request) {
                 $query->where('inviter_id', $sender->id)
                     ->where('id_event', $request->eventId);
             })->exists();
-        
+
         if ($notificationExists) {
             return redirect()->back()->with('error', 'Invite already sent!');
         }
-    
+
         if (!$this->createNotification($notificationType, $receiver->id, $sender->id, $request->eventId)) {
             return redirect()->back()->with('error', 'Failed to send Invite!');
         }
 
         log::info($request->type);
-        if($request->type == "request"){
+        if ($request->type == "request") {
             return redirect()->back()->with('success', 'Request successfully sent!');
-        }else{
-         return redirect()->back()->with('success', 'Invite successfully sent!');
+        } else {
+            return redirect()->back()->with('success', 'Invite successfully sent!');
         }
     }
 
@@ -739,9 +741,9 @@ class EventController extends Controller
         $type = $request->input('type');
         $query = Event::query();
 
-        if($type == 'main'){
+        if ($type == 'main') {
             $user = Auth::user();
-        }else{
+        } else {
             $user = AuthenticatedUser::where('id_user', $request->route('id'))->firstOrFail();
         }
 
@@ -780,15 +782,15 @@ class EventController extends Controller
         }
 
         $events = $query->when($hashtags, function ($query, $hashtags) {
-                        return $query->whereHas('hashtags', function ($query) use ($hashtags) {
-                            $query->whereIn('id', $hashtags);
-                        });
-                    })
-                    ->when($places, function ($query, $places) {
-                        return $query->whereIn('place', $places);
-                    })
-                    ->orderBy($orderBy, $direction)
-                    ->paginate(21);
+            return $query->whereHas('hashtags', function ($query) use ($hashtags) {
+                $query->whereIn('id', $hashtags);
+            });
+        })
+            ->when($places, function ($query, $places) {
+                return $query->whereIn('place', $places);
+            })
+            ->orderBy($orderBy, $direction)
+            ->paginate(21);
 
         $filteredEventsHtml = view('partials.event_lists', ['events' => $events])->render();
         $filteredEventIds = $events->pluck('id')->all();
@@ -797,9 +799,10 @@ class EventController extends Controller
             'html' => $filteredEventsHtml,
             'ids' => $filteredEventIds,
         ]);
-    }             
+    }
 
-    public function cancelEvent(Request $request){
+    public function cancelEvent(Request $request)
+    {
         $event = Event::find($request->eventId);
         if (!$event) {
             return redirect()->back()->with('error', 'Event not found');
@@ -813,13 +816,13 @@ class EventController extends Controller
         foreach ($participants as $participant) {
 
             $notificationIds = Notification::where('id_user', $participant->id_user)
-                                           ->whereHas('eventnotification', function ($query) use ($request) {
-                                               $query->where('id_event', $request->eventId);
-                                           })
-                                           ->pluck('id');
-    
+                ->whereHas('eventnotification', function ($query) use ($request) {
+                    $query->where('id_event', $request->eventId);
+                })
+                ->pluck('id');
+
             EventNotification::whereIn('id', $notificationIds)->delete();
-    
+
             Notification::whereIn('id', $notificationIds)->delete();
 
             $this->createNotification('event_canceled', $participant->id_user, null, $event->id);
@@ -828,7 +831,8 @@ class EventController extends Controller
         return redirect()->back()->with('success', 'Event cancelled successfully');
     }
 
-    public function reportEvent(Request $request, $id){
+    public function reportEvent(Request $request, $id)
+    {
         try {
 
             DB::BeginTransaction();
@@ -837,7 +841,7 @@ class EventController extends Controller
                 'title' => 'required|max:255',
                 'content' => 'required|max:500',
             ]);
-    
+
             $report = Report::create([
                 'title' => $request->input('title'),
                 'content' => $request->input('content'),
@@ -845,7 +849,7 @@ class EventController extends Controller
                 'id_event' => $id,
                 'file' => null,
             ]);
-    
+
             if ($request->hasFile('file')) {
                 $request->merge(['id' => $report->id, 'type' => 'report']);
                 $fileController = new FileController();
@@ -865,7 +869,7 @@ class EventController extends Controller
             }
 
             DB::commit();
-    
+
             return redirect()->back()->with('success', 'Report submitted successfully');
         } catch (\Exception $e) {
             DB::rollback();
@@ -873,4 +877,81 @@ class EventController extends Controller
         }
     }
 
+    public function searchUsers(Request $request, $eventId)
+    {
+        $search = $request->get('query');
+        $event = Event::find($eventId);
+    
+        $authenticatedUsers = AuthenticatedUser::whereHas('user', function ($query) use ($search, $event) {
+            $query->where('username', 'ILIKE', '%' . $search . '%')
+                  ->where('id', '!=', $event->id_user);
+        })->with('user')->get();
+    
+        foreach ($authenticatedUsers as $authenticatedUser) {
+            $authenticatedUser->is_participant = $event->eventparticipants()->where('id_user', $authenticatedUser->user->id)->exists();
+        }
+    
+        return response()->json($authenticatedUsers);
+    }
+
+    public function searchUsersInvite (Request $request, $eventId)
+    {
+        $search = $request->get('query');
+        $event = Event::find($eventId);
+    
+        $invitedUsers = DB::table('eventnotification')
+        ->join('notification', 'eventnotification.id', '=', 'notification.id')
+        ->where('inviter_id', Auth::user()->id)
+        ->where('id_event', $event->id)
+        ->pluck('notification.id_user')
+        ->toArray();
+    
+        $authenticatedUsers = AuthenticatedUser::whereHas('user', function ($query) use ($search, $event, $invitedUsers) {
+            $query->where('username', 'ILIKE', '%' . $search . '%')
+                ->where('id', '!=', $event->id_user)
+                ->whereNotIn('id', $invitedUsers);
+        })->with('user')->get();
+        
+        foreach ($authenticatedUsers as $authenticatedUser) {
+            $authenticatedUser->is_participant = $event->eventparticipants()->where('id_user', $authenticatedUser->user->id)->exists();
+        }
+    
+        return response()->json($authenticatedUsers);
+    }
+
+    public function addComment(Request $request, $id)
+    {
+        try {
+            DB::BeginTransaction();
+
+            EventComment::create([
+                'type' => 'comment',
+                'content' => $request->input('content'),
+                'id_event' => $id,
+                'id_user' => Auth::id(),
+            ]);
+
+            DB::commit();
+            return redirect()->back()->with('success', 'Comment added successfullly');
+        } catch (\Exception $e) {
+            DB::rollback();
+            return redirect()->back()->withErrors(['error' => $e->getMessage()]);
+        }
+    }
+
+    public function removeComment($id, $commentId)
+    {    
+        try {
+
+            DB::BeginTransaction();
+            $comment = EventComment::findOrFail($commentId);
+            $comment->delete();
+            DB::commit();
+            return redirect()->back()->with('success', 'Comment deleted successfullly');
+        } catch(\Exception $e){
+            DB::rollback();
+            return redirect()->back()->withErrors(['error' => $e->getMessage()]);
+        }
+
+    }
 }

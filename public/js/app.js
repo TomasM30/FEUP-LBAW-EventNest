@@ -291,7 +291,6 @@ window.onload = function () {
     let overlay = document.getElementById(overlayId);
 
     if (!modal || !trigger || !overlay) {
-      console.error('One or more elements could not be found.');
       return;
     }
 
@@ -329,6 +328,10 @@ window.onload = function () {
   handleModal('verificationModal', 'verifiedBTn', 'overlay');
   handleModal('verificationModal', 'questionBtn', 'overlay');
   handleModal('tagModal', 'tagBtn', 'overlay');
+  handleModal('userModal', 'manage-btn', 'overlay');
+  handleModal('inviteUserModal', 'invitebtn', 'overlay');
+  handleModal('deleteEventModal', 'deletebtn', 'overlay');
+  handleModal('cancelEventModal', 'cancelbtn', 'overlay');
 
   let chatTabLink = document.querySelector('a[href="#v-pills-chat"]');
   let messages = document.querySelector('#messages');
@@ -344,6 +347,22 @@ window.onload = function () {
           }, 0);
       });
   }
+
+  let commentTabLink = document.querySelector('a[href="#v-pills-comments"]');
+  let comments = document.querySelector('#comments');
+  let commentForm = document.querySelector('#commentForm');
+
+  if (commentTabLink && comments && commentForm) {
+      commentTabLink.addEventListener('click', function() {
+          setTimeout(function() {
+              if (commentTabLink.classList.contains('active')) {
+                  comments.scrollTop = comments.scrollHeight;
+                  commentForm.scrollIntoView({ behavior: 'smooth', block: 'end' });
+              }
+          }, 0);
+      });
+  }
+
 
 };
 
@@ -559,7 +578,6 @@ function fetchSearchResults(search, page = 1) {
       let tableClass = searchForm.getAttribute('data-url').includes('users') ? 'usersTable' : 'eventsTable';
       let table = document.querySelector('.' + tableClass);
       table.innerHTML = data;
-      // Add 'active' class to the correct pagination link
       let activePageLink = table.querySelector(`.pagination a[href*="page=${page}"]`);
       if (activePageLink) {
         activePageLink.parentNode.classList.add('active');
@@ -577,9 +595,12 @@ document.addEventListener('DOMContentLoaded', function() {
 
   document.addEventListener('click', function(event) {
     if (event.target.matches('.pagination a')) {
-      event.preventDefault();
-      let page = parseInt(event.target.getAttribute('href').split('page=')[1]);
-      fetchSearchResults(searchInput.value, page);
+      // Check if the clicked link is inside the specific modal
+      if (!event.target.closest('#userModal')) {
+        event.preventDefault();
+        let page = parseInt(event.target.getAttribute('href').split('page=')[1]);
+        fetchSearchResults(searchInput.value, page);
+      }
     }
   });
 });
@@ -594,10 +615,6 @@ document.addEventListener('DOMContentLoaded', function() {
       encrypted: true
   });
 
-  pusher.connection.bind('connected', function() {
-    console.log('Connected to Pusher!');
-  });
-
   let chatRoomId = document.getElementById('v-pills-chat').dataset.eventId;
   let channel = pusher.subscribe('chat-room-' + chatRoomId);
   let userDataCache = {};
@@ -606,7 +623,6 @@ document.addEventListener('DOMContentLoaded', function() {
       let userId = data.message.id_user;
   
       if (!userDataCache[userId]) {
-          // Make a request to your server to get the user's data
           fetch('/users/' + userId)
               .then(response => response.json())
               .then(userData => {
@@ -619,7 +635,6 @@ document.addEventListener('DOMContentLoaded', function() {
   });
   
   function appendMessage(message, userData) {
-      console.log(userData);
       let messages = document.getElementById('messages');
       let messageDiv = document.createElement('div');
       messageDiv.className = 'message';
@@ -693,5 +708,112 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     });
     }
+  });
+});
+
+window.showAlert = function(title, text, icon) {
+  Swal.fire({
+      title: title,
+      text: text,
+      icon: icon,
+      timer: 1500,
+      showConfirmButton: false
+  });
+}
+
+document.addEventListener('DOMContentLoaded', function() {
+  let userSearch = document.getElementById('userSearch');
+  let eventId = document.querySelector('#userSearch').dataset.eventId;
+  if (userSearch) {
+    userSearch.addEventListener('input', function() {
+      console.log('input event triggered');
+      fetch('/events/' + eventId + '/searchUsers?query=' + encodeURIComponent(this.value))
+        .then(response => response.json())
+        .then(authenticatedUsers => {
+          let tableBody = document.querySelector('#userTable tbody');
+          tableBody.innerHTML = '';
+          authenticatedUsers.forEach(authenticatedUser => {
+            let user = authenticatedUser.user;
+            let row = document.createElement('tr');
+            let csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+            row.innerHTML = `
+              <td>
+                <p style="text-decoration: none; color: inherit;"${user.id}">${user.username}</p>
+              </td>
+              <td class="text-right">
+                ${authenticatedUser.is_participant ? 
+                  `<form method="POST" action="/events/${eventId}/remove">
+                     <input type="hidden" name="_token" value="${csrfToken}">
+                     <input type="hidden" name="id_user" value="${user.id}">
+                     <input type="hidden" name="eventId" value="${eventId}">
+                     <button type="submit" class="btn btn-danger removeUser">Remove</button>
+                   </form>` :
+                  `<form method="POST" action="/events/${eventId}/add">
+                     <input type="hidden" name="_token" value="${csrfToken}">
+                     <input type="hidden" name="id_user" value="${user.id}">
+                     <input type="hidden" name="eventId" value="${eventId}">
+                     <button type="submit" class="btn btn-success addUser">Add</button>
+                   </form>`
+                }
+              </td>
+            `;
+            tableBody.appendChild(row);
+          });
+        });
+    });
+  }
+});
+
+document.addEventListener('DOMContentLoaded', function() {
+  let userSearch = document.getElementById('inviteSearch');
+  let eventId = document.querySelector('#inviteSearch').dataset.eventId;
+  console.log(eventId);
+  if (userSearch) {
+    userSearch.addEventListener('input', function() {
+      fetch('/events/' + eventId + '/searchUsers/invite?query=' + encodeURIComponent(this.value))
+        .then(response => response.json())
+        .then(authenticatedUsers => {
+          let tableBody = document.querySelector('#inviteTable tbody');
+          tableBody.innerHTML = '';
+          authenticatedUsers.forEach(authenticatedUser => {
+            let user = authenticatedUser.user;
+            let row = document.createElement('tr');
+            let csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+            row.innerHTML = `
+              <td>
+                <p style="text-decoration: none; color: inherit;"${user.id}">${user.username}</p>
+              </td>
+              <td class="text-right">
+                  <form method="POST" action="/events/${user.id}/invite">
+                    <input type="hidden" name="_token" value="${csrfToken}">
+                    <input type="hidden" name="id_user" value="${user.id}">
+                    <input type="hidden" name="eventId" value="${eventId}">
+                    <button type="submit" class="btn btn-outline-primary">Invite</button>
+                  </form>
+              </td>
+            `;
+            tableBody.appendChild(row);
+          });
+        });
+    });
+  }
+});
+
+document.addEventListener('DOMContentLoaded', function() {
+  document.querySelectorAll('.form-check-input').forEach(function(checkbox) {
+      checkbox.addEventListener('change', function() {
+          var selectedFilters = Array.from(document.querySelectorAll('.form-check-input:checked')).map(function(checkbox) {
+              return checkbox.nextElementSibling.textContent.trim();
+          });
+
+          var selectedFiltersContainer = document.getElementById('selected-filters');
+          selectedFiltersContainer.innerHTML = '';
+          selectedFilters.forEach(function(filter) {
+              var filterTag = document.createElement('span');
+              filterTag.textContent = filter;
+              filterTag.className = 'filter-tag';
+              selectedFiltersContainer.appendChild(filterTag);
+          });
+      });
   });
 });

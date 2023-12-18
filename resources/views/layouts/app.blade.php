@@ -38,15 +38,15 @@
 
 <body>
 
-    @if(!Route::currentRouteNamed('login'))
-    @include('partials.navbar')
+    @if(Auth::check())
+        @include('partials.navbar')
+    @else
+        @include('partials.guestNavbar')
     @endif
     <div class="main-content">
         @yield('content')
     </div>
-    @if(!Route::currentRouteNamed('login'))
     @include('partials.footer')
-    @endif
 
 </body>
 

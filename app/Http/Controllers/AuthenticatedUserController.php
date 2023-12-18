@@ -15,6 +15,7 @@ use App\Models\Notification;
 use App\Models\EventNotification;
 use App\Models\Hashtag;
 use App\Models\Message;
+use App\Models\EventComment;
 
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Log;
@@ -215,28 +216,36 @@ class AuthenticatedUserController extends Controller
             DB::beginTransaction();
 
             $user = User::find($id);
+            log::info($user);
 
             $eventController = new EventController;
             $authenticatedUser = $user->authenticated;
             $events = $authenticatedUser->events->where('id_user', $user->id);
-            log::info($events);
 
-            $eventNotificationIds = EventNotification::where('inviter_id', $user->id)->pluck('id');
-            EventNotification::whereIn('id', $eventNotificationIds)->delete();
-            Notification::whereIn('id', $eventNotificationIds)->delete();
 
-            $notificationIds = Notification::where('id_user', $user->id)->pluck('id');
-            EventNotification::whereIn('id', $notificationIds)->delete();
-            Notification::whereIn('id', $notificationIds)->delete();
+            Message::where('id_user', $user->id)->update(['id_user' => null]);
 
             Report::where('id_user', $user->id)
                 ->update(['closed' => true, 'id_user' => null]);
+
+            EventComment::where('id_user', $user->id)
+                ->update(['id_user' => null]);
 
             foreach ($events as $event) {
                 $request = new Request(['eventId' => $event->id]);
                 $eventController->cancelEvent($request);
                 $event->update(['id_user' => null]);
             }
+
+            $eventNotifications = EventNotification::where('inviter_id', $id)->get();
+            $notificationIds = $eventNotifications->pluck('id')->toArray();
+            EventNotification::where('inviter_id', $id)->delete();
+            Notification::whereIn('id', $notificationIds)->delete();
+    
+            $notifications = Notification::where('id_user', $id)->get();
+            $eventNotificationIds = $notifications->pluck('id')->toArray();
+            EventNotification::whereIn('id', $eventNotificationIds)->delete();
+            Notification::where('id_user', $id)->delete();
 
             EventParticipant::where('id_user', $user->id)->delete();
             FavouriteEvents::where('id_user', $user->id)->delete();

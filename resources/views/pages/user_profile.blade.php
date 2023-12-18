@@ -2,27 +2,21 @@
 
 @section('content')
 
-@if (session('success'))
+@if ($errors->any())
     <script>
-        Swal.fire({
-            title: 'Success!',
-            text: '{{ session('success') }}',
-            icon: 'success',
-            timer: 1500,
-            showConfirmButton: false
-        });
+        showAlert('Error!', '{{ $errors->first() }}', 'error');
     </script>
 @endif
 
-@if ($errors->any())
+@if (session('error'))
     <script>
-        Swal.fire({
-            title: 'Error!',
-            text: '{{ $errors->first() }}',
-            icon: 'error',
-            timer: 1500,
-            showConfirmButton: false
-        });
+        showAlert('Error!', '{{ session('error') }}', 'error');
+    </script>
+@endif
+
+@if (session('success'))
+    <script>
+        showAlert('Success!', '{{ session('success') }}', 'success');
     </script>
 @endif
 
