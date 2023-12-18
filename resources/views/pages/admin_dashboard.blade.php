@@ -16,33 +16,14 @@
 <div class="container mt-5">
     <div class="row">
         <h2 class="mb-4">User Statistics</h2>
-
-        <div class="col-md-4">
+        <div class="col-md-12">
             <div class="card bg-light mb-3">
-                <div class="card-header">Total Users</div>
+                <div class="card-header">Users</div>
                 <div class="card-body">
                     <div class="progress">
-                        <div class="progress-bar" role="progressbar" style="width: 100%;" aria-valuenow="{{ $allusersCount }}" aria-valuemin="0" aria-valuemax="{{ $allusersCount }}">{{ $allusersCount }}</div>
-                    </div>
-                </div>
-            </div>
-        </div>
-        <div class="col-md-4">
-            <div class="card bg-light mb-3">
-                <div class="card-header">Verified Users</div>
-                <div class="card-body">
-                    <div class="progress">
-                        <div class="progress-bar bg-success" role="progressbar" style="width: {{ ($usersverifiedCount/$allusersCount)*100 }}%;" aria-valuenow="{{ $usersverifiedCount }}" aria-valuemin="0" aria-valuemax="{{ $allusersCount }}">{{ $usersverifiedCount }}</div>
-                    </div>
-                </div>
-            </div>
-        </div>
-        <div class="col-md-4">
-            <div class="card bg-light mb-3">
-                <div class="card-header">Unverified Users</div>
-                <div class="card-body">
-                    <div class="progress">
-                        <div class="progress-bar bg-danger" role="progressbar" style="width: {{ ($usersnotverifiedCount/$allusersCount)*100 }}%;" aria-valuenow="{{ $usersnotverifiedCount }}" aria-valuemin="0" aria-valuemax="{{ $allusersCount }}">{{ $usersnotverifiedCount }}</div>
+                        <?php $totalUsers = $usersverifiedCount + $usersnotverifiedCount; ?>
+                        <div class="progress-bar" role="progressbar" style="width: {{ ($usersverifiedCount/$totalUsers)*100 }}%;" aria-valuenow="{{ $usersverifiedCount }}" aria-valuemin="0" aria-valuemax="{{ $totalUsers }}">Verified Users: {{ $usersverifiedCount }}</div>
+                        <div class="progress-bar bg-danger" role="progressbar" style="width: {{ ($usersnotverifiedCount/$totalUsers)*100 }}%;" aria-valuenow="{{ $usersnotverifiedCount }}" aria-valuemin="0" aria-valuemax="{{ $totalUsers }}">Unverified Users: {{ $usersnotverifiedCount }}</div>
                     </div>
                 </div>
             </div>
@@ -50,32 +31,13 @@
     </div>
     <div class="row mt-4">
         <h2 class="mb-4">Event Statistics</h2>
-        <div class="col-md-4">
+        <div class="col-md-12">
             <div class="card bg-light mb-3">
-                <div class="card-header">Total Events</div>
+                <div class="card-header">Events</div>
                 <div class="card-body">
                     <div class="progress">
-                        <div class="progress-bar" role="progressbar" style="width: 100%;" aria-valuenow="{{ $eventscount }}" aria-valuemin="0" aria-valuemax="{{ $eventscount }}">{{ $eventscount }}</div>
-                    </div>
-                </div>
-            </div>
-        </div>
-        <div class="col-md-4">
-            <div class="card bg-light mb-3">
-                <div class="card-header">Ongoing Events</div>
-                <div class="card-body">
-                    <div class="progress">
-                        <div class="progress-bar bg-success" role="progressbar" style="width: {{ ($ongoingevents/$eventscount)*100 }}%;" aria-valuenow="{{ $ongoingevents }}" aria-valuemin="0" aria-valuemax="{{ $eventscount }}">{{ $ongoingevents }}</div>
-                    </div>
-                </div>
-            </div>
-        </div>
-        <div class="col-md-4">
-            <div class="card bg-light mb-3">
-                <div class="card-header">Closed Events</div>
-                <div class="card-body">
-                    <div class="progress">
-                        <div class="progress-bar bg-danger" role="progressbar" style="width: {{ ($closedevents/$eventscount)*100 }}%;" aria-valuenow="{{ $closedevents }}" aria-valuemin="0" aria-valuemax="{{ $eventscount }}">{{ $closedevents }}</div>
+                        <div class="progress-bar bg-success" role="progressbar" style="width: {{ ($ongoingevents/$eventscount)*100 }}%;" aria-valuenow="{{ $ongoingevents }}" aria-valuemin="0" aria-valuemax="{{ $eventscount }}">Ongoing Events: {{ $ongoingevents }}</div>
+                        <div class="progress-bar bg-danger" role="progressbar" style="width: {{ ($closedevents/$eventscount)*100 }}%;" aria-valuenow="{{ $closedevents }}" aria-valuemin="0" aria-valuemax="{{ $eventscount }}">Closed Events: {{ $closedevents }}</div>
                     </div>
                 </div>
             </div>
