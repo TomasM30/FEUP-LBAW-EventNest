@@ -123,14 +123,16 @@ class EventController extends Controller
 
         try {
 
-            $event = Event::findOrFail($id);
+            $eventNotifications = EventNotification::where('id_event', $event->id)->get();
 
-            if ($event->eventnotification) {
-                $eventNot = $event->eventnotification;
-                $event->eventnotification()->delete();
-                log::info($eventNot);
-                $eventNot->delete();
-            }
+            // Store the IDs of the EventNotifications in an array
+            $eventNotificationIds = $eventNotifications->pluck('id')->toArray();
+            
+            // Delete the EventNotifications
+            EventNotification::whereIn('id', $eventNotificationIds)->delete();
+            
+            // Then delete the Notifications
+            Notification::whereIn('id', $eventNotificationIds)->delete();
 
             $event->report()->delete();
             $event->comments()->delete();
@@ -148,7 +150,8 @@ class EventController extends Controller
             return redirect()->route('events')->with('success', 'Event deletion successful');
         } catch (\Exception $e) {
             DB::rollback();
-            return redirect()->back()->with('error', 'Event deletion failed');
+            log::info($e->getMessage());
+            return redirect()->back()->with('error', 'Event deletion failed: ');
         }
     }
 
