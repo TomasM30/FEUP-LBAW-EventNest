@@ -10,6 +10,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Validation\Rule;
 
 use App\Models\Event;
 use App\Models\User;
@@ -33,9 +34,13 @@ class EventController extends Controller
     {
         try {
             $this->authorize('create', Event::class);
-            $this->authorize('create', TicketType::class);
+            //$this->authorize('create', TicketType::class);
+
+            $user = Auth::user()->authenticated;
+
 
             DB::BeginTransaction();
+
             
             $request->validate([
                 'title' => 'required|string',
@@ -52,7 +57,7 @@ class EventController extends Controller
                         }
                     },
                 ],
-                'ticket_price' => 'required|integer|min:1',
+                'ticket_price' => Rule::requiredIf($request->type !== 'free' && (Auth::user()->authenticated->is_verified !== false)).'|integer|min:1',
                 'place' => 'required|string',
                 'hashtags' => 'array',
                 'hashtags.*' => 'exists:hashtag,id',
@@ -71,13 +76,15 @@ class EventController extends Controller
                 'image' => null,
             ]);
 
-            $ticket_type = TicketType::create([
-                'title' => $request->title,
-                'id_event' => $event->id,
-                'price' => $request->ticket_price,
-                'category' => null,
-                'availability' => $request->capacity,
-            ]);
+            if ($request->has('ticket_price')) {
+                TicketType::create([
+                    'id_event' => $event->id,
+                    'title' => $request->title,
+                    'price' => $request->ticket_price,
+                    'category' => 'default',
+                    'availability' => $request->capacity,
+                ]);
+            }
 
             if ($request->hashtags) {
                 foreach ($request->hashtags as $hashtagId) {

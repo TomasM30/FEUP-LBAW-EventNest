@@ -21,7 +21,7 @@
                 <form method="POST" action="{{ $formAction }}" enctype="multipart/form-data">
                     {{ csrf_field() }}
                     <fieldset>
-                        @if($event->user->authenticated->is_verified == 0)
+                        @if(auth::user()->authenticated->is_verified == 1)
                             <div class="form-group">
                                 <label for="event_type">Event Type</label>
                                 <select id="event_type" name="event_type" class="form-control" style="height: 3em" required>
@@ -118,20 +118,6 @@
                                 @endforeach
                             @endif
                         </div>
-                        @if (Auth::user()->isAdmin() || (Auth::user()->authenticated->is_verified))
-                            <div class="form-group">
-                                <label for="ticket_limit">Ticket Limit</label>
-                                <input type="number" class="form-control" id="ticket_limit" name="ticket_limit">
-                                <p>If left empty, ticket limit will be equal to capacity.</p>
-                                @if ($errors->has('ticket_limit'))
-                                @foreach ($errors->get('ticket_limit') as $error)
-                                    <div class="alert alert-dismissible alert-danger">
-                                        <strong>Oh snap!</strong> {{ $error }}
-                                    </div>
-                                @endforeach
-                            @endif
-                            </div>
-                        @endif
                         <div class="form-group">
                             <label for="place">Place</label>
                             <input type="text" class="form-control" id="place" name="place"  @if(isset($event) && $formAction != route('events.edit', $event->id)) required @endif>
