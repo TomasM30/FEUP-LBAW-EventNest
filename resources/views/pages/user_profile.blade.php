@@ -134,7 +134,7 @@
                                         <button type="submit "id="unblockUserBtn" href="#" class="btn btn-primary btn-block">Unblock User</button>
                                     </form>
                                 @endif
-                             </div>
+                            </div>
                         </div>
                     @endif
                 </div>
