@@ -348,6 +348,22 @@ window.onload = function () {
       });
   }
 
+  let commentTabLink = document.querySelector('a[href="#v-pills-comments"]');
+  let comments = document.querySelector('#comments');
+  let commentForm = document.querySelector('#commentForm');
+
+  if (commentTabLink && comments && commentForm) {
+      commentTabLink.addEventListener('click', function() {
+          setTimeout(function() {
+              if (commentTabLink.classList.contains('active')) {
+                  comments.scrollTop = comments.scrollHeight;
+                  commentForm.scrollIntoView({ behavior: 'smooth', block: 'end' });
+              }
+          }, 0);
+      });
+  }
+
+
 };
 
 

@@ -98,6 +98,9 @@ Route::controller(EventController::class)->group(function () {
     Route::post('/events/{id}/removeFavourite', 'removeEventAsFavourite')->name('event.removeFavourite');
     Route::get('/events/{eventId}/searchUsers', 'searchUsers')->name('events.searchUsers');
     Route::get('/events/{eventId}/searchUsers/invite', 'searchUsersInvite')->name('events.searchUsersInvite');
+    Route::post('/events/{id}/addComment', 'addComment')->name('event.addComment');
+    Route::delete('/events/{id}/removeComment/{commentId}', 'removeComment')->name('event.removeComment');
+
 });
 
 Route::controller(GoogleController::class)->group(function () {

@@ -76,6 +76,10 @@ class Event extends Model
         return $this->hasMany(Report::class, 'id_event');
     }
 
+    public function comments(){
+        return $this->hasMany(EventComment::class,'id_event');
+    }
+
     public function getProfileImage() {
         return FileController::get('event', $this->id);
     }
