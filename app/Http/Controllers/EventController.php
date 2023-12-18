@@ -125,13 +125,10 @@ class EventController extends Controller
 
             $eventNotifications = EventNotification::where('id_event', $event->id)->get();
 
-            // Store the IDs of the EventNotifications in an array
             $eventNotificationIds = $eventNotifications->pluck('id')->toArray();
             
-            // Delete the EventNotifications
             EventNotification::whereIn('id', $eventNotificationIds)->delete();
             
-            // Then delete the Notifications
             Notification::whereIn('id', $eventNotificationIds)->delete();
 
             $event->report()->delete();
