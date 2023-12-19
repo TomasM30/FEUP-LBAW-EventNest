@@ -6,6 +6,8 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use App\Http\Controllers\FileController;
+use App\Models\TicketType;
+use App\Models\Ticket;
 
 class Event extends Model
 {
@@ -84,6 +86,10 @@ class Event extends Model
         return FileController::get('event', $this->id);
     }
 
+    public function hasTickets() {
+        return $this->hasMany(TicketType::class, 'id_event')->exists();
+    }
+    
     public function isFavourite($userId)
     {
         return $this->favouriteevent()->where('id_user', $userId)->exists();
@@ -109,5 +115,19 @@ class Event extends Model
     public function messages()
     {
         return $this->hasMany(Message::class, 'id_event');
+    }
+
+    public function soldTicketsCount(){
+        $count = 0;
+        $ticketTypes = $this->hasMany(TicketType::class, 'id_event')->get();
+        foreach ($ticketTypes as $ticketType) {
+            $count += $ticketType->hasMany(Ticket::class, 'id_ticket_type')->count();
+        }
+        return $count;
+    }
+
+    public function ticketTypes()
+    {
+        return $this->hasMany(TicketType::class, 'id_event');
     }
 }

@@ -16,6 +16,9 @@ use App\Models\EventNotification;
 use App\Models\Hashtag;
 use App\Models\Message;
 use App\Models\EventComment;
+use App\Models\Order;
+use App\Models\Ticket;
+use App\Models\TicketType;
 
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Log;
@@ -57,9 +60,13 @@ class AuthenticatedUserController extends Controller
 
         $this->authorize('userEvents', $authenticatedUser);
 
-        $joinedEvents = Event::where('closed', false)->whereHas('eventParticipants', function ($query) use ($authenticatedUser) {
-            $query->where('id_user', $authenticatedUser->id_user);
-        })->paginate(21);
+        $joinedEvents = Event::where('closed', false)
+            ->where(function ($query) use ($authenticatedUser) {
+                $query->whereHas('eventParticipants', function ($query) use ($authenticatedUser) {
+                    $query->where('id_user', $authenticatedUser->id_user);
+                });
+            })
+            ->paginate(21);
 
         log::info($joinedEvents);
 
@@ -136,7 +143,20 @@ class AuthenticatedUserController extends Controller
 
         $eventsHosted = Event::where('id_user', $id)->count();
         $eventsJoined = EventParticipant::where('id_user', $id)->count();
-        $totalParticipants = EventParticipant::whereIn('id_event', Event::where('id_user', $id)->pluck('id'))->count();
+
+        // Get the IDs of the events hosted by the user
+        $hostedEventIds = Event::where('id_user', $id)->pluck('id');
+
+        // Count the number of participants in the events hosted by the user
+        $totalParticipants = EventParticipant::whereIn('id_event', $hostedEventIds)->count();
+
+        // Count the number of tickets bought to the events hosted by the user
+        $totalTicketsBought = Ticket::whereHas('ticketType', function ($query) use ($hostedEventIds) {
+            $query->whereIn('id_event', $hostedEventIds);
+        })->count();
+
+        // Add the number of tickets bought to the total number of participants
+        $totalParticipants += $totalTicketsBought;
 
         return view('pages.user_profile', [
             'user' => $authenticatedUser->user,
@@ -248,6 +268,7 @@ class AuthenticatedUserController extends Controller
             Notification::where('id_user', $id)->delete();
 
             EventParticipant::where('id_user', $user->id)->delete();
+            Order::where('id_user', $user->id)->update(['id_user' => null]);
             FavouriteEvents::where('id_user', $user->id)->delete();
             $authenticatedUser->delete();
             $user->delete();

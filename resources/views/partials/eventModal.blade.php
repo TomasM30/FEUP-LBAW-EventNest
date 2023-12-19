@@ -21,7 +21,41 @@
                 <form method="POST" action="{{ $formAction }}" enctype="multipart/form-data">
                     {{ csrf_field() }}
                     <fieldset>
-                        <div class="form-group">
+                        @if(auth::user()->authenticated->is_verified == 1)
+                            <div class="form-group">
+                                <label for="event_type">Event Type</label>
+                                <select id="event_type" name="event_type" class="form-control" style="height: 3em" required>
+                                    <option value="free" selected>Free to Join</option>
+                                    <option value="tickets">Tickets Required</option>
+                                </select>
+                            </div>
+                            <div id="ticketFields" style="display: none;">
+                                <div class="form-group">
+                                    <label for="ticket_limit">Ticket Limit by User</label>
+                                    <input type="number" class="form-control" id="ticket_limit" name="ticket_limit" placeholder="How many tickets per user">
+                                    @if ($errors->has('ticket_limit'))
+                                        @foreach ($errors->get('ticket_limit') as $error)
+                                            <div class="alert alert-dismissible alert-danger">
+                                                <strong>Oh snap!</strong> {{ $error }}
+                                            </div>
+                                        @endforeach
+                                    @endif
+                                </div>
+                                <div class="form-group">
+                                    <label for="ticket_price">Ticket Price</label>
+                                    <input type="number" class="form-control" id="ticket_price" name="ticket_price" placeholder="price of each ticket">
+                                    <p>Specify the price for each ticket.</p>
+                                    @if ($errors->has('ticket_price'))
+                                        @foreach ($errors->get('ticket_price') as $error)
+                                            <div class="alert alert-dismissible alert-danger">
+                                                <strong>Oh snap!</strong> {{ $error }}
+                                            </div>
+                                        @endforeach
+                                    @endif
+                                </div>
+                            </div>
+                        @endif
+                        <div class="form-group" id="event_type">
                             <label for="title" class="form-label mt-4">Title</label>
                             <input type="text" class="form-control" id="title" name="title" placeholder="Event title" @if(isset($event) && $formAction != route('events.edit', $event->id)) required @endif>
                             @if ($errors->has('title'))
@@ -43,7 +77,7 @@
                                 @endforeach
                             @endif
                         </div>
-                        <div class="form-group">
+                        <div id="typeEvent" class="form-group">
                             <label for="type">Type</label>
                             <select id="type" name="type" class="form-control" style="height: 3em" @if(isset($event) && $formAction != route('events.edit', $event->id)) required @endif>
                                 <option value="public" @if(isset($event) && $event->type == 'public') selected @endif>Public</option>
@@ -73,20 +107,6 @@
                                 @endforeach
                             @endif
                         </div>
-                        @if (Auth::user()->isAdmin() || (Auth::user()->authenticated->is_verified))
-                            <div class="form-group">
-                                <label for="ticket_limit">Ticket Limit</label>
-                                <input type="number" class="form-control" id="ticket_limit" name="ticket_limit" placeholder="How many tickets for user">
-                                <p>If left empty, ticket limit will be equal to capacity.</p>
-                                @if ($errors->has('ticket_limit'))
-                                @foreach ($errors->get('ticket_limit') as $error)
-                                    <div class="alert alert-dismissible alert-danger">
-                                        <strong>Oh snap!</strong> {{ $error }}
-                                    </div>
-                                @endforeach
-                            @endif
-                            </div>
-                        @endif
                         <div class="form-group">
                             <label for="place">Place</label>
                             <input type="text" placeholder="Place where event will be held" class="form-control" id="place" name="place"  @if(isset($event) && $formAction != route('events.edit', $event->id)) required @endif>

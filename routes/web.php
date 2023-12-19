@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\MainPageController;
+use App\Http\Controllers\PaypalController;
 use Illuminate\Support\Facades\Route;
 
 use App\Http\Controllers\CardController;
@@ -65,9 +66,9 @@ Route::controller(AdminController::class)->group(function () {
 
 Route::controller(AuthenticatedUserController::class)->group(function () {
     Route::get('/contactus', 'showContactUsForm')->name('contactus');
-    Route::get('/user/{id}/events', 'showUserEvents')->name('user.events');
-    Route::get('/user/{id}/events/created', 'showUserjoinedEvents')->name('user.events.joined');
-    Route::get('/user/{id}/events/joined', 'showUserattendedEvents')->name('user.events.attended');
+    Route::get('/user/{id}/events/created', 'showUserEvents')->name('user.events');
+    Route::get('/user/{id}/events/joined', 'showUserjoinedEvents')->name('user.events.joined');
+    Route::get('/user/{id}/events/attended', 'showUserattendedEvents')->name('user.events.attended');
     Route::get('/user/{id}/events/favorites', 'showUserFavouriteEvents')->name('user.events.favorites');
     Route::get('/user/{id}/profile', 'showUserProfile')->name('user.profile')->middleware('auth');
     Route::post('/user/{id}/profile/edit', 'updateUserProfile')->name('user.profile.update');
@@ -91,7 +92,7 @@ Route::controller(EventController::class)->group(function () {
     Route::post('/events/search', 'search')->name('search-events');
     Route::post('/events/{id}/invite', 'addNotification')->name('events.notification');
     Route::delete('/notifications/{notificationId}/delete', 'deleteNotification')->name('notification.delete');
-    Route::post('/events/order', 'order')->name('events.order');
+    Route::post('/events/{id}/order', 'makeOrder')->name('events.order');
     Route::post('/events/filter', 'filter')->name('events.filter');
     Route::post('/events/{id}/report', 'reportEvent')->name('events.report');
     Route::post('/events/{id}/addFavourite', 'addEventAsFavourite')->name('event.favourite');
@@ -113,6 +114,13 @@ Route::controller(FileController::class)->group(function () {
 });
 
 Route::get('/about', 'App\Http\Controllers\AboutController@index')->name('about');
+
+Route::controller(PaypalController::class)->group(function () {
+    Route::get('paypal', 'index')->name('paypal');
+    Route::get('paypal/payment', 'payment')->name('paypal.payment');
+    Route::get('paypal/payment/success', 'paymentSuccess')->name('paypal.payment.success');
+    Route::get('paypal/payment/cancel', 'paymentCancel')->name('paypal.payment.cancel');
+});
 
 Route::controller(MessageController::class)->group(function () {
     Route::get('/fetch-message', 'fetchMessages');

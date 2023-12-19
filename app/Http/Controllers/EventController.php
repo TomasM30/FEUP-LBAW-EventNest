@@ -3,6 +3,8 @@
 namespace App\Http\Controllers;
 
 use App\Http\Controllers\Controller;
+use App\Models\Order;
+use App\Models\TicketType;
 use App\Models\FavouriteEvent;
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
@@ -10,6 +12,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Validation\Rule;
 
 use App\Models\Event;
 use App\Models\User;
@@ -22,10 +25,12 @@ use App\Models\Notification;
 use App\Models\EventNotification;
 use App\Models\EventComment;
 use App\Models\RequestNotification;
-use App\Models\FavouriteEvents;
+use App\Models\FavoriteEvents;
 use App\Models\Report;
 use App\Http\Controllers\FileController;
+use App\Models\FavouriteEvents;
 use App\Models\Message;
+use App\Models\Ticket;
 
 
 class EventController extends Controller
@@ -34,9 +39,15 @@ class EventController extends Controller
     {
         try {
             $this->authorize('create', Event::class);
+            $this->authorize('create', TicketType::class);
+
+            $user = Auth::user()->authenticated;
+
 
             DB::BeginTransaction();
 
+
+            
             $request->validate([
                 'title' => 'required|string',
                 'description' => 'required|string|max:500',
@@ -52,6 +63,7 @@ class EventController extends Controller
                         }
                     },
                 ],
+                'ticket_price' => Rule::requiredIf($request->event_type == 'tickets' && (Auth::user()->authenticated->is_verified !== false)).'|integer|min:1',
                 'place' => 'required|string',
                 'hashtags2' => 'array',
                 'hashtags2.*' => 'exists:hashtag,id',
@@ -69,6 +81,16 @@ class EventController extends Controller
                 'id_user' => Auth::user()->id,
                 'image' => null,
             ]);
+
+            if ($request->has('ticket_price')) {
+                TicketType::create([
+                    'id_event' => $event->id,
+                    'title' => $request->title,
+                    'price' => $request->ticket_price,
+                    'category' => 'default',
+                    'availability' => $request->capacity,
+                ]);
+            }
 
             if ($request->hashtags2) {
                 foreach ($request->hashtags2 as $hashtagId) {
@@ -109,6 +131,42 @@ class EventController extends Controller
         }
     }
 
+    public function makeOrder(Request $request) {
+
+        $ticketTypes = TicketType::where('id_event', $request->id_event)->get();
+        if (!$ticketTypes) {
+            return redirect()->back()->with('message', 'Tickets not found');
+        }
+    
+        if (!(AuthenticatedUser::where('id_user', $request->id_user)->exists())|| !(Event::where('id', $request->id_event)->exists())){
+            return redirect()->back()->with('message', 'User or event not found');
+        }
+    
+        $event = Event::find($request->id_event);
+    
+        $userBoughtTicketsCount = auth()->user()->authenticated->boughtTicketsCountForEvent($event->id);
+        $remainingCapacity = $event->capacity - $event->soldTicketsCount();
+        $userTicketLimit = min($event->ticket_limit - $userBoughtTicketsCount, $remainingCapacity);
+    
+        if($userTicketLimit < $request->amount){
+            return redirect()->back()->with('error', 'Exceeded ticket limit for this user');
+        } 
+        else if($remainingCapacity < $request->amount){
+            return redirect()->back()->with('error', 'Not enough tickets available for this order');
+        } 
+    
+        session([
+            'order' => [
+                'id_user' => $request->id_user,
+                'id_event' => $request->id_event,
+                'amount' => $request->amount,
+                'ticketType' => $ticketTypes->first(),
+            ]
+        ]);
+    
+        return redirect()->route('paypal.payment');
+    }
+
     public function deleteEvent(Request $request)
     {
         $id = $request->id;
@@ -138,6 +196,19 @@ class EventController extends Controller
             $event->eventparticipants()->delete();
             $event->favouriteevent()->delete();
             $event->hashtags()->detach();
+
+            $ticketTypes = $event->ticketTypes()->get();
+            foreach ($ticketTypes as $ticketType) {
+                $tickets = $ticketType->tickets()->get();
+                foreach ($tickets as $ticket) {
+                    $orderId = $ticket->id_order;
+                    $ticket->delete();
+                    if (!Ticket::where('id_order', $orderId)->exists()) {
+                        Order::where('id', $orderId)->delete();
+                    }
+                }
+                $ticketType->delete();
+            }
 
 
             $event->delete();
@@ -260,8 +331,14 @@ class EventController extends Controller
         $data['user'] = $user;
         $data['messages'] = $messages = Message::where('id_event', $data['event']->id)->get();
         $data['users'] = AuthenticatedUser::all()->where('id_user', '!=', $data['event']->id_user);
-        log::info($data['users']->count());
         $data['comments'] = EventComment::where('id_event', $id);
+        if (!auth()->user()->isAdmin()){
+            $userBoughtTicketsCount = auth()->user()->authenticated->boughtTicketsCountForEvent($data['event']->id);
+            $remainingCapacity = $data['event']->capacity - $data['event']->soldTicketsCount();
+            $data['userTicketLimit'] = min($data['event']->ticket_limit - $userBoughtTicketsCount, $remainingCapacity);
+            $data['ticketPrice'] = $data['event']->ticketTypes->first()->price;
+        }
+
 
 
         if ($request->ajax()) {
@@ -730,22 +807,22 @@ class EventController extends Controller
 
     public function filter(Request $request)
     {
+        $id = $request->input('id');
         $hashtags = $request->input('hashtags');
         $places = $request->input('places');
         $search = $request->input('search');
         $orderBy = $request->input('orderBy', 'date');
         $direction = $request->input('direction', 'asc');
         $type = $request->input('type');
+        $id = $request->input('id');
         $query = Event::query();
 
         if ($type == 'main') {
             $user = Auth::user();
         } else {
-            $user = AuthenticatedUser::where('id_user', $request->route('id'))->firstOrFail();
+            $user = User::where('id', $id)->firstOrFail();
+            $authenticatedUser = AuthenticatedUser::where('id_user', $user->id)->firstOrFail();
         }
-
-        log::info($user);
-
 
         if ($user->isAdmin() && $type == 'main') {
             $query->where('closed', false)->paginate(21);
@@ -770,6 +847,7 @@ class EventController extends Controller
                 })->paginate(21);
         }
 
+
         if (!empty($search)) {
             $searchTerms = explode(' ', $search);
 
@@ -791,7 +869,7 @@ class EventController extends Controller
 
         $filteredEventsHtml = view('partials.event_lists', ['events' => $events])->render();
         $filteredEventIds = $events->pluck('id')->all();
-
+;
         return response()->json([
             'html' => $filteredEventsHtml,
             'ids' => $filteredEventIds,

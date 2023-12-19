@@ -364,6 +364,42 @@ window.onload = function () {
   }
 
 
+  document.getElementById('event_type').addEventListener('change', function() {
+    let ticketFields = document.getElementById('ticketFields');
+    let ticketLimit = document.getElementById('ticket_limit');
+    let ticketPrice = document.getElementById('ticket_price');
+    let eventType = document.getElementById('typeEvent');
+    if (this.value === 'tickets') {
+        ticketFields.style.display = 'block';
+        ticketLimit.disabled = false;
+        ticketPrice.disabled = false;
+        ticketLimit.setAttribute('name', 'ticket_limit');
+        ticketPrice.setAttribute('name', 'ticket_price');
+        eventType.style.display = 'none';
+
+    } else {
+        ticketFields.style.display = 'none';
+        ticketLimit.disabled = true;
+        ticketPrice.disabled = true;
+        ticketLimit.removeAttribute('name');
+        ticketPrice.removeAttribute('name');
+        eventType.style.display = 'block';
+    }
+  });
+
+  document.getElementById('NEvent-button').addEventListener('click', function() {
+    let eventType = document.getElementById('event_type');
+    let ticketFields = document.getElementById('ticketFields');
+    let ticketLimit = document.getElementById('ticket_limit');
+    let ticketPrice = document.getElementById('ticket_price');
+    eventType.value = 'free';
+    ticketFields.style.display = 'none';
+    ticketLimit.disabled = true;
+    ticketPrice.disabled = true;
+    ticketLimit.removeAttribute('name');
+    ticketPrice.removeAttribute('name');
+});
+
 };
 
 
@@ -470,6 +506,7 @@ function fetchEvents(page = 1) {
   let selectedHashtags = Array.from(document.querySelectorAll('input[name="hashtags[]"]:checked')).map(input => input.value);
   let selectedPlaces = Array.from(document.querySelectorAll('input[name^="places"]:checked')).map(input => input.value);
   let typeElement = document.querySelector('input[name="type"]');
+  let idElement = document.querySelector('input[name="id"]');
   let type = typeElement ? typeElement.value : null;
 
   let url = `/events/filter`;
@@ -480,6 +517,7 @@ function fetchEvents(page = 1) {
     orderBy: orderBy,
     direction: direction,
     type: type,
+    id: idElement ? idElement.value : null,
     page: page // Use the page parameter
   };
 
@@ -816,4 +854,21 @@ document.addEventListener('DOMContentLoaded', function() {
           });
       });
   });
+});
+
+document.addEventListener('DOMContentLoaded', function () {
+  let buttons = document.querySelectorAll('.btn.btn-link');
+
+  for (var i = 0; i < buttons.length; i++) {
+    buttons[i].addEventListener('click', function () {
+      let content = document.querySelector(this.getAttribute('data-target'));
+      if (content.style.display === "block" || content.classList.contains('show')) {
+        content.style.display = "none";
+        content.classList.remove('show');
+      } else {
+        content.style.display = "block";
+        content.classList.add('show');
+      }
+    });
+  }
 });

@@ -2,6 +2,7 @@
     <div class="form-outline mt-2" id="search-form" data-url="{{ route('search-events') }}" style="width: 50%;">
         <input type="search" id="form1" class="form-control" placeholder="Search" aria-label="Search" />
         <input type="hidden" name="type" value="{{ $type }}">
+        <input type="hidden" name="id" value="{{ $id }}">
     </div>
     <div class="row m-4 mb-1" style="width: 60%;">
         <div class="col-md-6">
