@@ -2,20 +2,24 @@
 
 @section('content')
 
-<nav class="navbar navbar-expand-lg bg-primary px-3" data-bs-theme="dark">
-    <div class="container-fluid">
-        <a class="navbar-brand" href="#">EventNest</a>
-        <button class="navbar-toggler" type="button" id="navbarToggler" aria-controls="navbarColor01" aria-expanded="false" aria-label="Toggle navigation">
-            <span class="navbar-toggler-icon"></span>
-        </button>
-        <div class="collapse navbar-collapse" id="navbarColor01">
-            <div class="d-flex ml-auto">
-                <button id='login' type="submit" name="action" value="login" class="btn btn-secondary mr-2" type="submit">Login</button>
-                <button id='register' type="submit" name="action" value="register" class="btn btn-secondary" type="submit">Register</button>
-            </div>
-        </div>
-    </div>
-</nav>
+@if ($errors->any())
+    <script>
+        showAlert('Error!', '{{ $errors->first() }}', 'error');
+    </script>
+@endif
+
+@if (session('error'))
+    <script>
+        showAlert('Error!', '{{ session('error') }}', 'error');
+    </script>
+@endif
+
+@if (session('success'))
+    <script>
+        showAlert('Success!', '{{ session('success') }}', 'success');
+    </script>
+@endif
+
 <div class="container-fluid row">
     <div id="Information" class="col-md-6 mt-4" style="text-align: justify;">
         <h2>Unleash the Power of Community!</h2>

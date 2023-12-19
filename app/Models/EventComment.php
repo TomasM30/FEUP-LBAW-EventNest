@@ -4,9 +4,19 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
-class FavoriteEvents extends Model
+class EventComment extends Model
 {
+    public $timestamps  = false;
+    
+    protected $fillable = [
+        'type',
+        'content',
+        'id_event',
+        'id_user',
+    ];
+
     use HasFactory;
 
     /**
@@ -14,29 +24,24 @@ class FavoriteEvents extends Model
      *
      * @var string
      */
-    protected $table = 'favoriteevent';
-
-    /**
-     * The primary key associated with the table.
-     *
-     * @var string
-     */
-    protected $primaryKey = ['id_user', 'id_event'];
+    protected $table = 'eventcomment';
 
     /**
      * Indicates if the IDs are auto-incrementing.
      *
      * @var bool
      */
-    public $incrementing = false;
+    public $incrementing = true;
 
-    public function user()
-    {
-        return $this->belongsTo(User::class, 'id_user');
-    }
 
     public function event()
     {
         return $this->belongsTo(Event::class, 'id_event');
     }
+
+    public function authenticated()
+    {
+        return $this->belongsTo(AuthenticatedUser::class, 'id_user');
+    }
+
 }

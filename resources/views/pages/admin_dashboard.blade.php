@@ -4,182 +4,61 @@
 <div class="col mt-3 justify-content-center">
     <div class="col-12 col-md-3 mb-3 mb-md-0 mx-auto">
         <div class="nav nav-pills" id="v-pills-tab" role="tablist" aria-orientation="horizontal">
-            <a class="nav-link active" id="v-pills-users-tab" href="#v-pills-users">Users</a>
-            <a class="nav-link" id="v-pills-events-tab" href="#v-pills-events">Events</a>
-            <a class="nav-link" id="v-pills-Reports-tab" href="#v-pills-Reports">Reports</a>
-            <a class="nav-link" id="v-pills-Tags-tab" href="#v-pills-Tags">Tags</a>
-        </div>
-    </div>
-    <div class="col-12 mt-3">
-        <div class="tab-content" id="v-pills-tabContent">
-            <div class="tab-pane fade show active" id="v-pills-users">
-                @if (!$users->isEmpty())
-                    <div class="col-12">
-                        <div class="table-responsive">
-                            <table class="table table-hover mx-auto" style="max-width: 1000px;">                               
-                                <thead>
-                                    <tr>
-                                        <th >Username</th>
-                                        <th class="text-right">Name</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    @foreach ($users as $authenticatedUser)
-                                        <tr>
-                                            <td>
-                                                <a class="text-decoration-none" style="text-decoration: none; color: inherit;" href="{{ route('user.events', $authenticatedUser->user->id) }}">{{ $authenticatedUser->user->username }}</a>
-                                            </td>
-                                            <td class="text-right">
-                                                {{ $authenticatedUser->user->name }}
-                                            </td>
-                                        </tr>
-                                    @endforeach
-                                </tbody>
-                            </table>
-                        </div>
-                    </div>
-                @else
-                    <div class="card m-3">
-                        <div class="card-body text-center">
-                            <h4 class="card-title">No events</h4>
-                            <p class="card-text">There are currently no events</p>
-                        </div>
-                    </div>
-                @endif
-            </div>
-            <div class="tab-pane fade" id="v-pills-events"> 
-                @if (!$events->isEmpty())                   
-                    <div class="col-12">
-                        <div class="table-responsive">
-                            <table class="table table-hover mx-auto" style="max-width: 1000px;"> 
-                                <thead>
-                                    <tr>
-                                        <th style="width: 33%;">Title</th>
-                                        <th class="text-center" style="width: 33%;">Organizer</th>
-                                        <th class="text-right" style="width: 33%;">Date</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    @foreach ($events as $event)
-                                        <tr>
-                                            <td>
-                                                <a class="text-decoration-none text-truncate" style=" text-decoration: none; color: inherit; max-width: 150px; display: inline-block;" href="{{ route('events.details', $event->id) }}">
-                                                    {{ $event->title }}
-                                                </a>
-                                            </td>
-                                            <td class="text-center">
-                                                @if($event->user)
-                                                <a class="text-decoration-none text-truncate" style=" text-decoration: none; color: inherit; max-width: 150px; display: inline-block;" href="{{ route('user.profile', $event->user->id) }}">
-                                                    {{ $event->user->username }}
-                                                </a>
-                                                @else
-                                                    <strong style="color: red; text-decoration: line-through;">USER DELETED</strong> 
-                                                @endif
-                                            </td>
-                                            <td class="text-right">{{ \Carbon\Carbon::parse($event->date)->format('d/m/y') }}</td>
-                                        </tr>
-                                    @endforeach
-                                </tbody>                                                
-                            </table>
-                        </div>
-                    </div>
-                @else
-                    <div class="card m-3">
-                        <div class="card-body text-center">
-                            <h4 class="card-title">No events</h4>
-                            <p class="card-text">There are currently no events</p>
-                        </div>
-                    </div>
-                @endif
-            </div>
-            <div class="tab-pane fade" id="v-pills-Reports">
-                @if (!$reports->isEmpty())
-                    <div class="col-12">
-                        <div class="table-responsive">
-                            <table class="table table-hover mx-auto" style="max-width: 1000px;">
-                                <thead>
-                                    <tr>
-                                        <th style="width: 33%;">Title</th>
-                                        <th class="text-center" style="width: 33%;">Author</th>
-                                        <th class="text-right" style="width: 33%;">Date</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    @foreach ($reports as $report)
-                                        <tr>
-                                            <td>
-                                                <span class="badge {{ $report->closed ? 'badge-danger' : 'badge-success' }}">{{ $report->closed ? 'Closed' : 'Open' }}</span>
-                                                <a class="text-decoration-none text-truncate" style="text-decoration: none; color: inherit;" href="{{ route('report.details', $report->id) }}">{{ $report->title }}</a>
-                                            </td>
-                                            <td class="text-center">
-                                                @if($report->user)
-                                                    <a class="text-decoration-none" style="text-decoration: none; color: inherit;" href="{{ route('user.profile', $report->user->id) }}">
-                                                        {{ $report->user->username }}
-                                                    </a>
-                                                @else
-                                                    <strong style="color: red; text-decoration: line-through;">USER DELETED</strong> 
-                                                @endif
-                                            </td>
-                                            <td class="text-right">{{ \Carbon\Carbon::parse($report->created_at)->format('d/m/y') }}</td>
-                                        </tr>
-                                    @endforeach
-                                </tbody>
-                            </table>
-                        </div>
-                    </div>
-                @else
-                    <div class="card m-3">
-                        <div class="card-body text-center">
-                            <h4 class="card-title">No reports</h4>
-                            <p class="card-text">There are currently no reports</p>
-                        </div>
-                    </div>
-                @endif
-            </div>
-            <div class="tab-pane fade" id="v-pills-Tags">
-                @if (!$tags->isEmpty())
-                    <div class="col-12">
-                        <div class="table-responsive">
-                            <table class="table table-hover mx-auto" style="max-width: 650px;">
-                                <thead>
-                                    <tr>
-                                        <th class="text-left align-middle">Tag</th>
-                                        <th class="text-right">
-                                            <a id="tagBtn" class="btn btn-primary float-right align-middle"><i class="fa fa-plus text-white"></i>
-                                        </a>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    @foreach ($tags as $tag)
-                                        <tr>
-                                            <td class="align-middle">
-                                                #{{ $tag->title }}
-                                            </td>
-                                            <td class="text-right align-middle">
-                                                <form method="POST" action="{{ route('tag.delete', $tag->id) }}">
-                                                    {{ csrf_field() }}
-                                                    {{ method_field('DELETE') }}
-                                                    <button type="submit" class="btn btn-danger"><i class="fa fa-trash"></i></button>
-                                                </form>
-                                            </td>
-                                        </tr>
-                                    @endforeach
-                                </tbody>
-                            </table>
-                        </div>
-                    </div>
-                @else
-                    <div class="card m-3">
-                        <div class="card-body text-center">
-                            <h4 class="card-title">No tags</h4>
-                            <p class="card-text">There are currently no tags</p>
-                        </div>
-                    </div>
-                @endif
-            </div>
+            <a class="nav-link pill-link no-js active" href="{{ route('dashboard') }}">Statistics</a>
+            <a class="nav-link pill-link no-js" href="{{ route('admin.users') }}">Users</a>
+            <a class="nav-link pill-link no-js" href="{{ route('admin.events') }}">Events</a>
+            <a class="nav-link pill-link no-js" href="{{ route('admin.reports') }}">Reports</a>
+            <a class="nav-link pill-link no-js" href="{{ route('admin.tags') }}">Tags</a>
         </div>
     </div>
 </div>
-<div id="overlay" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0, 0, 0, 0.5); z-index: 1000;"></div>
-@include('partials.tagModal')
+
+<div class="container mt-5">
+    <div class="row">
+        <h2 class="mb-4">User Statistics</h2>
+        <div class="col-md-12">
+            <div class="card bg-light mb-3">
+                <div class="card-header">Users</div>
+                <div class="card-body">
+                    <div class="progress">
+                        <?php $totalUsers = $usersverifiedCount + $usersnotverifiedCount; ?>
+                        <div class="progress-bar" role="progressbar" style="width: {{ ($usersverifiedCount/$totalUsers)*100 }}%;" aria-valuenow="{{ $usersverifiedCount }}" aria-valuemin="0" aria-valuemax="{{ $totalUsers }}">Verified Users: {{ $usersverifiedCount }}</div>
+                        <div class="progress-bar bg-danger" role="progressbar" style="width: {{ ($usersnotverifiedCount/$totalUsers)*100 }}%;" aria-valuenow="{{ $usersnotverifiedCount }}" aria-valuemin="0" aria-valuemax="{{ $totalUsers }}">Unverified Users: {{ $usersnotverifiedCount }}</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="row mt-4">
+        <h2 class="mb-4">Event Statistics</h2>
+        <div class="col-md-12">
+            <div class="card bg-light mb-3">
+                <div class="card-header">Events</div>
+                <div class="card-body">
+                    <div class="progress">
+                        <div class="progress-bar bg-success" role="progressbar" style="width: {{ ($ongoingevents/$eventscount)*100 }}%;" aria-valuenow="{{ $ongoingevents }}" aria-valuemin="0" aria-valuemax="{{ $eventscount }}">Ongoing Events: {{ $ongoingevents }}</div>
+                        <div class="progress-bar bg-danger" role="progressbar" style="width: {{ ($closedevents/$eventscount)*100 }}%;" aria-valuenow="{{ $closedevents }}" aria-valuemin="0" aria-valuemax="{{ $eventscount }}">Closed Events: {{ $closedevents }}</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="row mt-4">
+        <h2 class="mt-5 mb-4">Top 3 Event Hashtags</h2>
+        @foreach($hasthagsbycount as $hashtag)
+        <div class="col-md-4">
+            <div class="card bg-light mb-3">
+                <div class="card-header">Hashtag: {{ $hashtag->title }}</div>
+                <div class="card-body">
+                    <h5 class="card-title">Used in {{ $hashtag->events_count }} events</h5>
+                </div>
+            </div>
+        </div>
+        @endforeach
+    </div>
+
+</div>
+
+
+
 @endsection

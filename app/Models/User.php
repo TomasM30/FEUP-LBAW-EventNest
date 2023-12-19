@@ -65,5 +65,9 @@ class User extends Authenticatable
     public function notifications(){
         return $this->hasMany(Notification::class, 'id_user');
     }
+
+    public function isVerified() {
+        return $this->is_verified;
+    }
     
 }

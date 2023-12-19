@@ -7,12 +7,16 @@ use App\Models\AuthenticatedUser;
 use App\Models\Event;
 use App\Models\User;
 use App\Models\EventParticipant;
-use App\Models\FavoriteEvents;
+use App\Models\FavouriteEvents;
 use Illuminate\Support\Facades\Auth;
 use App\Http\Controllers\FileController;
 use App\Models\Report;
 use App\Models\Notification;
 use App\Models\EventNotification;
+use App\Models\Hashtag;
+use App\Models\Message;
+use App\Models\EventComment;
+
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\DB;
@@ -27,33 +31,102 @@ class AuthenticatedUserController extends Controller
         if (!$authenticatedUser) {
             return redirect()->back()->with('message', 'User not found');
         }
-        
-        $this->authorize('userEvents', $authenticatedUser);
-    
-        $createdEvents = Event::where('id_user', $authenticatedUser->id_user)->get();
-    
-        $joinedEvents = Event::where('closed', false)->whereHas('eventParticipants', function ($query) use ($authenticatedUser) {
-            $query->where('id_user', $authenticatedUser->id_user);
-        })->get();
-    
-        $favoriteEvents = Event::whereHas('favoriteEvent', function ($query) use ($authenticatedUser) {
-            $query->where('id_user', $authenticatedUser->id_user);
-        })->get();
 
-        $attendedEvents = Event::where('closed', true)->whereHas('eventParticipants', function ($query) use ($authenticatedUser) {
-            $query->where('id_user', $authenticatedUser->id_user);
-        })->get();
-    
+        $this->authorize('userEvents', $authenticatedUser);
+
+        $createdEvents = Event::where('id_user', $authenticatedUser->id_user)->paginate(21);
+
+        $hashtags = Hashtag::orderBy('title')->get();
+        $places = Event::getUniquePlaces()->sortBy('place');
+
         return view('pages.user_events', [
             'user' => $authenticatedUser->user,
             'createdEvents' => $createdEvents,
-            'joinedEvents' => $joinedEvents,
-            'favoriteEvents' => $favoriteEvents,
-            'attendedEvents' => $attendedEvents,
+            'hashtags' => $hashtags,
+            'places' => $places
         ]);
     }
 
-    public function showUserProfile(Request $request) {
+    public function showUserjoinedEvents(Request $request)
+    {
+        $authenticatedUser = AuthenticatedUser::find($request->route('id'));
+
+        if (!$authenticatedUser) {
+            return redirect()->back()->with('message', 'User not found');
+        }
+
+        $this->authorize('userEvents', $authenticatedUser);
+
+        $joinedEvents = Event::where('closed', false)->whereHas('eventParticipants', function ($query) use ($authenticatedUser) {
+            $query->where('id_user', $authenticatedUser->id_user);
+        })->paginate(21);
+
+        log::info($joinedEvents);
+
+        $hashtags = Hashtag::orderBy('title')->get();
+        $places = Event::getUniquePlaces()->sortBy('place');
+
+        return view('pages.user_joinedEvents', [
+            'user' => $authenticatedUser->user,
+            'joinedEvents' => $joinedEvents,
+            'hashtags' => $hashtags,
+            'places' => $places
+        ]);
+    }
+
+    public function showUserfavouriteEvents(Request $request)
+    {
+        $authenticatedUser = AuthenticatedUser::find($request->route('id'));
+
+        if (!$authenticatedUser) {
+            return redirect()->back()->with('message', 'User not found');
+        }
+
+        $this->authorize('userEvents', $authenticatedUser);
+
+        $favouriteEvents = Event::whereHas('favouriteevent', function ($query) use ($authenticatedUser) {
+            $query->where('id_user', $authenticatedUser->id_user);
+        })->paginate(21);
+
+        log::info($favouriteEvents);
+
+        $hashtags = Hashtag::orderBy('title')->get();
+        $places = Event::getUniquePlaces()->sortBy('place');
+
+        return view('pages.user_favouriteEvents', [
+            'user' => $authenticatedUser->user,
+            'favouriteEvents' => $favouriteEvents,
+            'hashtags' => $hashtags,
+            'places' => $places
+        ]);
+    }
+
+    public function showUserattendedEvents(Request $request)
+    {
+        $authenticatedUser = AuthenticatedUser::find($request->route('id'));
+
+        if (!$authenticatedUser) {
+            return redirect()->back()->with('message', 'User not found');
+        }
+
+        $this->authorize('userEvents', $authenticatedUser);
+        $attendedEvents = Event::where('closed', true)->whereHas('eventParticipants', function ($query) use ($authenticatedUser) {
+            $query->where('id_user', $authenticatedUser->id_user);
+        })->paginate(21);
+
+        $hashtags = Hashtag::orderBy('title')->get();
+        $places = Event::getUniquePlaces()->sortBy('place');
+
+        return view('pages.user_attendedEvents', [
+            'user' => $authenticatedUser->user,
+            'attendedEvents' => $attendedEvents,
+            'hashtags' => $hashtags,
+            'places' => $places
+        ]);
+    }
+
+    public function showUserProfile(Request $request)
+    {
         $id = $request->route('id');
         $authenticatedUser = AuthenticatedUser::find($id);
 
@@ -74,15 +147,20 @@ class AuthenticatedUserController extends Controller
     }
 
 
-    public function updateUserProfile (Request $request) {
+    public function updateUserProfile(Request $request, $id)
+    {
 
         $request->validate([
-            'username' => 'required|string|max:255|unique:users,username,' . Auth::user()->id,
+            'username' => 'required|string|max:255|unique:users,username,' . $id,
             'name' => 'required|string|max:255',
-            'email' => 'required|string|email|max:255|unique:users,email,' . Auth::user()->id,
+            'email' => 'required|string|email|max:255|unique:users,email,' . $id,
         ]);
 
-        $user = Auth::user();
+        $user = User::find($id);
+        if (!$user) {
+            return redirect()->back()->withErrors(['error' => 'User not found.']);
+        }
+
         $user->username = $request->username;
         $user->name = $request->name;
         $user->email = $request->email;
@@ -100,79 +178,102 @@ class AuthenticatedUserController extends Controller
             }
         }
 
-        return redirect()->back()->with('message', 'Profile updated successfully!');    
+        return redirect()->back()->with('success', 'Profile updated successfully!');
     }
 
-    public function updateUserPassword(Request $request)
+    public function updateUserPassword(Request $request, $id)
     {
+        $user = User::find($id);
+
+        if (!$user) {
+            return redirect()->back()->withErrors(['error' => 'User not found.']);
+        }
+
         $request->validate([
-            'current_password' => 'required',
+            'current_password' => $user->password ? 'required' : '',
             'new_password' => 'required|min:8|confirmed',
         ]);
-    
-        $user = Auth::user();
-    
+
         if ($user->password && !Hash::check($request->current_password, $user->password)) {
-            return back()->withErrors(['current_password' => 'Current password is incorrect']);
+            return redirect()->back()->withErrors(['current_password' => 'Current password is incorrect. Please try again.']);
         }
-    
+
         $user->password = Hash::make($request->new_password);
         $user->save();
-        Auth::logout();
 
-        return redirect('/login')->with('success', 'Password changed successfully. Please log in with your new password.');
+        if (auth::user()->isAdmin()) {
+            return redirect('/dashboard')->with('success', 'Password changed successfully');
+        } else {
+            Auth::logout();
+            return redirect('/login')->with('success', 'Password changed successfully. Please log in with your new password.');
+        }
     }
 
-    public function deleteUser() {
+    public function deleteUser($id)
+    {
 
         try {
             DB::beginTransaction();
 
-            $user = Auth::user();
-        
+            $user = User::find($id);
+            log::info($user);
+
             $eventController = new EventController;
             $authenticatedUser = $user->authenticated;
-        
             $events = $authenticatedUser->events->where('id_user', $user->id);
-    
-            $eventNotificationIds = EventNotification::where('inviter_id', $user->id)->pluck('id');
-            EventNotification::whereIn('id', $eventNotificationIds)->delete();
-            Notification::whereIn('id', $eventNotificationIds)->delete();
-    
-            $notificationIds = Notification::where('id_user', $user->id)->pluck('id');
-            EventNotification::whereIn('id', $notificationIds)->delete();
-            Notification::whereIn('id', $notificationIds)->delete();
-    
+
+
+            Message::where('id_user', $user->id)->update(['id_user' => null]);
+
             Report::where('id_user', $user->id)
-            ->update(['closed' => true, 'id_user' => null]);
-        
+                ->update(['closed' => true, 'id_user' => null]);
+
+            EventComment::where('id_user', $user->id)
+                ->update(['id_user' => null]);
+
             foreach ($events as $event) {
                 $request = new Request(['eventId' => $event->id]);
                 $eventController->cancelEvent($request);
                 $event->update(['id_user' => null]);
             }
+
+            $eventNotifications = EventNotification::where('inviter_id', $id)->get();
+            $notificationIds = $eventNotifications->pluck('id')->toArray();
+            EventNotification::where('inviter_id', $id)->delete();
+            Notification::whereIn('id', $notificationIds)->delete();
     
-        
+            $notifications = Notification::where('id_user', $id)->get();
+            $eventNotificationIds = $notifications->pluck('id')->toArray();
+            EventNotification::whereIn('id', $eventNotificationIds)->delete();
+            Notification::where('id_user', $id)->delete();
+
             EventParticipant::where('id_user', $user->id)->delete();
-            FavoriteEvents::where('id_user', $user->id)->delete();
+            FavouriteEvents::where('id_user', $user->id)->delete();
             $authenticatedUser->delete();
             $user->delete();
-    
+
             DB::commit();
             return redirect('/login')->with('success', 'User deleted successfully.');
         } catch (\Exception $e) {
-            return redirect()->back()->withErrors(['error' => 'Something went wrong. Please try again later.']);
+            Log::error('An error occurred while deleting the user: ' . $e->getMessage());
+            Log::error($e->getTraceAsString());
+            DB::rollback();
+            return redirect()->back()->withErrors(['error' => $e->getMessage()]);
         }
-
     }
 
-    public function verifyUser(Request $request) {
+    public function verifyUser(Request $request)
+    {
         $user = Auth::user();
         $authenticatedUser = $user->authenticated;
         $authenticatedUser->is_verified = true;
         $authenticatedUser->save();
 
-        return redirect()->back()->with('message', 'User verified successfully!');
+        return redirect()->back()->with('success', 'User verified successfully!');
     }
 
+    public function showContactUsForm()
+    {
+        return view('pages.contactus');
+    }
 }

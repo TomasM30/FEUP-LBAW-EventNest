@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
+use App\Models\AuthenticatedUser;
 use Illuminate\Http\Request;
 
 use Illuminate\Http\RedirectResponse;
@@ -42,6 +43,18 @@ class LoginController extends Controller
         ]);
 
         if (Auth::attempt($credentials, $request->filled('remember'))) {
+        
+            if(!($request->user()->isAdmin()))
+            {
+                if(AuthenticatedUser::find($request->user()->id)->is_blocked)
+                {
+                    Auth::logout();
+                    return back()->withErrors([
+                        'Blocked Account' => 'Your Account has been blocked.',
+                    ])->onlyInput('email');
+                 }
+            }
+
             $request->session()->regenerate();
             if ($request->user()->isAdmin()) {
                 return redirect()->intended('dashboard');

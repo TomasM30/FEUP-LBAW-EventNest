@@ -12,6 +12,7 @@ use App\Http\Controllers\AdminController;
 use App\Http\Controllers\AuthenticatedUserController;
 use App\Http\Controllers\GoogleController;
 use App\Http\Controllers\FileController;
+use App\Http\Controllers\MessageController;
 
 
 use App\Http\Controllers\Auth\LoginController;
@@ -34,6 +35,7 @@ Route::redirect('/', '/login');
 Route::controller(UserController::class)->group(function () {
     Route::get('/user/findAll', 'findAll');
     Route::get('/user/{id}/notifications', 'showUserNotifications')->name('user.notifications');
+    Route::get('/users/{id}', 'getUserById')->name('getUsersById');
 });
 
 Route::controller(LoginController::class)->group(function () {
@@ -52,11 +54,23 @@ Route::controller(AdminController::class)->group(function () {
     Route::get('/report/{id}/details', 'showReportDetails')->name('report.details');
     Route::post('/dashboard/tag/add', 'addTag')->name('tag.add');
     Route::delete('/dashboard/tag/{id}/delete', 'deleteTag')->name('tag.delete');
+    Route::get('/dashboard/users', 'showUsers')->name('admin.users');
+    Route::get('/dashboard/events', 'showEvents')->name('admin.events');
+    Route::get('/dashboard/reports', 'showReports')->name('admin.reports');
+    Route::get('/dashboard/tags', 'showTags')->name('admin.tags');
+    Route::get('/search-users', 'searchUsers')->name('admin-search-users');
+    Route::get('/search-events', 'searchEvents')->name('admin-search-events');
+    Route::post('/user/{id}/profile/block', 'blockUser')->name('user.block');
+    Route::post('/user/{id}/profile/unblock', 'unblockUser')->name('user.unblock');
 });
 
 Route::controller(AuthenticatedUserController::class)->group(function () {
+    Route::get('/contactus', 'showContactUsForm')->name('contactus');
     Route::get('/user/{id}/events', 'showUserEvents')->name('user.events');
-    Route::get('/user/{id}/profile', 'showUserProfile')->name('user.profile');
+    Route::get('/user/{id}/events/created', 'showUserjoinedEvents')->name('user.events.joined');
+    Route::get('/user/{id}/events/joined', 'showUserattendedEvents')->name('user.events.attended');
+    Route::get('/user/{id}/events/favorites', 'showUserFavouriteEvents')->name('user.events.favorites');
+    Route::get('/user/{id}/profile', 'showUserProfile')->name('user.profile')->middleware('auth');
     Route::post('/user/{id}/profile/edit', 'updateUserProfile')->name('user.profile.update');
     Route::post('/user/{id}/password/change', 'updateUserPassword')->name('user.password.update');
     Route::post('/user/{id}/delete', 'deleteUser')->name('user.delete');
@@ -68,11 +82,12 @@ Route::controller(EventController::class)->group(function () {
     Route::post('/events/edit/{id}', 'editEvent')->name('events.edit');
     Route::delete('/events/delete/{id}', 'deleteEvent')->name('events.delete');
     Route::post('/events/cancel/{id}', 'cancelEvent')->name('events.cancel');
-    Route::get('/events', 'listEvents')->name('events');
-    Route::get('/events/{id}/details', 'showEventDetails')->name('events.details');
+    Route::get('/events', 'listEvents')->name('events')->middleware('auth');
+    Route::get('/events/{id}/details', 'showEventDetails')->name('events.details')->middleware('auth');
     Route::post('/events/{id}/leave', 'leaveEvent')->name('event.leave');
     Route::post('/events/{id}/join', 'joinEvent')->name('event.join');
     Route::post('/events/{id}/add', 'addUser')->name('events.add');
+    Route::post('/events/{id}/addFavourite', 'addEventAsFavourite')->name('event.favourite');
     Route::post('/events/{id}/remove', 'removeUser')->name('events.remove');
     Route::post('/events/search', 'search')->name('search-events');
     Route::post('/events/{id}/invite', 'addNotification')->name('events.notification');
@@ -80,6 +95,13 @@ Route::controller(EventController::class)->group(function () {
     Route::post('/events/{id}/order', 'makeOrder')->name('events.order');
     Route::post('/events/filter', 'filter')->name('events.filter');
     Route::post('/events/{id}/report', 'reportEvent')->name('events.report');
+    Route::post('/events/{id}/addFavourite', 'addEventAsFavourite')->name('event.favourite');
+    Route::post('/events/{id}/removeFavourite', 'removeEventAsFavourite')->name('event.removeFavourite');
+    Route::get('/events/{eventId}/searchUsers', 'searchUsers')->name('events.searchUsers');
+    Route::get('/events/{eventId}/searchUsers/invite', 'searchUsersInvite')->name('events.searchUsersInvite');
+    Route::post('/events/{id}/addComment', 'addComment')->name('event.addComment');
+    Route::delete('/events/{id}/removeComment/{commentId}', 'removeComment')->name('event.removeComment');
+
 });
 
 Route::controller(GoogleController::class)->group(function () {
@@ -100,3 +122,7 @@ Route::controller(PaypalController::class)->group(function () {
     Route::get('paypal/payment/cancel', 'paymentCancel')->name('paypal.payment.cancel');
 });
 
+Route::controller(MessageController::class)->group(function () {
+    Route::get('/fetch-message', 'fetchMessages');
+    Route::post('/send-message', 'sendMessage');
+});

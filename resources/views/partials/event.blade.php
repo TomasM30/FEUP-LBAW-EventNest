@@ -1,6 +1,6 @@
 <div class="col-12 col-sm-6 col-lg-4 mb-4">
     <a href="{{ route('events.details', ['id' => $event->id]) }}" style="text-decoration: none; color: inherit;">
-        <div class="card text-white bg-primary mb-3 mx-auto" style="max-width:30rem; max-height:40rem;">
+        <div class="card text-white bg-primary mb-3 mx-auto" style="max-width:30rem; max-height:43rem;">
             <img src="{{ $event->getProfileImage() }}" class="img-fluid" style="height: 25rem; object-fit: cover;"/>
 
             <div class="card-body">
@@ -10,7 +10,7 @@
                 <p class=" card-text">{{ $event->place }}</p>
                 <p class="card-text">{{ \Carbon\Carbon::parse($event->date)->format('d/m/y') }}</p>
             </div>
-            <div class="card-header">
+            <div class="card-header" style="overflow-x: auto; white-space: nowrap; overflow-y:hidden;">
                 @if($event->hashtags->isNotEmpty())
                     @foreach($event->hashtags as $hashtag)
                         <span class="hashtag">#{{ $hashtag->title }}</span>

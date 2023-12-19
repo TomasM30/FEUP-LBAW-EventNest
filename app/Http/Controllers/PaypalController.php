@@ -110,12 +110,6 @@ class PaypalController extends Controller
                     'date' => $event->date,
                 ]);
             }
-
-            $event->capacity -= $orderDetails['amount'];
-            if ($event->capacity < $event->ticket_limit) {
-                $event->ticket_limit = $event->capacity;
-            }
-
             $event->save();
 
             return redirect()

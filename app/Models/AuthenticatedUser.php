@@ -26,7 +26,7 @@ class AuthenticatedUser extends Model
      */
     protected $primaryKey = 'id_user';
 
-    protected $fillable = ['id_user', 'is_verified'];
+    protected $fillable = ['id_user', 'is_verified', 'is_blocked'];
 
 
     /**
@@ -47,5 +47,35 @@ class AuthenticatedUser extends Model
     public function orders()
     {
         return $this->hasMany(Order::class, 'id_user');
+    }
+    public function favouriteEvents()
+    {
+        return $this->hasMany(FavouriteEvents::class, 'id_user');
+    }
+
+    public function messages()
+    {
+        return $this->hasMany(Message::class, 'id_user', 'id_user');
+    }
+
+    public function boughtTicketsCount(){
+        $count = 0;
+        $orders = $this->orders()->get();
+        foreach ($orders as $order) {
+            $count += $order->quantity;
+        }
+        return $count;
+    }
+
+    public function boughtTicketsCountForEvent($eventId){
+        $count = 0;
+        foreach ($this->orders as $order) {
+            foreach ($order->tickets as $ticket) {
+                if ($ticket->ticketType->id_event == $eventId) {
+                    $count++;
+                }
+            }
+        }
+        return $count;
     }
 }

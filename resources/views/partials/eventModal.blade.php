@@ -32,7 +32,7 @@
                             <div id="ticketFields" style="display: none;">
                                 <div class="form-group">
                                     <label for="ticket_limit">Ticket Limit by User</label>
-                                    <input type="number" class="form-control" id="ticket_limit" name="ticket_limit">
+                                    <input type="number" class="form-control" id="ticket_limit" name="ticket_limit" placeholder="How many tickets per user">
                                     <p>If left empty, ticket limit will be equal to capacity.</p>
                                     @if ($errors->has('ticket_limit'))
                                         @foreach ($errors->get('ticket_limit') as $error)
@@ -44,7 +44,7 @@
                                 </div>
                                 <div class="form-group">
                                     <label for="ticket_price">Ticket Price</label>
-                                    <input type="number" class="form-control" id="ticket_price" name="ticket_price">
+                                    <input type="number" class="form-control" id="ticket_price" name="ticket_price" placeholder="price of each ticket">
                                     <p>Specify the price for each ticket.</p>
                                     @if ($errors->has('ticket_price'))
                                         @foreach ($errors->get('ticket_price') as $error)
@@ -99,7 +99,7 @@
                         </div>
                         <div class="form-group">
                             <label for="capacity">Capacity</label>
-                            <input type="number" class="form-control" id="capacity" name="capacity"  @if(isset($event) && $formAction != route('events.edit', $event->id)) required @endif>
+                            <input type="number" class="form-control" id="capacity" placeholder="Event Capacity" name="capacity"  @if(isset($event) && $formAction != route('events.edit', $event->id)) required @endif>
                             @if ($errors->has('capacity'))
                                 @foreach ($errors->get('capacity') as $error)
                                     <div class="alert alert-dismissible alert-danger">
@@ -110,7 +110,7 @@
                         </div>
                         <div class="form-group">
                             <label for="place">Place</label>
-                            <input type="text" class="form-control" id="place" name="place"  @if(isset($event) && $formAction != route('events.edit', $event->id)) required @endif>
+                            <input type="text" placeholder="Place where event will be held" class="form-control" id="place" name="place"  @if(isset($event) && $formAction != route('events.edit', $event->id)) required @endif>
                             @if ($errors->has('place'))
                                 @foreach ($errors->get('place') as $error)
                                     <div class="alert alert-dismissible alert-danger">
@@ -126,8 +126,8 @@
                             <div class="card-body hashtags-body">
                                 @foreach ($hashtags as $hashtag)
                                     <div class="form-check">
-                                        <input class="form-check-input" type="checkbox" name="hashtags[]" value="{{ $hashtag->id }}" id="hashtag{{ $hashtag->id }}">
-                                        <label class="form-check-label" for="hashtag{{ $hashtag->id }}">
+                                        <input class="form-check-input" type="checkbox" name="hashtags2[]" value="{{ $hashtag->id }}" id="hashtag{{ $hashtag->id }}">
+                                        <label class="form-check-label" for="hashtag2{{ $hashtag->id }}">
                                             #{{ $hashtag->title }}
                                         </label>
                                     </div>
