@@ -14,6 +14,6 @@
             @endif
         </div>
     </div>
-    @include('partials.usersEventList', ['events' => $createdEvents, 'type' => 'created'])
+    @include('partials.usersEventList', ['events' => $createdEvents, 'type' => 'created', 'id' => $user->id])
     
 @endsection

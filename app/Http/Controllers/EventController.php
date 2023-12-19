@@ -736,16 +736,14 @@ class EventController extends Controller
         $orderBy = $request->input('orderBy', 'date');
         $direction = $request->input('direction', 'asc');
         $type = $request->input('type');
+        $id = $request->input('id');
         $query = Event::query();
 
         if ($type == 'main') {
             $user = Auth::user();
         } else {
-            $user = AuthenticatedUser::where('id_user', $request->route('id'))->firstOrFail();
+            $user = User::where('id', $id)->firstOrFail();
         }
-
-        log::info($user);
-
 
         if ($user->isAdmin() && $type == 'main') {
             $query->where('closed', false)->paginate(21);
