@@ -104,7 +104,7 @@
                                     <input type="hidden" name="eventId" value="{{ $event->id }}">
                                     <button type="submit" class="btn btn-primary m-3 ">Join</button>
                                 </form>
-                                @elseif($event->hasTickets())
+                                @elseif($event->hasTickets() || !$isOrganizer || !$isParticipant)
                                     <form method="POST" action="{{ route('event.order', $event->id) }}">
                                         {{ csrf_field() }}
                                         <input type="hidden" name="id_user" value="{{ Auth::user()->id }}">

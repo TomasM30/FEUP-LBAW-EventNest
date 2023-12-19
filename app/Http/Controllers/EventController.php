@@ -34,7 +34,7 @@ class EventController extends Controller
     {
         try {
             $this->authorize('create', Event::class);
-            //$this->authorize('create', TicketType::class);
+            $this->authorize('create', TicketType::class);
 
             $user = Auth::user()->authenticated;
 

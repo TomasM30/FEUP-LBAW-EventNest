@@ -46,7 +46,7 @@ class PaypalController extends Controller
 
             foreach ($response['links'] as $links) {
                 if ($links['rel'] == 'approve') {
-                    return redirect()->away($links['href']);
+                    return redirect()->route('events')->with('message', 'Order completed successfully');
                 }
             }
 

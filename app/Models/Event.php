@@ -83,6 +83,6 @@ class Event extends Model
     }
 
     public function hasTickets() {
-        return $this->hasOne(TicketType::class, 'id_event')->exists();
+        return $this->hasMany(TicketType::class, 'id_event')->exists();
     }
 }
