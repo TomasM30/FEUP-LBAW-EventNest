@@ -64,9 +64,6 @@ class AuthenticatedUserController extends Controller
             ->where(function ($query) use ($authenticatedUser) {
                 $query->whereHas('eventParticipants', function ($query) use ($authenticatedUser) {
                     $query->where('id_user', $authenticatedUser->id_user);
-                })
-                ->orWhereHas('ticketTypes.tickets.order', function ($query) use ($authenticatedUser) {
-                    $query->where('id_user', $authenticatedUser->id_user);
                 });
             })
             ->paginate(21);
@@ -271,6 +268,7 @@ class AuthenticatedUserController extends Controller
             Notification::where('id_user', $id)->delete();
 
             EventParticipant::where('id_user', $user->id)->delete();
+            Order::where('id_user', $user->id)->update(['id_user' => null]);
             FavouriteEvents::where('id_user', $user->id)->delete();
             $authenticatedUser->delete();
             $user->delete();

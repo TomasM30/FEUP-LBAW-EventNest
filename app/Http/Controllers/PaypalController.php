@@ -8,6 +8,7 @@ use App\Models\Order;
 use App\Models\Ticket;
 use App\Models\Event;
 use Illuminate\Support\Facades\Log;
+use App\Models\EventParticipant;
 
 class PaypalController extends Controller
 {
@@ -95,6 +96,7 @@ class PaypalController extends Controller
             // Retrieve the order details from the session
             $orderDetails = session('order');
             $event = Event::find($orderDetails['id_event']);
+            log::info($orderDetails);
 
             $order = Order::create([
                 'quantity' => $orderDetails['amount'],
@@ -110,6 +112,12 @@ class PaypalController extends Controller
                     'date' => $event->date,
                 ]);
             }
+
+            EventParticipant::insert([
+                'id_user' => $orderDetails['id_user'],
+                'id_event' => $event->id,
+            ]);
+
             $event->save();
 
             return redirect()

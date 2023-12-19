@@ -66,9 +66,9 @@ Route::controller(AdminController::class)->group(function () {
 
 Route::controller(AuthenticatedUserController::class)->group(function () {
     Route::get('/contactus', 'showContactUsForm')->name('contactus');
-    Route::get('/user/{id}/events', 'showUserEvents')->name('user.events');
-    Route::get('/user/{id}/events/created', 'showUserjoinedEvents')->name('user.events.joined');
-    Route::get('/user/{id}/events/joined', 'showUserattendedEvents')->name('user.events.attended');
+    Route::get('/user/{id}/events/created', 'showUserEvents')->name('user.events');
+    Route::get('/user/{id}/events/joined', 'showUserjoinedEvents')->name('user.events.joined');
+    Route::get('/user/{id}/events/attended', 'showUserattendedEvents')->name('user.events.attended');
     Route::get('/user/{id}/events/favorites', 'showUserFavouriteEvents')->name('user.events.favorites');
     Route::get('/user/{id}/profile', 'showUserProfile')->name('user.profile')->middleware('auth');
     Route::post('/user/{id}/profile/edit', 'updateUserProfile')->name('user.profile.update');

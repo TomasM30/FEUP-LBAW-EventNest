@@ -192,7 +192,7 @@ CREATE TABLE TicketType (
 
 CREATE TABLE Orders (
     id SERIAL PRIMARY KEY,
-    id_user INT NOT NULL,
+    id_user INT,
     quantity INT NOT NULL,
     FOREIGN KEY (id_user) REFERENCES Authenticated(id_user)
 );
@@ -206,34 +206,6 @@ CREATE TABLE Ticket (
     date DATE DEFAULT CURRENT_DATE,
     FOREIGN KEY (id_order) REFERENCES Orders(id),
     FOREIGN KEY (id_ticket_type) REFERENCES TicketType(id)
-);
-
-CREATE TABLE Poll (
-    id SERIAL PRIMARY KEY,
-    title VARCHAR(255) NOT NULL,
-    summary TEXT,
-    question TEXT NOT NULL,
-    startsAt DATE DEFAULT CURRENT_DATE,
-    endsAt DATE NOT NULL,
-    id_event INT NOT NULL,
-    id_user INT NOT NULL,
-    FOREIGN KEY (id_event) REFERENCES Event(id),
-    FOREIGN KEY (id_user) REFERENCES Authenticated(id_user)
-);
-
-CREATE TABLE PollOption (
-    id SERIAL PRIMARY KEY,
-    option TEXT NOT NULL,
-    id_poll INT NOT NULL,
-    FOREIGN KEY (id_poll) REFERENCES Poll(id)
-);
-
-CREATE TABLE PollVotes (
-    id_user INT NOT NULL,
-    id_option INT NOT NULL,
-    FOREIGN KEY (id_user) REFERENCES Authenticated(id_user),
-    FOREIGN KEY (id_option) REFERENCES PollOption(id),
-    PRIMARY KEY (id_user, id_option)
 );
 
 ----------------------------------------------------------

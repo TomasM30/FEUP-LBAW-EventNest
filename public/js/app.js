@@ -506,6 +506,7 @@ function fetchEvents(page = 1) {
   let selectedHashtags = Array.from(document.querySelectorAll('input[name="hashtags[]"]:checked')).map(input => input.value);
   let selectedPlaces = Array.from(document.querySelectorAll('input[name^="places"]:checked')).map(input => input.value);
   let typeElement = document.querySelector('input[name="type"]');
+  let idElement = document.querySelector('input[name="id"]');
   let type = typeElement ? typeElement.value : null;
 
   let url = `/events/filter`;
@@ -516,6 +517,7 @@ function fetchEvents(page = 1) {
     orderBy: orderBy,
     direction: direction,
     type: type,
+    id: idElement ? idElement.value : null,
     page: page // Use the page parameter
   };
 

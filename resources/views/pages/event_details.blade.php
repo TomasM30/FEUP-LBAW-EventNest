@@ -214,17 +214,21 @@
                                                                 <form id="commentForm" action="{{ route('event.addComment', ['id' => $event->id]) }}" method="post">
                                                                     @csrf
                                                                     <div class="mb-3">
-                                                                        <textarea class="form-control rounded" name="content" rows="5" placeholder="Your comment" required {{ $event->eventparticipants()->where('id_user', Auth::user()->id)->exists() 
-                                                                            || Auth::user()->authenticated->orders()->whereHas('tickets.ticketType', function ($query) use ($event) {
-                                                                                $query->where('id_event', $event->id);
-                                                                            })->exists() ? '' : 'disabled' }}></textarea>
-                                                                    </div>
-                                                                        <button type="submit" class="btn btn-primary w-100 py-2" 
+                                                                        <textarea class="form-control rounded" name="content" rows="5" placeholder="Your comment" required 
                                                                             {{ $event->eventparticipants()->where('id_user', Auth::user()->id)->exists() 
-                                                                            || Auth::user()->authenticated->orders()->whereHas('tickets.ticketType', function ($query) use ($event) {
-                                                                                $query->where('id_event', $event->id);
-                                                                            })->exists() ? '' : 'disabled' }}>Add Comment
-                                                                        </button>
+                                                                                || (Auth::user()->authenticated && Auth::user()->authenticated->orders()->whereHas('tickets.ticketType', function ($query) use ($event) {
+                                                                                    $query->where('id_event', $event->id);
+                                                                                })->exists())
+                                                                                || !Auth::user()->isAdmin() ? '' : 'disabled' }}>
+                                                                        </textarea>
+                                                                    </div>
+                                                                    <button type="submit" class="btn btn-primary w-100 py-2" 
+                                                                        {{ $event->eventparticipants()->where('id_user', Auth::user()->id)->exists() 
+                                                                        || (Auth::user()->authenticated && Auth::user()->authenticated->orders()->whereHas('tickets.ticketType', function ($query) use ($event) {
+                                                                            $query->where('id_event', $event->id);
+                                                                        })->exists()) 
+                                                                        || !Auth::user()->isAdmin() ? '' : 'disabled' }}>Add Comment
+                                                                    </button>
                                                                 </form>
                                                             </div>
                                                         </div>
@@ -253,7 +257,7 @@
                 @endif
                 @if(!$isParticipant && !$isAdmin && $event->eventparticipants()->count() < $event->capacity)
                     @if(($event->type == 'public' || $event->type == 'private') && $event->hasTickets() && !$isOrganizer && !$isParticipant && $userTicketLimit > 0)
-                        <div class="card mt-4"style="width: 85%;" >
+                    <div class="card mt-4" style="width: 85%;">
                             <div class="card-header">
                                 <h4>Order Tickets</h4>
                             </div>
@@ -266,6 +270,11 @@
                                     <div class="form-group">
                                         <label for="ticketQuantity">Number of Tickets:</label>
                                         <input type="number" name="amount" id="ticketQuantity" placeholder="Max tickets to buy: {{ $userTicketLimit }}" class="form-control" min="1" max="{{ $userTicketLimit }}" required>
+                                    </div>
+
+                                    <div class="form-group">
+                                        <label for="ticketPrice">Ticket Price:</label>
+                                        <p id="ticketPrice">{{ $ticketPrice }}€</p>
                                     </div>
 
                                     <button type="submit" class="btn btn-primary" href="{{ route('paypal.payment') }}" style="width:100%;">Order</button>
@@ -303,7 +312,7 @@
                     </form>
                     @endif
 
-                    @if($isAdmin || $isOrganizer && !$event->hasTickets())
+                    @if( ($isOrganizer && !$event->hasTickets()) || $isAdmin)
                         <div class="btn-group" style="width: 100%;">
                             <button id='manage-btn' type="button" class="btn btn-primary m-3 ">Manage Users</button>
                         </div>
@@ -330,10 +339,12 @@
 </div>
 
 <div id="overlay" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0, 0, 0, 0.5); z-index: 1000;"></div>
-@include('partials.eventModal', ['formAction' => route('events.edit', $event->id), 'hashtags' => $hashtags])
-@include('partials.reportModal')
+@if (!$isAdmin)
+    @include('partials.eventModal', ['formAction' => route('events.edit', $event->id), 'hashtags' => $hashtags])
+    @include('partials.reportModal')
+    @include('partials.inviteUserModal')
+@endif
 @include('partials.manageUserModal')
-@include('partials.inviteUserModal')
 @include('partials.deleteEventModal')
 @include('partials.cancelEventModal')
 @endsection

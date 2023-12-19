@@ -33,7 +33,6 @@
                                 <div class="form-group">
                                     <label for="ticket_limit">Ticket Limit by User</label>
                                     <input type="number" class="form-control" id="ticket_limit" name="ticket_limit" placeholder="How many tickets per user">
-                                    <p>If left empty, ticket limit will be equal to capacity.</p>
                                     @if ($errors->has('ticket_limit'))
                                         @foreach ($errors->get('ticket_limit') as $error)
                                             <div class="alert alert-dismissible alert-danger">

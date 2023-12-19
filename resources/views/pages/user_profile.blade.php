@@ -111,37 +111,48 @@
                     <h3>Tickets</h3>
                     <div class="accordion mt-4" id="ordersAccordion">
                         @forelse($user->authenticated->orders as $order)
-                            <div class="card">
-                                <div class="card-header" id="headingOrder{{ $order->id }}">
-                                    <h5 class="mb-0">
-                                        <button class="btn btn-link" type="button" data-toggle="collapse" data-target="#collapseOrder{{ $order->id }}" aria-expanded="true" aria-controls="collapseOrder{{ $order->id }}">
-                                            Order #{{ $order->id }}
-                                        </button>
-                                    </h5>
-                                </div>
+                            @if($order->tickets->first()->ticketType->event->closed == false)
+                                <div class="card">
+                                    <div class="card-header" id="headingOrder{{ $order->id }}">
+                                        <h5 class="mb-0">
+                                            <button class="btn btn-link" type="button" data-toggle="collapse" data-target="#collapseOrder{{ $order->id }}" aria-expanded="true" aria-controls="collapseOrder{{ $order->id }}">
+                                                Order #{{ $order->id }}
+                                            </button>
+                                        </h5>
+                                    </div>
 
-                                <div id="collapseOrder{{ $order->id }}" class="collapse" aria-labelledby="headingOrder{{ $order->id }}" data-parent="#ordersAccordion">
-                                    <div class="card-body">
-                                        <div class="row">
-                                            @foreach($order->tickets as $ticket)
-                                                @if($ticket->ticketType->event->date > now())
-                                                    <div class="col-12 col-md-6 mb-3">
-                                                        <div class="card h-100">
-                                                            <div class="card-body">
-                                                                <h5 class="card-title">Ticket #{{ $ticket->id }}</h5>
-                                                                <p class="card-text">Event: {{ $ticket->ticketType->event->title }}</p>
-                                                                <p class="card-text">Type: {{ $ticket->ticketType->title }}</p>
-                                                                <p class="card-text">Price: {{ $ticket->ticketType->price }}</p>
-                                                                <p class="card-text">Event Date: {{ \Carbon\Carbon::parse($ticket->ticketType->event->date)->format('d M Y') }}</p>
-                                                            </div>
+                                    <div id="collapseOrder{{ $order->id }}" class="collapse" aria-labelledby="headingOrder{{ $order->id }}" data-parent="#ordersAccordion">
+                                        <div class="card-body" style="max-height: 400px; overflow-y: auto">
+                                            <div class="row">
+                                                @foreach($order->tickets as $ticket)
+                                                    @if($ticket->ticketType->event->date > now())
+                                                        <div class="col-12 col-md-6 mb-3">
+                                                            <a href="{{ route('events.details', ['id' => $ticket->ticketType->event->id]) }}" class="text-decoration-none text-dark">
+                                                                <div class="card h-100">
+                                                                    <div class="card-body">
+                                                                        <h5 class="card-title">Ticket #{{ $ticket->id }}</h5>
+                                                                        <p class="card-text">Event: {{ $ticket->ticketType->event->title }}</p>
+                                                                        <p class="card-text">Type: {{ $ticket->ticketType->title }}</p>
+                                                                        <p class="card-text">Price: {{ $ticket->ticketType->price }}</p>
+                                                                        <p class="card-text">Event Date: {{ \Carbon\Carbon::parse($ticket->ticketType->event->date)->format('d M Y') }}</p>
+                                                                    </div>
+                                                                </div>
+                                                            </a>
                                                         </div>
-                                                    </div>
-                                                @endif
-                                            @endforeach
+                                                    @endif
+                                                @endforeach
+                                            </div>
                                         </div>
                                     </div>
                                 </div>
-                            </div>
+                            @else
+                                <div class="alert" style="background-color: #f8d7da; color: #721c24; border-color: #f5c6cb;">
+                                    <h4 class="alert-heading">No Tickets Purchased Yet!</h4>
+                                    <p>It seems like you haven't purchased any tickets yet. Check out our events and find something you'd love to attend!</p>
+                                    <hr>
+                                    <p class="mb-0">Once you've purchased tickets, they will appear here.</p>
+                                </div>
+                            @endif
                             @empty
                                 <div class="alert" style="background-color: #f8d7da; color: #721c24; border-color: #f5c6cb;">
                                     <h4 class="alert-heading">No Tickets Purchased Yet!</h4>

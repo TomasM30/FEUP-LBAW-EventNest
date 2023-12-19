@@ -30,6 +30,7 @@ use App\Models\Report;
 use App\Http\Controllers\FileController;
 use App\Models\FavouriteEvents;
 use App\Models\Message;
+use App\Models\Ticket;
 
 
 class EventController extends Controller
@@ -196,6 +197,19 @@ class EventController extends Controller
             $event->favouriteevent()->delete();
             $event->hashtags()->detach();
 
+            $ticketTypes = $event->ticketTypes()->get();
+            foreach ($ticketTypes as $ticketType) {
+                $tickets = $ticketType->tickets()->get();
+                foreach ($tickets as $ticket) {
+                    $orderId = $ticket->id_order;
+                    $ticket->delete();
+                    if (!Ticket::where('id_order', $orderId)->exists()) {
+                        Order::where('id', $orderId)->delete();
+                    }
+                }
+                $ticketType->delete();
+            }
+
 
             $event->delete();
 
@@ -318,9 +332,13 @@ class EventController extends Controller
         $data['messages'] = $messages = Message::where('id_event', $data['event']->id)->get();
         $data['users'] = AuthenticatedUser::all()->where('id_user', '!=', $data['event']->id_user);
         $data['comments'] = EventComment::where('id_event', $id);
-        $userBoughtTicketsCount = auth()->user()->authenticated->boughtTicketsCountForEvent($data['event']->id);
-        $remainingCapacity = $data['event']->capacity - $data['event']->soldTicketsCount();
-        $data['userTicketLimit'] = min($data['event']->ticket_limit - $userBoughtTicketsCount, $remainingCapacity);
+        if (!auth()->user()->isAdmin()){
+            $userBoughtTicketsCount = auth()->user()->authenticated->boughtTicketsCountForEvent($data['event']->id);
+            $remainingCapacity = $data['event']->capacity - $data['event']->soldTicketsCount();
+            $data['userTicketLimit'] = min($data['event']->ticket_limit - $userBoughtTicketsCount, $remainingCapacity);
+            $data['ticketPrice'] = $data['event']->ticketTypes->first()->price;
+        }
+
 
 
         if ($request->ajax()) {
@@ -796,40 +814,33 @@ class EventController extends Controller
         $orderBy = $request->input('orderBy', 'date');
         $direction = $request->input('direction', 'asc');
         $type = $request->input('type');
-        log::info("routeid " .  $id);
+        $id = $request->input('id');
         $query = Event::query();
 
         if ($type == 'main') {
-            log::info('main');
             $user = Auth::user();
         } else {
-            $user = AuthenticatedUser::where('id_user', $request->route('id'))->firstOrFail();
-            log::info($user);
+            $user = User::where('id', $id)->firstOrFail();
+            $authenticatedUser = AuthenticatedUser::where('id_user', $user->id)->firstOrFail();
         }
 
         if ($user->isAdmin() && $type == 'main') {
-            log::info('admin');
             $query->where('closed', false)->paginate(21);
         } elseif ($type == 'main') {
-            log::info('main2');
             $query->whereIn('type', ['approval', 'public'])
                 ->where('id_user', '!=', $user->id)
                 ->where('closed', false)->paginate(21);
         } elseif ($type == 'created') {
-            log::info('created');
             $query->where('id_user', $user->id)->paginate(21);
         } elseif ($type == 'joined') {
-            log::info('joined');
             $query->where('closed', false)->whereHas('eventParticipants', function ($query) use ($user) {
                 $query->where('id_user', $user->id);
             })->paginate(21);
         } elseif ($type == 'favorite') {
-            log::info('favorite');
             $query->whereHas('favouriteevent', function ($query) use ($authenticatedUser) {
                 $query->where('id_user', $authenticatedUser->id_user);
             })->paginate(21);
         } elseif ($type == 'attended') {
-            log::info('attended');
             $query->where('closed', true)
                 ->whereHas('eventParticipants', function ($query) use ($user) {
                     $query->where('id_user', $user->id);

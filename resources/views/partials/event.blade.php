@@ -20,7 +20,7 @@
                 @endif
             </div>
             <div class="card-footer">
-                capacity: {{ $event->eventparticipants()->count() ."/". $event->capacity }}
+                capacity: {{ $event->eventparticipants()->count() + $event->soldTicketsCount() ."/". $event->capacity }}
             </div>
         </div>
     </a>
