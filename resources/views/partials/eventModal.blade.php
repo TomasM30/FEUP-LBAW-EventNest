@@ -56,16 +56,6 @@
                                 </div>
                             </div>
                         @endif
-                        <script>
-                            document.getElementById('event_type').addEventListener('change', function() {
-                                var ticketFields = document.getElementById('ticketFields');
-                                if (this.value === 'tickets') {
-                                    ticketFields.style.display = 'block';
-                                } else {
-                                    ticketFields.style.display = 'none';
-                                }
-                            });
-                        </script>
                         <div class="form-group" id="event_type">
                             <label for="title" class="form-label mt-4">Title</label>
                             <input type="text" class="form-control" id="title" name="title" placeholder="Event title" @if(isset($event) && $formAction != route('events.edit', $event->id)) required @endif>
@@ -88,7 +78,7 @@
                                 @endforeach
                             @endif
                         </div>
-                        <div class="form-group">
+                        <div id="typeEvent" class="form-group">
                             <label for="type">Type</label>
                             <select id="type" name="type" class="form-control" style="height: 3em" @if(isset($event) && $formAction != route('events.edit', $event->id)) required @endif>
                                 <option value="public" @if(isset($event) && $event->type == 'public') selected @endif>Public</option>

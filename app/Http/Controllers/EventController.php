@@ -59,7 +59,7 @@ class EventController extends Controller
                         }
                     },
                 ],
-                'ticket_price' => Rule::requiredIf($request->type !== 'free' && (Auth::user()->authenticated->is_verified !== false)).'|integer|min:1',
+                'ticket_price' => Rule::requiredIf($request->event_type == 'tickets' && (Auth::user()->authenticated->is_verified !== false)).'|integer|min:1',
                 'place' => 'required|string',
                 'hashtags' => 'array',
                 'hashtags.*' => 'exists:hashtag,id',

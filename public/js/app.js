@@ -285,6 +285,42 @@ window.onload = function() {
   handleModal('verificationModal', 'questionBtn', 'overlay');
   handleModal('tagModal', 'tagBtn', 'overlay');
 
+  document.getElementById('event_type').addEventListener('change', function() {
+    let ticketFields = document.getElementById('ticketFields');
+    let ticketLimit = document.getElementById('ticket_limit');
+    let ticketPrice = document.getElementById('ticket_price');
+    let eventType = document.getElementById('typeEvent');
+    if (this.value === 'tickets') {
+        ticketFields.style.display = 'block';
+        ticketLimit.disabled = false;
+        ticketPrice.disabled = false;
+        ticketLimit.setAttribute('name', 'ticket_limit');
+        ticketPrice.setAttribute('name', 'ticket_price');
+        eventType.style.display = 'none';
+
+    } else {
+        ticketFields.style.display = 'none';
+        ticketLimit.disabled = true;
+        ticketPrice.disabled = true;
+        ticketLimit.removeAttribute('name');
+        ticketPrice.removeAttribute('name');
+        eventType.style.display = 'block';
+    }
+  });
+
+  document.getElementById('NEvent-button').addEventListener('click', function() {
+    let eventType = document.getElementById('event_type');
+    let ticketFields = document.getElementById('ticketFields');
+    let ticketLimit = document.getElementById('ticket_limit');
+    let ticketPrice = document.getElementById('ticket_price');
+    eventType.value = 'free';
+    ticketFields.style.display = 'none';
+    ticketLimit.disabled = true;
+    ticketPrice.disabled = true;
+    ticketLimit.removeAttribute('name');
+    ticketPrice.removeAttribute('name');
+});
+
 };
 
 
@@ -449,8 +485,3 @@ function orderEventsByTitle() {
   })
   .catch(error => console.error('Error:', error));
 }
-
-
-
-
-
