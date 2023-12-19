@@ -789,45 +789,53 @@ class EventController extends Controller
 
     public function filter(Request $request)
     {
+        $id = $request->input('id');
         $hashtags = $request->input('hashtags');
         $places = $request->input('places');
         $search = $request->input('search');
         $orderBy = $request->input('orderBy', 'date');
         $direction = $request->input('direction', 'asc');
         $type = $request->input('type');
+        log::info("routeid " .  $id);
         $query = Event::query();
 
         if ($type == 'main') {
+            log::info('main');
             $user = Auth::user();
         } else {
             $user = AuthenticatedUser::where('id_user', $request->route('id'))->firstOrFail();
+            log::info($user);
         }
 
-        log::info($user);
-
-
         if ($user->isAdmin() && $type == 'main') {
+            log::info('admin');
             $query->where('closed', false)->paginate(21);
         } elseif ($type == 'main') {
+            log::info('main2');
             $query->whereIn('type', ['approval', 'public'])
                 ->where('id_user', '!=', $user->id)
                 ->where('closed', false)->paginate(21);
         } elseif ($type == 'created') {
+            log::info('created');
             $query->where('id_user', $user->id)->paginate(21);
         } elseif ($type == 'joined') {
+            log::info('joined');
             $query->where('closed', false)->whereHas('eventParticipants', function ($query) use ($user) {
                 $query->where('id_user', $user->id);
             })->paginate(21);
         } elseif ($type == 'favorite') {
+            log::info('favorite');
             $query->whereHas('favouriteevent', function ($query) use ($authenticatedUser) {
                 $query->where('id_user', $authenticatedUser->id_user);
             })->paginate(21);
         } elseif ($type == 'attended') {
+            log::info('attended');
             $query->where('closed', true)
                 ->whereHas('eventParticipants', function ($query) use ($user) {
                     $query->where('id_user', $user->id);
                 })->paginate(21);
         }
+
 
         if (!empty($search)) {
             $searchTerms = explode(' ', $search);
@@ -850,7 +858,7 @@ class EventController extends Controller
 
         $filteredEventsHtml = view('partials.event_lists', ['events' => $events])->render();
         $filteredEventIds = $events->pluck('id')->all();
-
+;
         return response()->json([
             'html' => $filteredEventsHtml,
             'ids' => $filteredEventIds,

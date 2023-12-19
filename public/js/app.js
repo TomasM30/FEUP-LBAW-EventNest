@@ -853,3 +853,20 @@ document.addEventListener('DOMContentLoaded', function() {
       });
   });
 });
+
+document.addEventListener('DOMContentLoaded', function () {
+  let buttons = document.querySelectorAll('.btn.btn-link');
+
+  for (var i = 0; i < buttons.length; i++) {
+    buttons[i].addEventListener('click', function () {
+      let content = document.querySelector(this.getAttribute('data-target'));
+      if (content.style.display === "block" || content.classList.contains('show')) {
+        content.style.display = "none";
+        content.classList.remove('show');
+      } else {
+        content.style.display = "block";
+        content.classList.add('show');
+      }
+    });
+  }
+});

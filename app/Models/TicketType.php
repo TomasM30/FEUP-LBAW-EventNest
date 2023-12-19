@@ -41,4 +41,14 @@ class TicketType extends Model
      * @var bool
      */
     public $incrementing = true;
+
+    public function event()
+    {
+        return $this->belongsTo(Event::class, 'id_event');
+    }
+
+    public function tickets()
+    {
+        return $this->hasMany(Ticket::class, 'id_ticket_type');
+    }
 }

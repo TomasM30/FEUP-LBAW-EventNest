@@ -125,4 +125,9 @@ class Event extends Model
         }
         return $count;
     }
+
+    public function ticketTypes()
+    {
+        return $this->hasMany(TicketType::class, 'id_event');
+    }
 }
