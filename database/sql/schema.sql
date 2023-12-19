@@ -13,8 +13,6 @@ DROP TABLE IF EXISTS messages CASCADE;
 DROP TABLE IF EXISTS Ticket CASCADE;
 DROP TABLE IF EXISTS Hashtag CASCADE;
 DROP TABLE IF EXISTS Report CASCADE;
-DROP TABLE IF EXISTS PollOption CASCADE;
-DROP TABLE IF EXISTS Poll CASCADE;
 DROP TABLE IF EXISTS Authenticated CASCADE;
 DROP TABLE IF EXISTS Admin CASCADE;
 DROP TABLE IF EXISTS Event CASCADE;
@@ -418,22 +416,6 @@ ORDER BY Event.date DESC;
 
 -- Commit the transaction
 END TRANSACTION;
-
--- Create the function that checks the number of options for a poll
-CREATE OR REPLACE FUNCTION check_poll_options() RETURNS TRIGGER AS $$
-BEGIN
-    IF (SELECT COUNT(*) FROM PollOption WHERE id_poll = NEW.id_poll) < 2 THEN
-        RAISE EXCEPTION 'A poll must have at least two options.';
-    END IF;
-    RETURN NEW;
-END;
-$$ LANGUAGE plpgsql;
-
--- Create the trigger that calls the function after each insert on PollOption
-CREATE TRIGGER check_poll_options_trigger
-AFTER INSERT ON PollOption
-FOR EACH ROW
-EXECUTE FUNCTION check_poll_options();
 
 -- Start another transaction
 BEGIN TRANSACTION;
