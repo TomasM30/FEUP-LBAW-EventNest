@@ -156,7 +156,7 @@ class EventController extends Controller
             $event->save();
             DB::commit();
 
-            return redirect()->route('events')->with('message', 'Order completed successfully');
+            return redirect()->route('paypal.payment')->with('message', 'Order completed successfully');
 
         } catch (\Exception $e) {
             log::info($e->getMessage());
