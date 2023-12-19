@@ -94,9 +94,9 @@ Route::controller(FileController::class)->group(function () {
 Route::get('/about', 'App\Http\Controllers\AboutController@index')->name('about');
 
 Route::controller(PaypalController::class)->group(function () {
-    Route::get('paypal', [PaypalController::class, 'index'])->name('paypal');
-    Route::get('paypal/payment', [PaypalController::class, 'payment'])->name('paypal.payment');
-    Route::get('paypal/payment/success', [PaypalController::class, 'paymentSuccess'])->name('paypal.payment.success');
-    Route::get('paypal/payment/cancel', [PaypalController::class, 'paymentCancel'])->name('paypal.payment/cancel');
+    Route::get('paypal', 'index')->name('paypal');
+    Route::get('paypal/payment', 'payment')->name('paypal.payment');
+    Route::get('paypal/payment/success', 'paymentSuccess')->name('paypal.payment.success');
+    Route::get('paypal/payment/cancel', 'paymentCancel')->name('paypal.payment.cancel');
 });
 

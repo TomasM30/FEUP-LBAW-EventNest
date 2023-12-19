@@ -22,7 +22,7 @@ class Order extends Model
      *
      * @var string
      */
-    protected $table = 'event';
+    protected $table = 'orders';
 
     /**
      * The primary key associated with the table.
@@ -37,4 +37,14 @@ class Order extends Model
      * @var bool
      */
     public $incrementing = true;
+
+    public function tickets()
+    {
+        return $this->hasMany(Ticket::class, 'id_order');
+    }
+
+    public function user()
+    {
+        return $this->belongsTo(AuthenticatedUser::class, 'id_user');
+    }
 }

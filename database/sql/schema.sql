@@ -190,6 +190,8 @@ CREATE TABLE Ticket (
     description TEXT NOT NULL,
     id_order INT NOT NULL,
     id_ticket_type INT NOT NULL,
+    price DECIMAL(10, 2) NOT NULL,
+    date DATE DEFAULT CURRENT_DATE,
     FOREIGN KEY (id_order) REFERENCES Orders(id),
     FOREIGN KEY (id_ticket_type) REFERENCES TicketType(id)
 );

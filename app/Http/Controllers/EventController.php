@@ -41,6 +41,8 @@ class EventController extends Controller
 
             DB::BeginTransaction();
 
+            log::info($request->all());
+
             
             $request->validate([
                 'title' => 'required|string',
@@ -130,39 +132,43 @@ class EventController extends Controller
 
     public function makeOrder(Request $request) {
 
-        $ticketType = TicketType::find($request->id_event);
-        if (!$ticketType) {
+        $ticketTypes = TicketType::where('id_event', $request->id_event)->get();
+        if (!$ticketTypes) {
             return redirect()->back()->with('message', 'Tickets not found');
         }
-        try {
-            if (!(AuthenticatedUser::where('id_user', $request->id_user)->exists())|| !(Event::where('id', $request->eventId)->exists())){
-                return redirect()->back()->with('message', 'User or event not found');
-            }
-            $this->authorize('create', Order::class);
-            $this->authorize('edit', Event::class);
-
-            DB::beginTransaction();
-
-            $event = Event::find($request->id_event);
-            if($event->ticket_limit < $request->amount) return redirect()->back()->with('message', 'Exceeded ticket limit');
-            else if($event->capacity < $request->amount) return redirect()->back()->with('message', 'Not enough tickets available for this order');
-            else $event->capacity -= $request->amount;
-
-            Order::create([
-                'id_event' => $event->id,
-                'quantity' => $request->amount,
-            ]);
-
-            $event->save();
-            DB::commit();
-
-            return redirect()->route('paypal.payment')->with('message', 'Order completed successfully');
-
-        } catch (\Exception $e) {
-            log::info($e->getMessage());
-            DB::rollback();
-            throw $e;
+    
+        if (!(AuthenticatedUser::where('id_user', $request->id_user)->exists())|| !(Event::where('id', $request->id_event)->exists())){
+            return redirect()->back()->with('message', 'User or event not found');
         }
+    
+        $event = Event::find($request->id_event);
+        if($event->ticket_limit < $request->amount){
+            return redirect()->back()->with('error', 'Exceeded ticket limit');
+        } 
+        else if($event->capacity < $request->amount){
+            return redirect()->back()->with('error', 'Not enough tickets available for this order');
+        } 
+    
+        $totalTickets = Order::where('id_user', $request->id_user)
+            ->whereHas('tickets', function ($query) use ($ticketTypes) {
+                $query->where('id_ticket_type', $ticketTypes->first()->id);
+            })
+            ->sum('quantity');
+    
+        if ($totalTickets + $request->amount > $event->ticket_limit) {
+            return redirect()->back()->with('error', 'Exceeded ticket limit for this user');
+        }
+    
+        session([
+            'order' => [
+                'id_user' => $request->id_user,
+                'id_event' => $request->id_event,
+                'amount' => $request->amount,
+                'ticketType' => $ticketTypes->first(),
+            ]
+        ]);
+    
+        return redirect()->route('paypal.payment');
     }
 
     public function deleteEvent(Request $request)

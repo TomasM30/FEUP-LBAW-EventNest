@@ -21,7 +21,7 @@
                 <form method="POST" action="{{ $formAction }}" enctype="multipart/form-data">
                     {{ csrf_field() }}
                     <fieldset>
-                        @if(auth::user()->authenticated->is_verified == 0)
+                        @if(auth::user()->authenticated->is_verified == 1)
                             <div class="form-group">
                                 <label for="event_type">Event Type</label>
                                 <select id="event_type" name="event_type" class="form-control" style="height: 3em" required>
