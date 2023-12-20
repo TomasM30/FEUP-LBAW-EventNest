@@ -30,7 +30,7 @@ use App\Http\Controllers\FileController;
 use App\Models\FavouriteEvents;
 use App\Models\Message;
 use App\Models\Ticket;
-
+use Illuminate\Support\Facades\Log;
 
 class EventController extends Controller
 {
@@ -951,6 +951,10 @@ class EventController extends Controller
 
     public function searchUsers(Request $request, $eventId)
     {
+        if ($request->header('X-Requested-With') !== 'JavaScript') {
+            return redirect()->route('events')->with('error', 'Not found');
+        }
+
         $search = $request->get('query');
         $event = Event::find($eventId);
     
@@ -968,6 +972,10 @@ class EventController extends Controller
 
     public function searchUsersInvite (Request $request, $eventId)
     {
+        if ($request->header('X-Requested-With') !== 'JavaScript') {
+            return redirect()->route('events')->with('error', 'Not found');
+        }
+        
         $search = $request->get('query');
         $event = Event::find($eventId);
     
@@ -977,11 +985,14 @@ class EventController extends Controller
         ->where('id_event', $event->id)
         ->pluck('notification.id_user')
         ->toArray();
+
+        $participants = $event->eventparticipants()->pluck('id_user')->toArray();
     
-        $authenticatedUsers = AuthenticatedUser::whereHas('user', function ($query) use ($search, $event, $invitedUsers) {
+        $authenticatedUsers = AuthenticatedUser::whereHas('user', function ($query) use ($search, $event, $invitedUsers, $participants) {
             $query->where('username', 'ILIKE', '%' . $search . '%')
                 ->where('id', '!=', $event->id_user)
-                ->whereNotIn('id', $invitedUsers);
+                ->whereNotIn('id', $invitedUsers)
+                ->whereNotIn('id', $participants);
         })->with('user')->get();
         
         foreach ($authenticatedUsers as $authenticatedUser) {

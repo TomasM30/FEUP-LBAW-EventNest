@@ -755,7 +755,11 @@ document.addEventListener('DOMContentLoaded', function() {
   let eventId = document.querySelector('#userSearch').dataset.eventId;
   if (userSearch) {
     userSearch.addEventListener('input', function() {
-      fetch('/events/' + eventId + '/searchUsers?query=' + encodeURIComponent(this.value))
+      fetch('/events/' + eventId + '/searchUsers?query=' + encodeURIComponent(this.value),{
+        headers: {
+          'X-Requested-With': 'JavaScript'
+        }
+      })
         .then(response => response.json())
         .then(authenticatedUsers => {
           let tableBody = document.querySelector('#userTable tbody');
@@ -797,7 +801,11 @@ document.addEventListener('DOMContentLoaded', function() {
   let eventId = document.querySelector('#inviteSearch').dataset.eventId;
   if (userSearch) {
     userSearch.addEventListener('input', function() {
-      fetch('/events/' + eventId + '/searchUsers/invite?query=' + encodeURIComponent(this.value))
+      fetch('/events/' + eventId + '/searchUsers/invite?query=' + encodeURIComponent(this.value), {
+        headers: {
+          'X-Requested-With': 'JavaScript'
+        }
+      })
         .then(response => response.json())
         .then(authenticatedUsers => {
           let tableBody = document.querySelector('#inviteTable tbody');
