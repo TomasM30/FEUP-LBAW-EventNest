@@ -11,7 +11,6 @@ use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Log;
 use Illuminate\Validation\Rule;
 
 use App\Models\Event;
@@ -218,7 +217,6 @@ class EventController extends Controller
             return redirect()->route('events')->with('success', 'Event deletion successful');
         } catch (\Exception $e) {
             DB::rollback();
-            log::info($e->getMessage());
             return redirect()->back()->with('error', 'Event deletion failed: ');
         }
     }
@@ -239,7 +237,6 @@ class EventController extends Controller
             DB::commit();
         } catch (ModelNotFoundException $e) {
             DB::rollBack();
-            log::info($e->getMessage());
             return redirect()->back()->with('error', 'User failed to add event as favourite!');
         }
         return redirect()->back()->with('success', 'Event added as favourite successfully');
@@ -260,7 +257,6 @@ class EventController extends Controller
             DB::commit();
         } catch (ModelNotFoundException $e) {
             DB::rollBack();
-            log::info($e->getMessage());
             return redirect()->back()->with('error', 'User failed to remove event as favourite!');
         }
         return redirect()->back()->with('success', 'Event removed as favourite successfully');
@@ -300,6 +296,11 @@ class EventController extends Controller
     public function showEventDetails(Request $request)
     {
         $id = $request->id;
+
+        if (!ctype_digit($id)){
+            return redirect()->route('events')->with('error', 'Not found');
+        }
+
         $user = Auth::user();
         $hashtags = Hashtag::all();
         $data = [];
@@ -332,7 +333,7 @@ class EventController extends Controller
         $data['messages'] = $messages = Message::where('id_event', $data['event']->id)->get();
         $data['users'] = AuthenticatedUser::all()->where('id_user', '!=', $data['event']->id_user);
         $data['comments'] = EventComment::where('id_event', $id);
-        if (!auth()->user()->isAdmin()){
+        if (!auth()->user()->isAdmin() && $data['event']->hasTickets()) {
             $userBoughtTicketsCount = auth()->user()->authenticated->boughtTicketsCountForEvent($data['event']->id);
             $remainingCapacity = $data['event']->capacity - $data['event']->soldTicketsCount();
             $data['userTicketLimit'] = min($data['event']->ticket_limit - $userBoughtTicketsCount, $remainingCapacity);
@@ -508,7 +509,6 @@ class EventController extends Controller
                     $notification->delete();
                 }
                 if (!$this->createNotification('invitation_accepted', $receiverId, $senderId, $eventId)) {
-                    log::info('Failed to create notification!');
                     return redirect()->back()->with('error', 'Failed to create notification!');
                 }
             }
@@ -706,7 +706,6 @@ class EventController extends Controller
 
             DB::commit();
         } catch (\Exception $e) {
-            log::info($e->getMessage());
             DB::rollback();
             return false;
         }
@@ -779,7 +778,6 @@ class EventController extends Controller
         try {
             $receiver = User::where('id', $receiverId)->firstOrFail();
         } catch (ModelNotFoundException $e) {
-            log::info($e->getMessage());
             return redirect()->back()->with('error', 'Receiver not found');
         }
 
@@ -797,7 +795,6 @@ class EventController extends Controller
             return redirect()->back()->with('error', 'Failed to send Invite!');
         }
 
-        log::info($request->type);
         if ($request->type == "request") {
             return redirect()->back()->with('success', 'Request successfully sent!');
         } else {

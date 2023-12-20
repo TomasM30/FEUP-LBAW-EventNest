@@ -21,4 +21,11 @@ class AdminPolicy
             ? Response::allow()
             : Response::deny('You must be an admin to view the report details.');
     }
+
+    public function addTag(User $user): Response
+    {
+        return Admin::where('id_user', $user->id)->exists()
+            ? Response::allow()
+            : Response::deny('You must be an admin.');
+    }
 }

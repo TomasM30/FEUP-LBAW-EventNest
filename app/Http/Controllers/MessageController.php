@@ -3,7 +3,6 @@
 namespace App\Http\Controllers;
 use App\Events\MessageSent;
 use App\Models\Message;
-use Illuminate\Support\Facades\Log;
 
 use Illuminate\Http\Request;
 
@@ -23,7 +22,6 @@ class MessageController extends Controller
         ]);
     
         broadcast(new MessageSent($message));
-        log::info($message);
     
         return ['status' => 'Message Sent!'];
     }

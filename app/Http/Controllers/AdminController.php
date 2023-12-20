@@ -11,7 +11,6 @@ use App\Models\Report;
 use App\Models\Hashtag;
 use App\Models\User;
 use Carbon\Carbon;
-use Illuminate\Support\Facades\Log;
 
 
 class AdminController extends Controller
@@ -92,7 +91,7 @@ class AdminController extends Controller
     {
         $this->authorize('viewDashboard', Admin::class);
         $authenticatedUsers = AuthenticatedUser::join('users', 'authenticated.id_user', '=', 'users.id')
-            ->select('authenticated.*', 'users.username') // select columns from authenticated and username from users
+            ->select('authenticated.*', 'users.username')
             ->orderBy('users.username')
             ->paginate(8);
 
@@ -144,7 +143,13 @@ class AdminController extends Controller
 
     public function showReportDetails($id)
     {
+        if (!ctype_digit($id)){
+            return redirect()->route('events')->with('error', 'Not found');
+        }
+
         $this->authorize('viewReportDetails', Admin::class);
+
+
         $report = Report::with('user', 'event')->find($id);
         $reports = Report::orderBy('closed')->get();
 
@@ -153,7 +158,7 @@ class AdminController extends Controller
 
     public function addTag(Request $request)
     {
-        //$this->authorize('addTag', Admin::class);
+        $this->authorize('addTag', Admin::class);
         $tag = new Hashtag();
         $tag->title = $request->hashtag;
         $tag->save();
@@ -163,7 +168,7 @@ class AdminController extends Controller
 
     public function deleteTag(Request $request)
     {
-        //$this->authorize('deleteTag', Admin::class);
+        $this->authorize('addTag', Admin::class);
         $tag = Hashtag::find($request->id);
 
         $tag->events()->detach();

@@ -21,7 +21,6 @@ use App\Models\Ticket;
 use App\Models\TicketType;
 
 use Illuminate\Support\Facades\Hash;
-use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\DB;
 
 
@@ -29,6 +28,11 @@ class AuthenticatedUserController extends Controller
 {
     public function showUserEvents(Request $request)
     {
+
+        if (!ctype_digit($request->route('id'))){
+            return redirect()->route('events')->with('error', 'Not found');
+        }
+
         $authenticatedUser = AuthenticatedUser::find($request->route('id'));
 
         if (!$authenticatedUser) {
@@ -52,6 +56,10 @@ class AuthenticatedUserController extends Controller
 
     public function showUserjoinedEvents(Request $request)
     {
+        if (!ctype_digit($request->route('id'))){
+            return redirect()->route('events')->with('error', 'Not found');
+        }
+
         $authenticatedUser = AuthenticatedUser::find($request->route('id'));
 
         if (!$authenticatedUser) {
@@ -68,7 +76,6 @@ class AuthenticatedUserController extends Controller
             })
             ->paginate(21);
 
-        log::info($joinedEvents);
 
         $hashtags = Hashtag::orderBy('title')->get();
         $places = Event::getUniquePlaces()->sortBy('place');
@@ -83,6 +90,10 @@ class AuthenticatedUserController extends Controller
 
     public function showUserfavouriteEvents(Request $request)
     {
+        if (!ctype_digit($request->route('id'))){
+            return redirect()->route('events')->with('error', 'Not found');
+        }
+
         $authenticatedUser = AuthenticatedUser::find($request->route('id'));
 
         if (!$authenticatedUser) {
@@ -95,7 +106,6 @@ class AuthenticatedUserController extends Controller
             $query->where('id_user', $authenticatedUser->id_user);
         })->paginate(21);
 
-        log::info($favouriteEvents);
 
         $hashtags = Hashtag::orderBy('title')->get();
         $places = Event::getUniquePlaces()->sortBy('place');
@@ -110,6 +120,10 @@ class AuthenticatedUserController extends Controller
 
     public function showUserattendedEvents(Request $request)
     {
+        if (!ctype_digit($request->route('id'))){
+            return redirect()->route('events')->with('error', 'Not found');
+        }
+
         $authenticatedUser = AuthenticatedUser::find($request->route('id'));
 
         if (!$authenticatedUser) {
@@ -135,6 +149,11 @@ class AuthenticatedUserController extends Controller
     public function showUserProfile(Request $request)
     {
         $id = $request->route('id');
+
+        if (!ctype_digit($id)){
+            return redirect()->route('events')->with('error', 'Not found');
+        }
+
         $authenticatedUser = AuthenticatedUser::find($id);
 
         if (!$authenticatedUser) {
@@ -144,18 +163,14 @@ class AuthenticatedUserController extends Controller
         $eventsHosted = Event::where('id_user', $id)->count();
         $eventsJoined = EventParticipant::where('id_user', $id)->count();
 
-        // Get the IDs of the events hosted by the user
         $hostedEventIds = Event::where('id_user', $id)->pluck('id');
 
-        // Count the number of participants in the events hosted by the user
         $totalParticipants = EventParticipant::whereIn('id_event', $hostedEventIds)->count();
 
-        // Count the number of tickets bought to the events hosted by the user
         $totalTicketsBought = Ticket::whereHas('ticketType', function ($query) use ($hostedEventIds) {
             $query->whereIn('id_event', $hostedEventIds);
         })->count();
 
-        // Add the number of tickets bought to the total number of participants
         $totalParticipants += $totalTicketsBought;
 
         return view('pages.user_profile', [
@@ -236,7 +251,6 @@ class AuthenticatedUserController extends Controller
             DB::beginTransaction();
 
             $user = User::find($id);
-            log::info($user);
 
             $eventController = new EventController;
             $authenticatedUser = $user->authenticated;
@@ -276,8 +290,6 @@ class AuthenticatedUserController extends Controller
             DB::commit();
             return redirect('/login')->with('success', 'User deleted successfully.');
         } catch (\Exception $e) {
-            Log::error('An error occurred while deleting the user: ' . $e->getMessage());
-            Log::error($e->getTraceAsString());
             DB::rollback();
             return redirect()->back()->withErrors(['error' => $e->getMessage()]);
         }

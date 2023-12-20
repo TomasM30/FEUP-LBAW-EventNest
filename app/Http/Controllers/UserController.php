@@ -7,7 +7,6 @@ use App\Models\User;
 use Illuminate\Support\Facades\DB;
 use App\Models\Notification;
 use App\Models\EventNotification;
-use Illuminate\Support\Facades\Log;
 
 class UserController extends Controller
 {
@@ -20,6 +19,12 @@ class UserController extends Controller
     public function showUserNotifications(Request $request) {
 
         $userId = $request->route('id');
+
+
+        if (!ctype_digit($userId)){
+            return redirect()->route('events')->with('error', 'Not found');
+        }
+
         $user = User::find($userId);  
         
         $this->authorize('userNotifications', $user);
@@ -33,7 +38,9 @@ class UserController extends Controller
 
     public function getUserById(Request $request, $id)
     {
-
+        if (!ctype_digit($id)){
+            return redirect()->route('events')->with('error', 'Not found');
+        }
 
         $user = User::find($id);
         if ($user) {

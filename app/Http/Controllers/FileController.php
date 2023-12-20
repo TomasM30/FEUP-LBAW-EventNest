@@ -6,7 +6,6 @@ use Illuminate\Http\Request;
 use App\Models\User;
 use App\Models\Event;
 use App\Models\Report;
-use Illuminate\Support\Facades\Log;
 
 class FileController extends Controller
 {   
@@ -47,24 +46,20 @@ class FileController extends Controller
     
     static function get(String $type, int $userId) {
         
-        // Validation: upload type
         if (!self::isValidType($type)) {
             return self::defaultAsset($type);
         }
     
-        // Validation: file exists
         $fileName = self::getFileName($type, $userId);
         if ($fileName) {
             return asset($type . '/' . $fileName);
         }
     
-        // Not found: returns default asset
         return self::defaultAsset($type);
     }
 
     function upload(Request $request) {
 
-        log::debug($request->all);
         $file = $request->file('file');
         $type = $request->type;
         $id = $request->id;
@@ -75,7 +70,6 @@ class FileController extends Controller
           
         $fileName = $file->hashName();
     
-        // Save in correct folder and disk
         $request->file->storeAs($type, $fileName, self::$diskName);
 
         if ($type === 'event') {

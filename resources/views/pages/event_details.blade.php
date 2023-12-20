@@ -219,7 +219,7 @@
                                                                                 || (Auth::user()->authenticated && Auth::user()->authenticated->orders()->whereHas('tickets.ticketType', function ($query) use ($event) {
                                                                                     $query->where('id_event', $event->id);
                                                                                 })->exists())
-                                                                                || !Auth::user()->isAdmin() ? '' : 'disabled' }}>
+                                                                                && !Auth::user()->isAdmin() ? '' : 'disabled' }}>
                                                                         </textarea>
                                                                     </div>
                                                                     <button type="submit" class="btn btn-primary w-100 py-2" 
@@ -227,7 +227,7 @@
                                                                         || (Auth::user()->authenticated && Auth::user()->authenticated->orders()->whereHas('tickets.ticketType', function ($query) use ($event) {
                                                                             $query->where('id_event', $event->id);
                                                                         })->exists()) 
-                                                                        || !Auth::user()->isAdmin() ? '' : 'disabled' }}>Add Comment
+                                                                        && !Auth::user()->isAdmin() ? '' : 'disabled' }}>Add Comment
                                                                     </button>
                                                                 </form>
                                                             </div>

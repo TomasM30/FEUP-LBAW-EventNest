@@ -7,36 +7,26 @@ use Illuminate\Http\Request;
 use App\Models\Order;
 use App\Models\Ticket;
 use App\Models\Event;
-use Illuminate\Support\Facades\Log;
 use App\Models\EventParticipant;
 
 class PaypalController extends Controller
 {
-    /**
-     * Write code on Method
-     *
-     */
+
     public function index()
     {
         return view('paypal');
     }
 
-    /**
-     * Write code on Method
-     *
-     */
     public function payment(Request $request)
     {
         $provider = new PayPalClient;
         $provider->setApiCredentials(config('paypal'));
         $paypalToken = $provider->getAccessToken();
     
-        // Retrieve the order details from the session
         $orderDetails = session('order');
         $amount = $orderDetails['amount'];
         $ticketType = $orderDetails['ticketType'];
     
-        // Calculate the total cost
         $totalCost = $ticketType->price * $amount;
 
         $response = $provider->createOrder([
@@ -70,10 +60,7 @@ class PaypalController extends Controller
 
     }
 
-    /**
-     * Write code on Method
-     *
-     */
+
     public function paymentCancel()
     {
         return redirect()
@@ -81,10 +68,7 @@ class PaypalController extends Controller
             ->with('error', $response['message'] ?? 'You have canceled the transaction.');
     }
 
-    /**
-     * Write code on Method
-     *
-     */
+
     public function paymentSuccess(Request $request)
     {
         $provider = new PayPalClient;
@@ -93,10 +77,8 @@ class PaypalController extends Controller
         $response = $provider->capturePaymentOrder($request['token']);
 
         if (isset($response['status']) && $response['status'] == 'COMPLETED') {
-            // Retrieve the order details from the session
             $orderDetails = session('order');
             $event = Event::find($orderDetails['id_event']);
-            log::info($orderDetails);
 
             $order = Order::create([
                 'quantity' => $orderDetails['amount'],

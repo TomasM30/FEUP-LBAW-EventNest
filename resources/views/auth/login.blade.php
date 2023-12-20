@@ -31,17 +31,14 @@
         <div id="loginFormContainer" style="display: none;">
             <form method="POST" action="{{ route('login') }}">
                 {{ csrf_field() }}
-                <!-- Email -->
                 <div class="form-group">
                     <label for="email" class="form-label mt-4">Email address</label>
                     <input id="email-login" type="email" class="form-control" name="email" value="{{ old('email') }}" required autofocus placeholder="Enter email">
                 </div>
-                <!-- Password -->
                 <div class="form-group">
                     <label for="password" class="form-label mt-4">Password</label>
                     <input id="password-login" type="password" class="form-control" name="password" placeholder="Enter password">
                 </div>
-                <!-- Remember me -->
                 <div class="form-check">
                     <input class="form-check-input" type="checkbox" value="" id="flexCheckDefault" name="remember" {{ old('remember') ? 'checked' : '' }}>
                     <label class="form-check-label" for="flexCheckDefault">
@@ -66,20 +63,17 @@
                     <label for="username" class="form-label mt-4">Username</label>
                     <input id="username" type="text" class="form-control" name="username" value="{{ old('username') }}" placeholder="Enter username" required>
                 </div>
-                <!-- Email -->
                 <div class="form-group">
                     <label for="email" class="form-label mt-4">Email</label>
                     <input id="email-register" type="text" class="form-control" name="email" value="{{ old('email') }}" aria-describedby="emailHelp" placeholder="Enter email" required>
                     <small id="emailHelp" class="form-text text-muted">We'll never share your email with anyone else.</small>
                 </div>
-                <!-- Password -->
                 <div class="form-group">
                     <label for="password" class="form-label mt-4">Password</label>
                     <input id="password-register" type="password" class="form-control" name="password" value="{{ old('password') }}" aria-describedby="passwordHelp" placeholder="Enter password" required>
                     <small id="passwordHelp" class="form-text text-muted">Must be bigger then 8 characters.</small>
 
                 </div>
-                <!-- Confirm Password -->
                 <div class="form-group">
                     <label for="password-confirm" class="form-label mt-4">Confirm Password</label>
                     <input id="password-confirm" type="password" class="form-control" name="password_confirmation" required placeholder="Enter password again">

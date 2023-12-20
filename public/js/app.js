@@ -91,15 +91,12 @@ function itemAddedHandler() {
   if (this.status != 200) window.location = '/';
   let item = JSON.parse(this.responseText);
 
-  // Create the new item
   let new_item = createItem(item);
 
-  // Insert the new item
   let card = document.querySelector('article.card[data-id="' + item.card_id + '"]');
   let form = card.querySelector('form.new_item');
   form.previousElementSibling.append(new_item);
 
-  // Reset the new item form
   form.querySelector('[type=text]').value = "";
 }
 
@@ -121,19 +118,15 @@ function cardAddedHandler() {
   if (this.status != 200) window.location = '/';
   let card = JSON.parse(this.responseText);
 
-  // Create the new card
   let new_card = createCard(card);
 
-  // Reset the new card input
   let form = document.querySelector('article.card form.new_card');
   form.querySelector('[type=text]').value = "";
 
-  // Insert the new card
   let article = form.parentElement;
   let section = article.parentElement;
   section.insertBefore(new_card, article);
 
-  // Focus on adding an item to the new card
   new_card.querySelector('[type=text]').focus();
 }
 
@@ -518,7 +511,7 @@ function fetchEvents(page = 1) {
     direction: direction,
     type: type,
     id: idElement ? idElement.value : null,
-    page: page // Use the page parameter
+    page: page
   };
 
   fetch(url, {
@@ -535,7 +528,7 @@ function fetchEvents(page = 1) {
     if(container) {
         container.innerHTML = data.html;
     }
-    setActivePageNumber(page); // Set the active page number
+    setActivePageNumber(page);
     filteredEvents = data.ids;
     window.scrollTo(0, 0);
   })
@@ -633,7 +626,6 @@ document.addEventListener('DOMContentLoaded', function() {
 
   document.addEventListener('click', function(event) {
     if (event.target.matches('.pagination a')) {
-      // Check if the clicked link is inside the specific modal
       if (!event.target.closest('#userModal')) {
         event.preventDefault();
         let page = parseInt(event.target.getAttribute('href').split('page=')[1]);
@@ -677,7 +669,6 @@ document.addEventListener('DOMContentLoaded', function() {
       let messageDiv = document.createElement('div');
       messageDiv.className = 'message';
   
-      // Create the message header with the user's data
       let messageHeader = document.createElement('div');
       messageHeader.className = 'message-header';
   
@@ -764,7 +755,6 @@ document.addEventListener('DOMContentLoaded', function() {
   let eventId = document.querySelector('#userSearch').dataset.eventId;
   if (userSearch) {
     userSearch.addEventListener('input', function() {
-      console.log('input event triggered');
       fetch('/events/' + eventId + '/searchUsers?query=' + encodeURIComponent(this.value))
         .then(response => response.json())
         .then(authenticatedUsers => {
@@ -805,7 +795,6 @@ document.addEventListener('DOMContentLoaded', function() {
 document.addEventListener('DOMContentLoaded', function() {
   let userSearch = document.getElementById('inviteSearch');
   let eventId = document.querySelector('#inviteSearch').dataset.eventId;
-  console.log(eventId);
   if (userSearch) {
     userSearch.addEventListener('input', function() {
       fetch('/events/' + eventId + '/searchUsers/invite?query=' + encodeURIComponent(this.value))
@@ -840,18 +829,20 @@ document.addEventListener('DOMContentLoaded', function() {
 document.addEventListener('DOMContentLoaded', function() {
   document.querySelectorAll('.form-check-input').forEach(function(checkbox) {
       checkbox.addEventListener('change', function() {
-          var selectedFilters = Array.from(document.querySelectorAll('.form-check-input:checked')).map(function(checkbox) {
-              return checkbox.nextElementSibling.textContent.trim();
-          });
+          if (document.getElementById('newEventModal').style.display !== 'block') {
+              let selectedFilters = Array.from(document.querySelectorAll('.form-check-input:checked')).map(function(checkbox) {
+                  return checkbox.nextElementSibling.textContent.trim();
+              });
 
-          var selectedFiltersContainer = document.getElementById('selected-filters');
-          selectedFiltersContainer.innerHTML = '';
-          selectedFilters.forEach(function(filter) {
-              var filterTag = document.createElement('span');
-              filterTag.textContent = filter;
-              filterTag.className = 'filter-tag';
-              selectedFiltersContainer.appendChild(filterTag);
-          });
+              let selectedFiltersContainer = document.getElementById('selected-filters');
+              selectedFiltersContainer.innerHTML = '';
+              selectedFilters.forEach(function(filter) {
+                  let filterTag = document.createElement('span');
+                  filterTag.textContent = filter;
+                  filterTag.className = 'filter-tag';
+                  selectedFiltersContainer.appendChild(filterTag);
+              });
+          }
       });
   });
 });
@@ -859,7 +850,7 @@ document.addEventListener('DOMContentLoaded', function() {
 document.addEventListener('DOMContentLoaded', function () {
   let buttons = document.querySelectorAll('.btn.btn-link');
 
-  for (var i = 0; i < buttons.length; i++) {
+  for (let i = 0; i < buttons.length; i++) {
     buttons[i].addEventListener('click', function () {
       let content = document.querySelector(this.getAttribute('data-target'));
       if (content.style.display === "block" || content.classList.contains('show')) {
