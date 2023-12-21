@@ -255,34 +255,31 @@
                         <button id='invitebtn' type="button" class="btn btn-primary m-3 " data-toggle="modal">Invite</button>
                     </div>
                 @endif
-                @if(!$isParticipant && !$isAdmin && $event->eventparticipants()->count() < $event->capacity)
-                    @if(($event->type == 'public' || $event->type == 'private') && $event->hasTickets() && !$isOrganizer && !$isParticipant && $userTicketLimit > 0)
+                @if(($event->type == 'public' || $event->type == 'private') && $event->hasTickets() && !$isOrganizer && !$isAdmin && $userTicketLimit > 0)
                     <div class="card mt-4" style="width: 85%;">
-                            <div class="card-header">
-                                <h4>Order Tickets</h4>
-                            </div>
-                            <div class="card-body">
-                                <form method="POST" action="{{ route('events.order', $event->id) }}">
-                                    {{ csrf_field() }}
-                                    <input type="hidden" name="id_user" value="{{ Auth::user()->id }}">
-                                    <input type="hidden" name="id_event" value="{{ $event->id }}">
-
-                                    <div class="form-group">
-                                        <label for="ticketQuantity">Number of Tickets:</label>
-                                        <input type="number" name="amount" id="ticketQuantity" placeholder="Max tickets to buy: {{ $userTicketLimit }}" class="form-control" min="1" max="{{ $userTicketLimit }}" required>
-                                    </div>
-
-                                    <div class="form-group">
-                                        <label for="ticketPrice">Ticket Price:</label>
-                                        <p id="ticketPrice">{{ $ticketPrice }}€</p>
-                                    </div>
-
-                                    <button type="submit" class="btn btn-primary" href="{{ route('paypal.payment') }}" style="width:100%;">Order</button>
-                                </form>
-                            </div>
+                        <div class="card-header">
+                            <h4>Order Tickets</h4>
                         </div>
-                    @endif
-                    @if(($event->type == 'public' || $event->type == 'private') && !$event->hasTickets())
+                        <div class="card-body">
+                            <form method="POST" action="{{ route('events.order', $event->id) }}">
+                                {{ csrf_field() }}
+                                <input type="hidden" name="id_user" value="{{ Auth::user()->id }}">
+                                <input type="hidden" name="id_event" value="{{ $event->id }}">
+                                <div class="form-group">
+                                    <label for="ticketQuantity">Number of Tickets:</label>
+                                    <input type="number" name="amount" id="ticketQuantity" placeholder="Max: {{ $userTicketLimit }}" class="form-control" min="1" max="{{ $userTicketLimit }}" required>
+                                </div>
+                                <div class="form-group">
+                                    <label for="ticketPrice">Ticket Price:</label>
+                                    <p id="ticketPrice">{{ $ticketPrice }}€</p>
+                                </div>
+                                <button type="submit" class="btn btn-primary" href="{{ route('paypal.payment') }}" style="width:100%;">Order</button>
+                            </form>
+                        </div>
+                    </div>
+                @endif
+                @if(!$isParticipant && !$isAdmin && $event->eventparticipants()->count() < $event->capacity  && !$event->hasTickets())
+                    @if(($event->type == 'public' || $event->type == 'private'))
                     <form method="POST" action="{{ route('event.join', $event->id) }}" style="width: 100%;" class="d-flex justify-content-center">
                         {{ csrf_field() }}
                         <input type="hidden" name="id_user" value="{{ Auth::user()->id }}">
@@ -291,7 +288,7 @@
                             <button type="submit" class="btn btn-primary m-3 ">Join</button>
                         </div>
                     </form>
-                    @elseif($event->type == 'approval' && $alreadyRequested == false && !$event->hasTickets())
+                    @elseif($event->type == 'approval' && $alreadyRequested == false)
                     <form method="POST" action="{{ route('events.notification', $event->id) }}" style="width: 100%;" class="d-flex justify-content-center">
                         {{ csrf_field() }}
                         <input type="hidden" name="id_user" value="{{ $event->id_user }}">
@@ -303,14 +300,14 @@
                         </div>
                     </form>
                     @endif
-                    @elseif($isParticipant && !$isAdmin && !$isOrganizer && !$event->hasTickets())
+                @elseif($isParticipant && !$isAdmin && !$isOrganizer && !$event->hasTickets())
                     <form method="POST" action="{{ route('event.leave', $event->id) }}" style="width: 100%;" class="d-flex justify-content-center">
                         {{ csrf_field() }}
                         <input type="hidden" name="id_user" value="{{ Auth::user()->id }}">
                         <input type="hidden" name="eventId" value="{{ $event->id }}">
                         <button type="submit" class="btn btn-primary m-3" style="width: 100%;">Leave</button>
                     </form>
-                    @endif
+                @endif
 
                     @if( ($isOrganizer && !$event->hasTickets()) || $isAdmin)
                         <div class="btn-group" style="width: 100%;">

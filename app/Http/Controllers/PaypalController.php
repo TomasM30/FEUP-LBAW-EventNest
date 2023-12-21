@@ -14,7 +14,9 @@ class PaypalController extends Controller
 
     public function index()
     {
-        return view('paypal');
+        $orderDetails = session('order');
+        return redirect()
+        ->route('events.details', ['id' => $orderDetails['id_event']]);
     }
 
     public function payment(Request $request)
@@ -95,10 +97,17 @@ class PaypalController extends Controller
                 ]);
             }
 
-            EventParticipant::insert([
-                'id_user' => $orderDetails['id_user'],
-                'id_event' => $event->id,
-            ]);
+
+            $existingParticipant = EventParticipant::where('id_user', $orderDetails['id_user'])
+                ->where('id_event', $event->id)
+                ->first();
+
+            if (!$existingParticipant) {
+                EventParticipant::insert([
+                    'id_user' => $orderDetails['id_user'],
+                    'id_event' => $event->id,
+                ]);
+            }
 
             $event->save();
 

@@ -12,7 +12,6 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Validation\Rule;
-
 use App\Models\Event;
 use App\Models\User;
 use App\Models\Admin;
@@ -338,6 +337,7 @@ class EventController extends Controller
             $remainingCapacity = $data['event']->capacity - $data['event']->soldTicketsCount();
             $data['userTicketLimit'] = min($data['event']->ticket_limit - $userBoughtTicketsCount, $remainingCapacity);
             $data['ticketPrice'] = $data['event']->ticketTypes->first()->price;
+            log::info($data['userTicketLimit']);
         }
 
 
