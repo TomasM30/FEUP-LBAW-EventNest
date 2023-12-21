@@ -171,7 +171,7 @@
                                                             @foreach($event->comments as $comment)
                                                                 <div class="card mb-3">
                                                                     <div class="d-flex flex-start p-3">
-                                                                        <img class="rounded-circle shadow-1-strong me-3" src="{{ url($comment->authenticated && $comment->authenticated->user ? $comment->authenticated->user->getProfileImage() : asset('profile/default.png')) }}" alt="avatar" width="40" height="40" />
+                                                                        <img class="rounded-circle shadow-1-strong me-3" src="{{ url($comment->authenticated && $comment->authenticated->user ? $comment->authenticated->user->getProfileImage() : asset('profile/default.png')) }}" alt="avatar" width="40" height="40">
                                                                     <div>
                                                                             @if($comment->id_user != null)
                                                                                 <a href="{{ route('user.profile', [ 'id' => $comment->id_user]) }}" class="text-decoration-none text-dark">

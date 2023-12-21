@@ -1,4 +1,4 @@
-<div class="modal" id="deleteAccountModal" tabindex="-1" role="dialog" aria-labelledby="deleteAccountModalLabel" aria-hidden="true">
+<div class="modal" id="deleteAccountModal" tabindex="-1" role="dialog" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered" role="document">
         <div class="modal-content">
             <div class="modal-header">
@@ -10,7 +10,7 @@
             <div class="modal-body">
                 <p>Are you sure you want to delete the account? This action cannot be undone.</p>
                 <form method="POST" action="{{ route('user.delete', ['id' => $user->id]) }}">
-                    {{ csrf_field() }}
+                    <input type="hidden" name="_token" value="{{ csrf_token() }}">
                     <button type="submit" class="btn btn-danger mt-4">Delete Account</button>
                 </form>
             </div>

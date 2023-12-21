@@ -19,7 +19,7 @@
             </div>
             <div class="modal-body">
                 <form method="POST" action="{{ $formAction }}" enctype="multipart/form-data">
-                    {{ csrf_field() }}
+                    <input type="hidden" name="_token" value="{{ csrf_token() }}">
                     <fieldset>
                         @if(auth::user()->authenticated->is_verified == 1)
                             <div class="form-group">
@@ -80,6 +80,7 @@
                         <div id="typeEvent" class="form-group">
                             <label for="type">Type</label>
                             <select id="type" name="type" class="form-control" style="height: 3em" @if(isset($event) && $formAction != route('events.edit', $event->id)) required @endif>
+                            <option value="" disabled hidden>Select visibility</option>
                                 <option value="public" @if(isset($event) && $event->type == 'public') selected @endif>Public</option>
                                 <option value="private" @if(isset($event) && $event->type == 'private') selected @endif>Private</option>
                                 <option value="approval" @if(isset($event) && $event->type == 'approval') selected @endif>Approval</option>
@@ -125,8 +126,8 @@
                             <div class="card-body hashtags-body">
                                 @foreach ($hashtags as $hashtag)
                                     <div class="form-check">
-                                        <input class="form-check-input" type="checkbox" name="hashtags2[]" value="{{ $hashtag->id }}" id="hashtag{{ $hashtag->id }}">
-                                        <label class="form-check-label" for="hashtag2{{ $hashtag->id }}">
+                                        <input class="form-check-input" type="checkbox" name="hashtags2[]" value="{{ $hashtag->id }}" id="hashtag02{{ $hashtag->id }}">
+                                        <label class="form-check-label" for="hashtag02{{ $hashtag->id }}">
                                             #{{ $hashtag->title }}
                                         </label>
                                     </div>

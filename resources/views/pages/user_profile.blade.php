@@ -3,21 +3,23 @@
 @section('content')
 
 @if ($errors->any())
-    <script>
-        showAlert('Error!', '{{ $errors->first() }}', 'error');
-    </script>
+<script>
+    showAlert('Error!', '{{ $errors->first() }}', 'error');
+</script>
 @endif
 
 @if (session('error'))
-    <script>
-        showAlert('Error!', '{{ session('error') }}', 'error');
-    </script>
+<script>
+    showAlert('Error!', '{{ session('
+        error ') }}', 'error');
+</script>
 @endif
 
 @if (session('success'))
-    <script>
-        showAlert('Success!', '{{ session('success') }}', 'success');
-    </script>
+<script>
+    showAlert('Success!', '{{ session('
+        success ') }}', 'success');
+</script>
 @endif
 
 <div class="container mt-5">
@@ -28,7 +30,7 @@
                 <a class="nav-link" id="v-pills-events-tab" href="#v-pills-events">Events</a>
                 <a class="nav-link" id="v-pills-tickets-tab" href="#v-pills-tickets">Tickets</a>
                 @if($user->id == Auth::user()->id || Auth::user()->isAdmin())
-                    <a class="nav-link" id="v-pills-settings-tab" href="#v-pills-settings">Settings</a>
+                <a class="nav-link" id="v-pills-settings-tab" href="#v-pills-settings">Settings</a>
                 @endif
             </div>
         </div>
@@ -41,36 +43,35 @@
                                 <div class="card" style="max-width: 90%;">
                                     <img id="profile-image" src="{{ $user->getProfileImage() }}" class="card-img-top" alt="Profile Image">
                                     <div class="card-body">
-                                        <h5 
-                                            class="card-title">{{ $user->username }}
+                                        <h5 class="card-title">{{ $user->username }}
                                             @if($user->authenticated->is_verified == 1)
-                                                <i class="fa-solid fa-circle-check"></i>
+                                            <i class="fa-solid fa-circle-check"></i>
                                             @endif
                                         </h5>
                                         <p class="card-text">{{ $user->name }}</p>
                                         <p class="card-text">{{ $user->email }}</p>
                                         @if($user->id == Auth::user()->id || Auth::user()->isAdmin())
-                                            <button type="button" id="editProfileButton" class="btn btn-primary" data-toggle="modal" data-target="#editProfileModal">
-                                                Edit Profile
-                                            </button>
+                                        <button type="button" id="editProfileButton" class="btn btn-primary" data-toggle="modal" data-target="#editProfileModal">
+                                            Edit Profile
+                                        </button>
                                         @endif
                                     </div>
                                 </div>
                             </div>
                             @if($user->id == Auth::user()->id && $user->authenticated->is_verified == 0)
-                                <div class="col-md-4 mt-3 mt-md-0">
-                                    <div class="card" style="max-width: 100%; position: relative;">
-                                        <button id="questionBtn" type="button" class="p-0" style="position: absolute; top: 10px; right: 10px; color: inherit; text-decoration: none; background: none; border: none;">
-                                            <i class="fas fa-question-circle"></i>
+                            <div class="col-md-4 mt-3 mt-md-0">
+                                <div class="card" style="max-width: 100%; position: relative;">
+                                    <button id="questionBtn" type="button" class="p-0" style="position: absolute; top: 10px; right: 10px; color: inherit; text-decoration: none; background: none; border: none;">
+                                        <i class="fas fa-question-circle"></i>
+                                    </button>
+                                    <div class="card-body">
+                                        <h5 class="card-title">Want to be a verified User?</h5>
+                                        <button type="button" class="btn btn-primary" id="verifiedBTn">
+                                            Request to be verified
                                         </button>
-                                        <div class="card-body">
-                                            <h5 class="card-title">Want to be a verified User?</h5>
-                                            <button type="button" class="btn btn-primary" id="verifiedBTn">
-                                                Request to be verified
-                                            </button>
-                                        </div>
                                     </div>
                                 </div>
+                            </div>
                             @endif
                         </div>
                     </div>
@@ -111,56 +112,56 @@
                     <h3>Tickets</h3>
                     <div class="accordion mt-4" id="ordersAccordion">
                         @forelse($user->authenticated->orders as $order)
-                            @if($order->tickets->first()->ticketType->event->closed == false)
-                                <div class="card">
-                                    <div class="card-header" id="headingOrder{{ $order->id }}">
-                                        <h5 class="mb-0">
-                                            <button class="btn btn-link" type="button" data-toggle="collapse" data-target="#collapseOrder{{ $order->id }}" aria-expanded="true" aria-controls="collapseOrder{{ $order->id }}">
-                                                Order #{{ $order->id }}
-                                            </button>
-                                        </h5>
-                                    </div>
+                        @if($order->tickets->first()->ticketType->event->closed == false)
+                        <div class="card">
+                            <div class="card-header" id="headingOrder{{ $order->id }}">
+                                <h5 class="mb-0">
+                                    <button class="btn btn-link" type="button" data-toggle="collapse" data-target="#collapseOrder{{ $order->id }}" aria-expanded="true" aria-controls="collapseOrder{{ $order->id }}">
+                                        Order #{{ $order->id }}
+                                    </button>
+                                </h5>
+                            </div>
 
-                                    <div id="collapseOrder{{ $order->id }}" class="collapse" aria-labelledby="headingOrder{{ $order->id }}" data-parent="#ordersAccordion">
-                                        <div class="card-body" style="max-height: 400px; overflow-y: auto">
-                                            <div class="row">
-                                                @foreach($order->tickets as $ticket)
-                                                    @if($ticket->ticketType->event->date > now())
-                                                        <div class="col-12 col-md-6 mb-3">
-                                                            <a href="{{ route('events.details', ['id' => $ticket->ticketType->event->id]) }}" class="text-decoration-none text-dark">
-                                                                <div class="card h-100">
-                                                                    <div class="card-body">
-                                                                        <h5 class="card-title">Ticket #{{ $ticket->id }}</h5>
-                                                                        <p class="card-text">Event: {{ $ticket->ticketType->event->title }}</p>
-                                                                        <p class="card-text">Type: {{ $ticket->ticketType->title }}</p>
-                                                                        <p class="card-text">Price: {{ $ticket->ticketType->price }}</p>
-                                                                        <p class="card-text">Event Date: {{ \Carbon\Carbon::parse($ticket->ticketType->event->date)->format('d M Y') }}</p>
-                                                                    </div>
-                                                                </div>
-                                                            </a>
-                                                        </div>
-                                                    @endif
-                                                @endforeach
-                                            </div>
+                            <div id="collapseOrder{{ $order->id }}" class="collapse"  data-parent="#ordersAccordion">
+                                <div class="card-body" style="max-height: 400px; overflow-y: auto">
+                                    <div class="row">
+                                        @foreach($order->tickets as $ticket)
+                                        @if($ticket->ticketType->event->date > now())
+                                        <div class="col-12 col-md-6 mb-3">
+                                            <a href="{{ route('events.details', ['id' => $ticket->ticketType->event->id]) }}" class="text-decoration-none text-dark">
+                                                <div class="card h-100">
+                                                    <div class="card-body">
+                                                        <h5 class="card-title">Ticket #{{ $ticket->id }}</h5>
+                                                        <p class="card-text">Event: {{ $ticket->ticketType->event->title }}</p>
+                                                        <p class="card-text">Type: {{ $ticket->ticketType->title }}</p>
+                                                        <p class="card-text">Price: {{ $ticket->ticketType->price }}</p>
+                                                        <p class="card-text">Event Date: {{ \Carbon\Carbon::parse($ticket->ticketType->event->date)->format('d M Y') }}</p>
+                                                    </div>
+                                                </div>
+                                            </a>
                                         </div>
+                                        @endif
+                                        @endforeach
                                     </div>
                                 </div>
-                            @else
-                                <div class="alert" style="background-color: #f8d7da; color: #721c24; border-color: #f5c6cb;">
-                                    <h4 class="alert-heading">No Tickets Purchased Yet!</h4>
-                                    <p>It seems like you haven't purchased any tickets yet. Check out our events and find something you'd love to attend!</p>
-                                    <hr>
-                                    <p class="mb-0">Once you've purchased tickets, they will appear here.</p>
-                                </div>
-                            @endif
-                            @empty
-                                <div class="alert" style="background-color: #f8d7da; color: #721c24; border-color: #f5c6cb;">
-                                    <h4 class="alert-heading">No Tickets Purchased Yet!</h4>
-                                    <p>It seems like you haven't purchased any tickets yet. Check out our events and find something you'd love to attend!</p>
-                                    <hr>
-                                    <p class="mb-0">Once you've purchased tickets, they will appear here.</p>
-                                </div>
-                            @endforelse
+                            </div>
+                        </div>
+                        @else
+                        <div class="alert" style="background-color: #f8d7da; color: #721c24; border-color: #f5c6cb;">
+                            <h4 class="alert-heading">No Tickets Purchased Yet!</h4>
+                            <p>It seems like you haven't purchased any tickets yet. Check out our events and find something you'd love to attend!</p>
+                            <hr>
+                            <p class="mb-0">Once you've purchased tickets, they will appear here.</p>
+                        </div>
+                        @endif
+                        @empty
+                        <div class="alert" style="background-color: #f8d7da; color: #721c24; border-color: #f5c6cb;">
+                            <h4 class="alert-heading">No Tickets Purchased Yet!</h4>
+                            <p>It seems like you haven't purchased any tickets yet. Check out our events and find something you'd love to attend!</p>
+                            <hr>
+                            <p class="mb-0">Once you've purchased tickets, they will appear here.</p>
+                        </div>
+                        @endforelse
                     </div>
                 </div>
                 <div class="tab-pane fade" id="v-pills-settings">
@@ -170,41 +171,42 @@
                             <a id="changePasswordBtn" href="#" class="btn btn-primary btn-block">Change Password</a>
                         </div>
                         <div class="col-12 col-md-6 mb-3">
-                            <button id="deleteAccountBtn" type="button" class="btn btn-danger btn-block" >
+                            <button id="deleteAccountBtn" type="button" class="btn btn-danger btn-block">
                                 Delete Account
                             </button>
                         </div>
                     </div>
                     @if( Auth::user()->isAdmin() )
-                        <div class="row mt-1">
-                            <div class="col-12 col-md-6 mb-3">
-                                @if($user->authenticated->is_blocked == false)
-                                    <form method="POST" action="{{ route('user.block', ['id' => $user->id]) }}">
-                                        {{ csrf_field() }}
-                                        <button type="submit "id="blockUserBtn" href="#" class="btn btn-primary btn-block">Block User</button>
-                                    </form>
-                                @endif
+                    <div class="row mt-1">
+                        <div class="col-12 col-md-6 mb-3">
+                            @if($user->authenticated->is_blocked == false)
+                            <form method="POST" action="{{ route('user.block', ['id' => $user->id]) }}">
+                                {{ csrf_field() }}
+                                <button type="submit " id="blockUserBtn" href="#" class="btn btn-primary btn-block">Block User</button>
+                            </form>
+                            @endif
 
-                                @if($user->authenticated->is_blocked == true)
-                                    <form method="POST" action="{{ route('user.unblock', ['id' => $user->id]) }}">  
-                                        {{ csrf_field() }}
-                                        <button type="submit "id="unblockUserBtn" href="#" class="btn btn-primary btn-block">Unblock User</button>
-                                    </form>
-                                @endif
-                            </div>
+                            @if($user->authenticated->is_blocked == true)
+                            <form method="POST" action="{{ route('user.unblock', ['id' => $user->id]) }}">
+                                {{ csrf_field() }}
+                                <button type="submit " id="unblockUserBtn" href="#" class="btn btn-primary btn-block">Unblock User</button>
+                            </form>
+                            @endif
                         </div>
+                    </div>
                     @endif
                 </div>
             </div>
         </div>
     </div>
 </div>
-<div id="overlay" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0, 0, 0, 0.5); z-index: 1000;"></div>
+<div id="overlay" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0, 0, 0, 0.5); z-index: 1000;">
+</div>
 @if($user->id == Auth::user()->id || Auth::user()->isAdmin())
-    @include('partials.profileModal', ['type' => 'profile'])
-    @include('partials.passwordChangeModal')
-    @include('partials.deleteAccountModal')
-    @include('partials.verificationModal')
+@include('partials.profileModal', ['type' => 'profile'])
+@include('partials.passwordChangeModal')
+@include('partials.deleteAccountModal')
+@include('partials.verificationModal')
 @endif
 
 @endsection

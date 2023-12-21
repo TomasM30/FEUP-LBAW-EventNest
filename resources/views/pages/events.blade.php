@@ -25,7 +25,7 @@
     <div class="row justify-content-center mt-3">
         <div class="form-outline mt-2 d-flex align-items-center row" id="search-form" data-url="{{ route('search-events') }}" style="width: 55%;">
             <div class="col-md-8 col-sm-12">
-                <input type="search" id="form1" class="form-control" placeholder="Search" aria-label="Search" />
+                <input type="search" id="form1" class="form-control" placeholder="Search" aria-label="Search">
                 <input type="hidden" name="type" value="main">
             </div>
             @if (App\Models\AuthenticatedUser::where('id_user', Auth::user()->id)->exists())
@@ -53,7 +53,7 @@
                 </div>
             </div>
             <div class="col-md-6 ">
-                <div class="accordion m-4" id="accordionExample">
+                <div class="accordion m-4" id="accordionExample2">
                     <div class="accordion-item">
                         <h2 class="accordion-header" id="headingTwo">
                         <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#collapseTwo" aria-expanded="false" aria-controls="collapseTwo">
