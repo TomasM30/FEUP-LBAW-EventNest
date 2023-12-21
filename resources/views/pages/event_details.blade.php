@@ -314,7 +314,7 @@
                             <button id='manage-btn' type="button" class="btn btn-primary m-3 ">Manage Users</button>
                         </div>
 
-                        @if(($isOrganizer && $user->authenticated->is_verified == 0)  || $isAdmin)
+                        @if(($isOrganizer)  || $isAdmin)
                             <div class="btn-group" style="width: 100%;">
                                 <button id='cancelbtn' type="button" class="btn btn-primary m-3 ">Cancel</button>
                             </div>
