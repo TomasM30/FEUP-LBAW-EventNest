@@ -1,0 +1,335 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<style>
+    body {
+        display: flex;
+        flex-direction: column;
+        min-height: 100vh;
+    }
+
+    .main-content {
+        flex: 1 0 auto;
+    }
+</style>
+
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <!-- CSRF Token -->
+    <meta name="csrf-token" content="Ww5JWzWRGZ8hFTQfeO5qYqS5LcbKG1M2FH720VVY">
+
+    <title>Thingy</title>
+
+    <!-- Styles -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.3.1/dist/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+    <link href="http://localhost:8000/css/bootstrap.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="http://localhost:8000/js/app.js"></script>
+    <script src="https://js.pusher.com/7.0/pusher.min.js" defer></script>
+    <script>
+        // Fix for Firefox autofocus CSS bug
+        // See: http://stackoverflow.com/questions/18943276/html-5-autofocus-messes-up-css-loading/18945951#18945951
+    </script>
+</head>
+
+<body>
+
+            <nav class="navbar navbar-expand-lg bg-primary sticky-top px-3" data-bs-theme="dark" style="top: 0; z-index: 100;">
+    <div class="container-fluid">
+        <a class="navbar-brand" href="http://127.0.0.1:8000/events">EventNest</a>
+        <button class="navbar-toggler" type="button" id="navbarToggler" aria-controls="navbarColor01" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse d-lg-flex justify-content-lg-between" id="navbarColor01">
+            <ul class="navbar-nav">
+                <li class="nav-item">
+                    <a class="nav-link" href=" http://127.0.0.1:8000/events">Events</a>
+                </li>
+                                <li class="nav-item">
+                    <a class="nav-link" href="http://127.0.0.1:8000/user/44/events/created">MyEvents</a>
+                </li>
+                                <li class="nav-item">
+                    <a class="nav-link d-flex align-items-center" href="http://127.0.0.1:8000/user/44/notifications">
+                        Notifications
+                                            </a>
+                </li>
+                                <li class="nav-item">
+                    <a class="nav-link" href="http://127.0.0.1:8000/user/44/profile">Profile</a>
+                </li>
+                                                <li class="nav-item">
+                    <a class="nav-link" href=" http://127.0.0.1:8000/about">About Us</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href=" http://127.0.0.1:8000/contactus">Contact Us</a>
+                </li>
+            </ul>
+            <ul class="navbar-nav">
+                <li class="nav-item">
+                    <a class="nav-link" href="http://127.0.0.1:8000/logout" style="color: white;">logout</a>
+                </li>
+            </ul>
+        </div>
+    </div>
+</nav>        <div class="main-content">
+        
+
+
+
+<div class="container mt-5">
+    <div class="row">
+        <div class="col-12 col-md-3 mb-3 mb-md-0">
+            <div class="nav flex-column nav-pills" id="v-pills-tab" role="tablist" aria-orientation="vertical">
+                <a class="nav-link active" id="v-pills-profile-tab" href="#v-pills-profile">Profile</a>
+                <a class="nav-link" id="v-pills-events-tab" href="#v-pills-events">Events</a>
+                <a class="nav-link" id="v-pills-tickets-tab" href="#v-pills-tickets">Tickets</a>
+                                <a class="nav-link" id="v-pills-settings-tab" href="#v-pills-settings">Settings</a>
+                            </div>
+        </div>
+        <div class="col-12 col-md-9">
+            <div class="tab-content" id="v-pills-tabContent">
+                <div class="tab-pane fade show active" id="v-pills-profile">
+                    <div class="container m-0" style="max-width: 700px;">
+                        <div class="row">
+                            <div class="col-md-8">
+                                <div class="card" style="max-width: 90%;">
+                                    <img id="profile-image" src="http://localhost:8000/profile/default.png" class="card-img-top" alt="Profile Image">
+                                    <div class="card-body">
+                                        <h5 class="card-title">macabas
+                                                                                        <i class="fa-solid fa-circle-check"></i>
+                                                                                    </h5>
+                                        <p class="card-text">macabas ferreira</p>
+                                        <p class="card-text">macabas@example.com</p>
+                                                                                <button type="button" id="editProfileButton" class="btn btn-primary" data-toggle="modal" data-target="#editProfileModal">
+                                            Edit Profile
+                                        </button>
+                                                                            </div>
+                                </div>
+                            </div>
+                                                    </div>
+                    </div>
+                </div>
+                <div class="tab-pane fade" id="v-pills-events">
+                    <div class="container">
+                        <div class="row">
+                            <div class="col-lg-6 col-md-12 mb-3">
+                                <div class="card h-100">
+                                    <div class="card-body text-center">
+                                        <h5 class="card-title">Events Hosted</h5>
+                                        <p class="card-text display-4">0</p>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-lg-6 col-md-12 mb-3">
+                                <div class="card h-100">
+                                    <div class="card-body text-center">
+                                        <h5 class="card-title">Events Joined</h5>
+                                        <p class="card-text display-4">2</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-12 mb-3">
+                                <div class="card h-100">
+                                    <div class="card-body text-center">
+                                        <h5 class="card-title">Total Participants</h5>
+                                        <p class="card-text display-4">0</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="tab-pane fade" id="v-pills-tickets">
+                    <h3>Tickets</h3>
+                    <div class="accordion mt-4" id="ordersAccordion">
+                                                <div class="alert" style="background-color: #f8d7da; color: #721c24; border-color: #f5c6cb;">
+                            <h4 class="alert-heading">No Tickets Purchased Yet!</h4>
+                            <p>It seems like you haven't purchased any tickets yet. Check out our events and find something you'd love to attend!</p>
+                            <hr>
+                            <p class="mb-0">Once you've purchased tickets, they will appear here.</p>
+                        </div>
+                                            </div>
+                </div>
+                <div class="tab-pane fade" id="v-pills-settings">
+                    <h3>Settings</h3>
+                    <div class="row mt-4">
+                        <div class="col-12 col-md-6 mb-3">
+                            <a id="changePasswordBtn" href="#" class="btn btn-primary btn-block">Change Password</a>
+                        </div>
+                        <div class="col-12 col-md-6 mb-3">
+                            <button id="deleteAccountBtn" type="button" class="btn btn-danger btn-block">
+                                Delete Account
+                            </button>
+                        </div>
+                    </div>
+                                    </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div id="overlay" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0, 0, 0, 0.5); z-index: 1000;">
+</div>
+<div class="modal" id="uploadModal" tabindex="-1" role="dialog" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                    <h5 class="modal-title" id="editProfileModalLabel">Edit Profile</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <form method="POST" action="http://127.0.0.1:8000/user/44/profile/edit" enctype="multipart/form-data">
+                        <input type="hidden" name="_token" value="Ww5JWzWRGZ8hFTQfeO5qYqS5LcbKG1M2FH720VVY">
+                        <div class="form-group">
+                            <label for="username" class="form-label mt-4">Username</label>
+                            <input type="text" class="form-control" id="username" name="username" value="macabas" required>
+                                                    </div>
+                        <div class="form-group">
+                            <label for="name" class="form-label mt-4">Name</label>
+                            <input type="text" class="form-control" id="name" name="name" value="macabas ferreira" required>
+                                                    </div>
+                        <div class="form-group">
+                            <label for="email" class="form-label mt-4">Email</label>
+                            <input type="email" class="form-control" id="email" name="email" value="macabas@example.com" required>
+                                                    </div>
+                        <div class="form-group">
+                            <label for="file">Profile Picture</label>
+                            <input class="form-control" id="file" name="file" type="file">
+                                                    </div>
+                        <button type="submit" class="btn btn-primary mt-4">Edit Profile</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div><div class="modal" id="passwordChangeModal" tabindex="-1" role="dialog" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-content">
+        <div class="modal-header">
+                <h5 class="modal-title" id="passwordChangeLabel">Change Password</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <form method="POST" action="http://127.0.0.1:8000/user/44/password/change" enctype="multipart/form-data">                    
+                    <input type="hidden" name="_token" value="Ww5JWzWRGZ8hFTQfeO5qYqS5LcbKG1M2FH720VVY">
+                                            <div class="form-group">
+                            <label for="current_password">Current Password</label>
+                            <input type="password" class="form-control" id="current_password" name="current_password" placeholder="Current password" required>
+                                                    </div>
+                                        <div class="form-group">
+                        <label for="new_password">New Password</label>
+                        <input type="password" class="form-control" id="new_password" name="new_password" placeholder="New password" required>
+                                            </div>
+                    <div class="form-group">
+                        <label for="new_password_confirmation">Confirm New Password</label>
+                        <input type="password" class="form-control" id="new_password_confirmation" placeholder="Confirm new password" name="new_password_confirmation" required>
+                                            </div>
+                    <button type="submit" class="btn btn-primary mt-4">Change Password</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div><div class="modal" id="deleteAccountModal" tabindex="-1" role="dialog"  aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="deleteAccountModalLabel">Delete Account</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <p>Are you sure you want to delete the account? This action cannot be undone.</p>
+                <form method="POST" action="http://127.0.0.1:8000/user/44/delete">
+                    <input type="hidden" name="_token" value="Ww5JWzWRGZ8hFTQfeO5qYqS5LcbKG1M2FH720VVY">
+                    <button type="submit" class="btn btn-danger mt-4">Delete Account</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div><div class="modal" id="verificationModal" tabindex="-1" role="dialog" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="editProfileModalLabel2">User verification benefits and conditions</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body text-justify">
+                <h6>Exclusive Benefits:</h6>
+                <ul>
+                    <li>Stand out from the crowd with a verified symbol next to your username.</li>
+                    <li>Unlock the ability to sell tickets and monetize your events.</li>
+                    <li>Enjoy all the standard features available to our users.</li>
+                </ul>
+
+                <h6>Terms and Conditions:</h6>
+                <ul>
+                    <li>A nominal commission of 15% is applicable on every ticket sale.</li>
+                    <li>Event cancellation is subject to reporting to the administration. Approval is granted only under severe circumstances.</li>
+                    <li>Account deletion is permissible only when there are no ongoing ticket sales for any event.</li>
+                    <li>This is a one-time process and cannot be reversed.</li>
+                </ul>
+
+                <form id="verificationForm" action="http://127.0.0.1:8000/user/44/verify" method="POST">
+                    <input type="hidden" name="_token" value="Ww5JWzWRGZ8hFTQfeO5qYqS5LcbKG1M2FH720VVY">
+                    <div class="form-check">
+                        <input type="checkbox" class="form-check-input" id="acceptTerms" style="border: 1px solid #ced4da;">
+                        <label class="form-check-label" for="acceptTerms">I accept the terms and conditions</label>
+                    </div>
+
+                    <div class="form-check mb-2">
+                        <input type="checkbox" class="form-check-input" id="confirmCertainty" style="border: 1px solid #ced4da;">
+                        <label class="form-check-label" for="confirmCertainty">I am certain about my decision</label>
+                    </div>
+                    <button type="submit" class="btn btn-primary" id="submitButton" disabled>Submit</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+<div>
+    </div>
+    <footer class="footer bg-primary" style="padding: 10px; margin-top: 20px;">
+    <div class="container mt-3">
+        <div class="row">
+            <div class="col-md-6">
+                <h1 style="color: white;">EventNest</h1>
+                <p style="color: white;">Email: eventnest@example.com</p>
+                <p style="color: white;">Phone: +351 912888787</p>
+            </div>
+            <div class="col-md-6">
+                <h4 style="color: white;">Quick Links</h4>
+                <div class="row">
+                    <div class="col-md-6">
+                        <ul style="list-style-type: none; color: white;">
+                                                            <li><a style="color: white;" href="http://127.0.0.1:8000/events">Events</a></li>
+                                                        <li><a style="color: white;" href="http://127.0.0.1:8000/about">AboutUs</a></li>
+                            <li><a style="color: white;" href="http://127.0.0.1:8000/contactus">ContactUs</a></li>
+                        </ul>
+                    </div>
+                    <div class="col-md-6">
+                                                <ul style="list-style-type: none; color: white;">
+                                                            <li><a style="color: white;" href="http://127.0.0.1:8000/user/44/profile">Profile</a></li>
+                                <li><a style="color: white;" href="http://127.0.0.1:8000/user/44/events/created">MyEvents</a></li>
+                                                        <li><a style="color: white;" href="http://127.0.0.1:8000/user/44/notifications">Notifications</a></li>
+                        </ul>
+                                            </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</footer>
+</body>
+
+
+</html>
