@@ -1,0 +1,995 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<style>
+    body {
+        display: flex;
+        flex-direction: column;
+        min-height: 100vh;
+    }
+
+    .main-content {
+        flex: 1 0 auto;
+    }
+</style>
+
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <!-- CSRF Token -->
+    <meta name="csrf-token" content="Ww5JWzWRGZ8hFTQfeO5qYqS5LcbKG1M2FH720VVY">
+
+    <title>Thingy</title>
+
+    <!-- Styles -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.3.1/dist/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+    <link href="http://localhost:8000/css/bootstrap.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="http://localhost:8000/js/app.js"></script>
+    <script src="https://js.pusher.com/7.0/pusher.min.js" defer></script>
+    <script>
+        // Fix for Firefox autofocus CSS bug
+        // See: http://stackoverflow.com/questions/18943276/html-5-autofocus-messes-up-css-loading/18945951#18945951
+    </script>
+</head>
+
+<body>
+
+            <nav class="navbar navbar-expand-lg bg-primary sticky-top px-3" data-bs-theme="dark" style="top: 0; z-index: 100;">
+    <div class="container-fluid">
+        <a class="navbar-brand" href="http://127.0.0.1:8000/events">EventNest</a>
+        <button class="navbar-toggler" type="button" id="navbarToggler" aria-controls="navbarColor01" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse d-lg-flex justify-content-lg-between" id="navbarColor01">
+            <ul class="navbar-nav">
+                <li class="nav-item">
+                    <a class="nav-link" href=" http://127.0.0.1:8000/events">Events</a>
+                </li>
+                                <li class="nav-item">
+                    <a class="nav-link" href="http://127.0.0.1:8000/user/44/events/created">MyEvents</a>
+                </li>
+                                <li class="nav-item">
+                    <a class="nav-link d-flex align-items-center" href="http://127.0.0.1:8000/user/44/notifications">
+                        Notifications
+                                            </a>
+                </li>
+                                <li class="nav-item">
+                    <a class="nav-link" href="http://127.0.0.1:8000/user/44/profile">Profile</a>
+                </li>
+                                                <li class="nav-item">
+                    <a class="nav-link" href=" http://127.0.0.1:8000/about">About Us</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href=" http://127.0.0.1:8000/contactus">Contact Us</a>
+                </li>
+            </ul>
+            <ul class="navbar-nav">
+                <li class="nav-item">
+                    <a class="nav-link" href="http://127.0.0.1:8000/logout" style="color: white;">logout</a>
+                </li>
+            </ul>
+        </div>
+    </div>
+</nav>        <div class="main-content">
+        
+
+
+
+
+<div class="content-container overflow-x-hidden">
+    <div class="row justify-content-center mt-3">
+        <div class="form-outline mt-2 d-flex align-items-center row" id="search-form" data-url="http://127.0.0.1:8000/events/search" style="width: 55%;">
+            <div class="col-md-8 col-sm-12">
+                <input type="search" id="form1" class="form-control" placeholder="Search" aria-label="Search">
+                <input type="hidden" name="type" value="main">
+            </div>
+                        <div class="col-md-4 col-sm-12 text-sm-left text-md-right">
+                <button id='NEvent-button' type="button" class="btn btn-primary ml-2" data-toggle="modal" data-target="#newEventModal">New Event</button>
+            </div>
+                    </div>
+        <div class="row m-4 mb-1" style="width: 60%;">
+            <div class="col-md-6">
+                <div class="accordion m-4" id="accordionExample">
+                    <div class="accordion-item">
+                        <h2 class="accordion-header" id="headingOne">
+                            <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#collapseOne" aria-expanded="true" aria-controls="collapseOne">
+                                Order By
+                            </button>
+                        </h2>
+                        <div id="collapseOne" class="accordion-collapse collapse" aria-labelledby="headingOne" data-bs-parent="#accordionExample">
+                            <div class="accordion-body">
+                                <button id='date-button' class="btn btn-custom btn-block" data-direction="asc">Date</button>
+                                <button id='title-button' class="btn btn-custom btn-block" data-direction="asc">Title</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6 ">
+                <div class="accordion m-4" id="accordionExample2">
+                    <div class="accordion-item">
+                        <h2 class="accordion-header" id="headingTwo">
+                        <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#collapseTwo" aria-expanded="false" aria-controls="collapseTwo">
+                            Filter
+                        </button>
+                        </h2>
+                        <div id="collapseTwo" class="accordion-collapse collapse" aria-labelledby="headingTwo" data-bs-parent="#accordionExample">
+                            <div class="accordion-body row">
+                                <div class="col-md-6 mb-3">
+                                    <h5>Hashtags</h5>
+                                    <div class="card-body hashtags-body">
+                                                                                <div class="form-check">
+                                            <input class="form-check-input" type="checkbox" name="hashtags[]" value="11" id="hashtag11">
+                                            <label class="form-check-label" for="hashtag11">
+                                                #art
+                                            </label>
+                                        </div>
+                                                                                <div class="form-check">
+                                            <input class="form-check-input" type="checkbox" name="hashtags[]" value="21" id="hashtag21">
+                                            <label class="form-check-label" for="hashtag21">
+                                                #badminton
+                                            </label>
+                                        </div>
+                                                                                <div class="form-check">
+                                            <input class="form-check-input" type="checkbox" name="hashtags[]" value="16" id="hashtag16">
+                                            <label class="form-check-label" for="hashtag16">
+                                                #baseball
+                                            </label>
+                                        </div>
+                                                                                <div class="form-check">
+                                            <input class="form-check-input" type="checkbox" name="hashtags[]" value="4" id="hashtag4">
+                                            <label class="form-check-label" for="hashtag4">
+                                                #basketball
+                                            </label>
+                                        </div>
+                                                                                <div class="form-check">
+                                            <input class="form-check-input" type="checkbox" name="hashtags[]" value="18" id="hashtag18">
+                                            <label class="form-check-label" for="hashtag18">
+                                                #boxing
+                                            </label>
+                                        </div>
+                                                                                <div class="form-check">
+                                            <input class="form-check-input" type="checkbox" name="hashtags[]" value="19" id="hashtag19">
+                                            <label class="form-check-label" for="hashtag19">
+                                                #climbing
+                                            </label>
+                                        </div>
+                                                                                <div class="form-check">
+                                            <input class="form-check-input" type="checkbox" name="hashtags[]" value="10" id="hashtag10">
+                                            <label class="form-check-label" for="hashtag10">
+                                                #concert
+                                            </label>
+                                        </div>
+                                                                                <div class="form-check">
+                                            <input class="form-check-input" type="checkbox" name="hashtags[]" value="13" id="hashtag13">
+                                            <label class="form-check-label" for="hashtag13">
+                                                #cricket
+                                            </label>
+                                        </div>
+                                                                                <div class="form-check">
+                                            <input class="form-check-input" type="checkbox" name="hashtags[]" value="7" id="hashtag7">
+                                            <label class="form-check-label" for="hashtag7">
+                                                #cycling
+                                            </label>
+                                        </div>
+                                                                                <div class="form-check">
+                                            <input class="form-check-input" type="checkbox" name="hashtags[]" value="2" id="hashtag2">
+                                            <label class="form-check-label" for="hashtag2">
+                                                #esports
+                                            </label>
+                                        </div>
+                                                                                <div class="form-check">
+                                            <input class="form-check-input" type="checkbox" name="hashtags[]" value="1" id="hashtag1">
+                                            <label class="form-check-label" for="hashtag1">
+                                                #football
+                                            </label>
+                                        </div>
+                                                                                <div class="form-check">
+                                            <input class="form-check-input" type="checkbox" name="hashtags[]" value="8" id="hashtag8">
+                                            <label class="form-check-label" for="hashtag8">
+                                                #gaming
+                                            </label>
+                                        </div>
+                                                                                <div class="form-check">
+                                            <input class="form-check-input" type="checkbox" name="hashtags[]" value="17" id="hashtag17">
+                                            <label class="form-check-label" for="hashtag17">
+                                                #golf
+                                            </label>
+                                        </div>
+                                                                                <div class="form-check">
+                                            <input class="form-check-input" type="checkbox" name="hashtags[]" value="5" id="hashtag5">
+                                            <label class="form-check-label" for="hashtag5">
+                                                #hockey
+                                            </label>
+                                        </div>
+                                                                                <div class="form-check">
+                                            <input class="form-check-input" type="checkbox" name="hashtags[]" value="20" id="hashtag20">
+                                            <label class="form-check-label" for="hashtag20">
+                                                #rugby
+                                            </label>
+                                        </div>
+                                                                                <div class="form-check">
+                                            <input class="form-check-input" type="checkbox" name="hashtags[]" value="3" id="hashtag3">
+                                            <label class="form-check-label" for="hashtag3">
+                                                #running
+                                            </label>
+                                        </div>
+                                                                                <div class="form-check">
+                                            <input class="form-check-input" type="checkbox" name="hashtags[]" value="15" id="hashtag15">
+                                            <label class="form-check-label" for="hashtag15">
+                                                #skiing
+                                            </label>
+                                        </div>
+                                                                                <div class="form-check">
+                                            <input class="form-check-input" type="checkbox" name="hashtags[]" value="14" id="hashtag14">
+                                            <label class="form-check-label" for="hashtag14">
+                                                #surfing
+                                            </label>
+                                        </div>
+                                                                                <div class="form-check">
+                                            <input class="form-check-input" type="checkbox" name="hashtags[]" value="9" id="hashtag9">
+                                            <label class="form-check-label" for="hashtag9">
+                                                #swimming
+                                            </label>
+                                        </div>
+                                                                                <div class="form-check">
+                                            <input class="form-check-input" type="checkbox" name="hashtags[]" value="6" id="hashtag6">
+                                            <label class="form-check-label" for="hashtag6">
+                                                #tennis
+                                            </label>
+                                        </div>
+                                                                                <div class="form-check">
+                                            <input class="form-check-input" type="checkbox" name="hashtags[]" value="12" id="hashtag12">
+                                            <label class="form-check-label" for="hashtag12">
+                                                #volleyball
+                                            </label>
+                                        </div>
+                                                                            </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <h5>Places</h5>
+                                    <div class="card-body hashtags-body">
+                                                                                <div class="form-check">
+                                            <input class="form-check-input" type="checkbox" name="places[]" value="Baguim" id="placeBaguim">
+                                            <label class="form-check-label" for="placeBaguim">
+                                                Baguim
+                                            </label>
+                                        </div>
+                                                                                <div class="form-check">
+                                            <input class="form-check-input" type="checkbox" name="places[]" value="Lisboa" id="placeLisboa">
+                                            <label class="form-check-label" for="placeLisboa">
+                                                Lisboa
+                                            </label>
+                                        </div>
+                                                                                <div class="form-check">
+                                            <input class="form-check-input" type="checkbox" name="places[]" value="Porto" id="placePorto">
+                                            <label class="form-check-label" for="placePorto">
+                                                Porto
+                                            </label>
+                                        </div>
+                                                                            </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+    <div class="container mt-5">
+        <div id="selected-filters" class="d-flex flex-wrap mb-3"></div>
+                    <div class="row row-cols-1 row-cols-md-3 g-4 custom-row" id="container">
+                                    <div class="col-12 col-sm-6 col-lg-4 mb-4">
+    <a href="http://127.0.0.1:8000/events/1/details" style="text-decoration: none; color: inherit;">
+        <div class="card text-white bg-primary mb-3 mx-auto" style="max-width:30rem; max-height:43rem;">
+            <img src="http://localhost:8000/event/default.png" alt = "SCP vs. GDC - Hockey" class="img-fluid" style="height: 25rem; object-fit: cover;">
+
+            <div class="card-body">
+                <h4 class="card-title" style="overflow: hidden; white-space: nowrap; text-overflow: ellipsis;">SCP vs. GDC - Hockey</h4>
+            </div>
+            <div class=" card-body">
+                <p class=" card-text">Lisboa</p>
+                <p class="card-text">04/03/24</p>
+            </div>
+            <div class="card-header" style="overflow-x: auto; white-space: nowrap; overflow-y:hidden;">
+                                                            <span class="hashtag">#hockey</span>
+                                                </div>
+            <div class="card-footer">
+                capacity: 5/10000
+            </div>
+        </div>
+    </a>
+</div>                
+                                    <div class="col-12 col-sm-6 col-lg-4 mb-4">
+    <a href="http://127.0.0.1:8000/events/2/details" style="text-decoration: none; color: inherit;">
+        <div class="card text-white bg-primary mb-3 mx-auto" style="max-width:30rem; max-height:43rem;">
+            <img src="http://localhost:8000/event/default.png" alt = "Corridas Solitarias" class="img-fluid" style="height: 25rem; object-fit: cover;">
+
+            <div class="card-body">
+                <h4 class="card-title" style="overflow: hidden; white-space: nowrap; text-overflow: ellipsis;">Corridas Solitarias</h4>
+            </div>
+            <div class=" card-body">
+                <p class=" card-text">Porto</p>
+                <p class="card-text">05/03/24</p>
+            </div>
+            <div class="card-header" style="overflow-x: auto; white-space: nowrap; overflow-y:hidden;">
+                                                            <span class="hashtag">#running</span>
+                                                </div>
+            <div class="card-footer">
+                capacity: 6/1200
+            </div>
+        </div>
+    </a>
+</div>                
+                                    <div class="col-12 col-sm-6 col-lg-4 mb-4">
+    <a href="http://127.0.0.1:8000/events/3/details" style="text-decoration: none; color: inherit;">
+        <div class="card text-white bg-primary mb-3 mx-auto" style="max-width:30rem; max-height:43rem;">
+            <img src="http://localhost:8000/event/default.png" alt = "FCP vs. SLB - Football" class="img-fluid" style="height: 25rem; object-fit: cover;">
+
+            <div class="card-body">
+                <h4 class="card-title" style="overflow: hidden; white-space: nowrap; text-overflow: ellipsis;">FCP vs. SLB - Football</h4>
+            </div>
+            <div class=" card-body">
+                <p class=" card-text">Porto</p>
+                <p class="card-text">06/03/24</p>
+            </div>
+            <div class="card-header" style="overflow-x: auto; white-space: nowrap; overflow-y:hidden;">
+                                                            <span class="hashtag">#football</span>
+                                                </div>
+            <div class="card-footer">
+                capacity: 5/50000
+            </div>
+        </div>
+    </a>
+</div>                
+                                    <div class="col-12 col-sm-6 col-lg-4 mb-4">
+    <a href="http://127.0.0.1:8000/events/4/details" style="text-decoration: none; color: inherit;">
+        <div class="card text-white bg-primary mb-3 mx-auto" style="max-width:30rem; max-height:43rem;">
+            <img src="http://localhost:8000/event/default.png" alt = "RTP Arena - Esports" class="img-fluid" style="height: 25rem; object-fit: cover;">
+
+            <div class="card-body">
+                <h4 class="card-title" style="overflow: hidden; white-space: nowrap; text-overflow: ellipsis;">RTP Arena - Esports</h4>
+            </div>
+            <div class=" card-body">
+                <p class=" card-text">Lisboa</p>
+                <p class="card-text">07/03/24</p>
+            </div>
+            <div class="card-header" style="overflow-x: auto; white-space: nowrap; overflow-y:hidden;">
+                                                            <span class="hashtag">#esports</span>
+                                                </div>
+            <div class="card-footer">
+                capacity: 5/10000
+            </div>
+        </div>
+    </a>
+</div>                
+                                    <div class="col-12 col-sm-6 col-lg-4 mb-4">
+    <a href="http://127.0.0.1:8000/events/5/details" style="text-decoration: none; color: inherit;">
+        <div class="card text-white bg-primary mb-3 mx-auto" style="max-width:30rem; max-height:43rem;">
+            <img src="http://localhost:8000/event/default.png" alt = "SLB vs. SCP - Basketball" class="img-fluid" style="height: 25rem; object-fit: cover;">
+
+            <div class="card-body">
+                <h4 class="card-title" style="overflow: hidden; white-space: nowrap; text-overflow: ellipsis;">SLB vs. SCP - Basketball</h4>
+            </div>
+            <div class=" card-body">
+                <p class=" card-text">Lisboa</p>
+                <p class="card-text">08/03/24</p>
+            </div>
+            <div class="card-header" style="overflow-x: auto; white-space: nowrap; overflow-y:hidden;">
+                                                            <span class="hashtag">#basketball</span>
+                                                </div>
+            <div class="card-footer">
+                capacity: 6/10000
+            </div>
+        </div>
+    </a>
+</div>                
+                                    <div class="col-12 col-sm-6 col-lg-4 mb-4">
+    <a href="http://127.0.0.1:8000/events/6/details" style="text-decoration: none; color: inherit;">
+        <div class="card text-white bg-primary mb-3 mx-auto" style="max-width:30rem; max-height:43rem;">
+            <img src="http://localhost:8000/event/default.png" alt = "Watch Party - SCP vs. FCP - Football" class="img-fluid" style="height: 25rem; object-fit: cover;">
+
+            <div class="card-body">
+                <h4 class="card-title" style="overflow: hidden; white-space: nowrap; text-overflow: ellipsis;">Watch Party - SCP vs. FCP - Football</h4>
+            </div>
+            <div class=" card-body">
+                <p class=" card-text">Porto</p>
+                <p class="card-text">09/03/24</p>
+            </div>
+            <div class="card-header" style="overflow-x: auto; white-space: nowrap; overflow-y:hidden;">
+                                                            <span class="hashtag">#football</span>
+                                                </div>
+            <div class="card-footer">
+                capacity: 4/20
+            </div>
+        </div>
+    </a>
+</div>                
+                                    <div class="col-12 col-sm-6 col-lg-4 mb-4">
+    <a href="http://127.0.0.1:8000/events/7/details" style="text-decoration: none; color: inherit;">
+        <div class="card text-white bg-primary mb-3 mx-auto" style="max-width:30rem; max-height:43rem;">
+            <img src="http://localhost:8000/event/default.png" alt = "Sport Party Baguim" class="img-fluid" style="height: 25rem; object-fit: cover;">
+
+            <div class="card-body">
+                <h4 class="card-title" style="overflow: hidden; white-space: nowrap; text-overflow: ellipsis;">Sport Party Baguim</h4>
+            </div>
+            <div class=" card-body">
+                <p class=" card-text">Baguim</p>
+                <p class="card-text">10/03/24</p>
+            </div>
+            <div class="card-header" style="overflow-x: auto; white-space: nowrap; overflow-y:hidden;">
+                                                            <span class="hashtag">#football</span>
+                                            <span class="hashtag">#esports</span>
+                                            <span class="hashtag">#running</span>
+                                            <span class="hashtag">#basketball</span>
+                                            <span class="hashtag">#hockey</span>
+                                                </div>
+            <div class="card-footer">
+                capacity: 5/2000
+            </div>
+        </div>
+    </a>
+</div>                
+                                    <div class="col-12 col-sm-6 col-lg-4 mb-4">
+    <a href="http://127.0.0.1:8000/events/8/details" style="text-decoration: none; color: inherit;">
+        <div class="card text-white bg-primary mb-3 mx-auto" style="max-width:30rem; max-height:43rem;">
+            <img src="http://localhost:8000/event/default.png" alt = "Tennis Championship" class="img-fluid" style="height: 25rem; object-fit: cover;">
+
+            <div class="card-body">
+                <h4 class="card-title" style="overflow: hidden; white-space: nowrap; text-overflow: ellipsis;">Tennis Championship</h4>
+            </div>
+            <div class=" card-body">
+                <p class=" card-text">Lisboa</p>
+                <p class="card-text">11/03/24</p>
+            </div>
+            <div class="card-header" style="overflow-x: auto; white-space: nowrap; overflow-y:hidden;">
+                                                            <span class="hashtag">#tennis</span>
+                                                </div>
+            <div class="card-footer">
+                capacity: 1/5000
+            </div>
+        </div>
+    </a>
+</div>                
+                                    <div class="col-12 col-sm-6 col-lg-4 mb-4">
+    <a href="http://127.0.0.1:8000/events/9/details" style="text-decoration: none; color: inherit;">
+        <div class="card text-white bg-primary mb-3 mx-auto" style="max-width:30rem; max-height:43rem;">
+            <img src="http://localhost:8000/event/default.png" alt = "Cycling Tour" class="img-fluid" style="height: 25rem; object-fit: cover;">
+
+            <div class="card-body">
+                <h4 class="card-title" style="overflow: hidden; white-space: nowrap; text-overflow: ellipsis;">Cycling Tour</h4>
+            </div>
+            <div class=" card-body">
+                <p class=" card-text">Porto</p>
+                <p class="card-text">12/03/24</p>
+            </div>
+            <div class="card-header" style="overflow-x: auto; white-space: nowrap; overflow-y:hidden;">
+                                                            <span class="hashtag">#cycling</span>
+                                                </div>
+            <div class="card-footer">
+                capacity: 1/8000
+            </div>
+        </div>
+    </a>
+</div>                
+                                    <div class="col-12 col-sm-6 col-lg-4 mb-4">
+    <a href="http://127.0.0.1:8000/events/10/details" style="text-decoration: none; color: inherit;">
+        <div class="card text-white bg-primary mb-3 mx-auto" style="max-width:30rem; max-height:43rem;">
+            <img src="http://localhost:8000/event/default.png" alt = "Gaming Expo" class="img-fluid" style="height: 25rem; object-fit: cover;">
+
+            <div class="card-body">
+                <h4 class="card-title" style="overflow: hidden; white-space: nowrap; text-overflow: ellipsis;">Gaming Expo</h4>
+            </div>
+            <div class=" card-body">
+                <p class=" card-text">Lisboa</p>
+                <p class="card-text">13/03/24</p>
+            </div>
+            <div class="card-header" style="overflow-x: auto; white-space: nowrap; overflow-y:hidden;">
+                                                            <span class="hashtag">#gaming</span>
+                                                </div>
+            <div class="card-footer">
+                capacity: 2/10000
+            </div>
+        </div>
+    </a>
+</div>                
+                                    <div class="col-12 col-sm-6 col-lg-4 mb-4">
+    <a href="http://127.0.0.1:8000/events/11/details" style="text-decoration: none; color: inherit;">
+        <div class="card text-white bg-primary mb-3 mx-auto" style="max-width:30rem; max-height:43rem;">
+            <img src="http://localhost:8000/event/default.png" alt = "Swimming Championship" class="img-fluid" style="height: 25rem; object-fit: cover;">
+
+            <div class="card-body">
+                <h4 class="card-title" style="overflow: hidden; white-space: nowrap; text-overflow: ellipsis;">Swimming Championship</h4>
+            </div>
+            <div class=" card-body">
+                <p class=" card-text">Porto</p>
+                <p class="card-text">14/03/24</p>
+            </div>
+            <div class="card-header" style="overflow-x: auto; white-space: nowrap; overflow-y:hidden;">
+                                                            <span class="hashtag">#swimming</span>
+                                                </div>
+            <div class="card-footer">
+                capacity: 1/7000
+            </div>
+        </div>
+    </a>
+</div>                
+                                    <div class="col-12 col-sm-6 col-lg-4 mb-4">
+    <a href="http://127.0.0.1:8000/events/12/details" style="text-decoration: none; color: inherit;">
+        <div class="card text-white bg-primary mb-3 mx-auto" style="max-width:30rem; max-height:43rem;">
+            <img src="http://localhost:8000/event/default.png" alt = "Live Concert - Lisbon" class="img-fluid" style="height: 25rem; object-fit: cover;">
+
+            <div class="card-body">
+                <h4 class="card-title" style="overflow: hidden; white-space: nowrap; text-overflow: ellipsis;">Live Concert - Lisbon</h4>
+            </div>
+            <div class=" card-body">
+                <p class=" card-text">Lisboa</p>
+                <p class="card-text">15/03/24</p>
+            </div>
+            <div class="card-header" style="overflow-x: auto; white-space: nowrap; overflow-y:hidden;">
+                                                            <span class="hashtag">#concert</span>
+                                                </div>
+            <div class="card-footer">
+                capacity: 1/12000
+            </div>
+        </div>
+    </a>
+</div>                
+                                    <div class="col-12 col-sm-6 col-lg-4 mb-4">
+    <a href="http://127.0.0.1:8000/events/13/details" style="text-decoration: none; color: inherit;">
+        <div class="card text-white bg-primary mb-3 mx-auto" style="max-width:30rem; max-height:43rem;">
+            <img src="http://localhost:8000/event/default.png" alt = "Art Exhibition" class="img-fluid" style="height: 25rem; object-fit: cover;">
+
+            <div class="card-body">
+                <h4 class="card-title" style="overflow: hidden; white-space: nowrap; text-overflow: ellipsis;">Art Exhibition</h4>
+            </div>
+            <div class=" card-body">
+                <p class=" card-text">Porto</p>
+                <p class="card-text">16/03/24</p>
+            </div>
+            <div class="card-header" style="overflow-x: auto; white-space: nowrap; overflow-y:hidden;">
+                                                            <span class="hashtag">#art</span>
+                                                </div>
+            <div class="card-footer">
+                capacity: 1/5000
+            </div>
+        </div>
+    </a>
+</div>                
+                                    <div class="col-12 col-sm-6 col-lg-4 mb-4">
+    <a href="http://127.0.0.1:8000/events/14/details" style="text-decoration: none; color: inherit;">
+        <div class="card text-white bg-primary mb-3 mx-auto" style="max-width:30rem; max-height:43rem;">
+            <img src="http://localhost:8000/event/default.png" alt = "Volleyball Tournament" class="img-fluid" style="height: 25rem; object-fit: cover;">
+
+            <div class="card-body">
+                <h4 class="card-title" style="overflow: hidden; white-space: nowrap; text-overflow: ellipsis;">Volleyball Tournament</h4>
+            </div>
+            <div class=" card-body">
+                <p class=" card-text">Lisboa</p>
+                <p class="card-text">17/03/24</p>
+            </div>
+            <div class="card-header" style="overflow-x: auto; white-space: nowrap; overflow-y:hidden;">
+                                                            <span class="hashtag">#volleyball</span>
+                                                </div>
+            <div class="card-footer">
+                capacity: 2/5000
+            </div>
+        </div>
+    </a>
+</div>                
+                                    <div class="col-12 col-sm-6 col-lg-4 mb-4">
+    <a href="http://127.0.0.1:8000/events/15/details" style="text-decoration: none; color: inherit;">
+        <div class="card text-white bg-primary mb-3 mx-auto" style="max-width:30rem; max-height:43rem;">
+            <img src="http://localhost:8000/event/default.png" alt = "Cricket Match" class="img-fluid" style="height: 25rem; object-fit: cover;">
+
+            <div class="card-body">
+                <h4 class="card-title" style="overflow: hidden; white-space: nowrap; text-overflow: ellipsis;">Cricket Match</h4>
+            </div>
+            <div class=" card-body">
+                <p class=" card-text">Porto</p>
+                <p class="card-text">18/03/24</p>
+            </div>
+            <div class="card-header" style="overflow-x: auto; white-space: nowrap; overflow-y:hidden;">
+                                                            <span class="hashtag">#cricket</span>
+                                                </div>
+            <div class="card-footer">
+                capacity: 2/8000
+            </div>
+        </div>
+    </a>
+</div>                
+                                    <div class="col-12 col-sm-6 col-lg-4 mb-4">
+    <a href="http://127.0.0.1:8000/events/16/details" style="text-decoration: none; color: inherit;">
+        <div class="card text-white bg-primary mb-3 mx-auto" style="max-width:30rem; max-height:43rem;">
+            <img src="http://localhost:8000/event/default.png" alt = "Surfing Championship" class="img-fluid" style="height: 25rem; object-fit: cover;">
+
+            <div class="card-body">
+                <h4 class="card-title" style="overflow: hidden; white-space: nowrap; text-overflow: ellipsis;">Surfing Championship</h4>
+            </div>
+            <div class=" card-body">
+                <p class=" card-text">Lisboa</p>
+                <p class="card-text">19/03/24</p>
+            </div>
+            <div class="card-header" style="overflow-x: auto; white-space: nowrap; overflow-y:hidden;">
+                                                            <span class="hashtag">#surfing</span>
+                                                </div>
+            <div class="card-footer">
+                capacity: 2/10000
+            </div>
+        </div>
+    </a>
+</div>                
+                                    <div class="col-12 col-sm-6 col-lg-4 mb-4">
+    <a href="http://127.0.0.1:8000/events/17/details" style="text-decoration: none; color: inherit;">
+        <div class="card text-white bg-primary mb-3 mx-auto" style="max-width:30rem; max-height:43rem;">
+            <img src="http://localhost:8000/event/default.png" alt = "Skiing Race" class="img-fluid" style="height: 25rem; object-fit: cover;">
+
+            <div class="card-body">
+                <h4 class="card-title" style="overflow: hidden; white-space: nowrap; text-overflow: ellipsis;">Skiing Race</h4>
+            </div>
+            <div class=" card-body">
+                <p class=" card-text">Porto</p>
+                <p class="card-text">20/03/24</p>
+            </div>
+            <div class="card-header" style="overflow-x: auto; white-space: nowrap; overflow-y:hidden;">
+                                                            <span class="hashtag">#skiing</span>
+                                                </div>
+            <div class="card-footer">
+                capacity: 3/7000
+            </div>
+        </div>
+    </a>
+</div>                
+                                    <div class="col-12 col-sm-6 col-lg-4 mb-4">
+    <a href="http://127.0.0.1:8000/events/18/details" style="text-decoration: none; color: inherit;">
+        <div class="card text-white bg-primary mb-3 mx-auto" style="max-width:30rem; max-height:43rem;">
+            <img src="http://localhost:8000/event/default.png" alt = "Baseball League" class="img-fluid" style="height: 25rem; object-fit: cover;">
+
+            <div class="card-body">
+                <h4 class="card-title" style="overflow: hidden; white-space: nowrap; text-overflow: ellipsis;">Baseball League</h4>
+            </div>
+            <div class=" card-body">
+                <p class=" card-text">Lisboa</p>
+                <p class="card-text">21/03/24</p>
+            </div>
+            <div class="card-header" style="overflow-x: auto; white-space: nowrap; overflow-y:hidden;">
+                                                            <span class="hashtag">#baseball</span>
+                                                </div>
+            <div class="card-footer">
+                capacity: 5/12000
+            </div>
+        </div>
+    </a>
+</div>                
+                                    <div class="col-12 col-sm-6 col-lg-4 mb-4">
+    <a href="http://127.0.0.1:8000/events/19/details" style="text-decoration: none; color: inherit;">
+        <div class="card text-white bg-primary mb-3 mx-auto" style="max-width:30rem; max-height:43rem;">
+            <img src="http://localhost:8000/event/default.png" alt = "Golf Masters" class="img-fluid" style="height: 25rem; object-fit: cover;">
+
+            <div class="card-body">
+                <h4 class="card-title" style="overflow: hidden; white-space: nowrap; text-overflow: ellipsis;">Golf Masters</h4>
+            </div>
+            <div class=" card-body">
+                <p class=" card-text">Porto</p>
+                <p class="card-text">22/03/24</p>
+            </div>
+            <div class="card-header" style="overflow-x: auto; white-space: nowrap; overflow-y:hidden;">
+                                                            <span class="hashtag">#golf</span>
+                                                </div>
+            <div class="card-footer">
+                capacity: 2/8000
+            </div>
+        </div>
+    </a>
+</div>                
+                                    <div class="col-12 col-sm-6 col-lg-4 mb-4">
+    <a href="http://127.0.0.1:8000/events/20/details" style="text-decoration: none; color: inherit;">
+        <div class="card text-white bg-primary mb-3 mx-auto" style="max-width:30rem; max-height:43rem;">
+            <img src="http://localhost:8000/event/default.png" alt = "Boxing Championship" class="img-fluid" style="height: 25rem; object-fit: cover;">
+
+            <div class="card-body">
+                <h4 class="card-title" style="overflow: hidden; white-space: nowrap; text-overflow: ellipsis;">Boxing Championship</h4>
+            </div>
+            <div class=" card-body">
+                <p class=" card-text">Lisboa</p>
+                <p class="card-text">23/03/24</p>
+            </div>
+            <div class="card-header" style="overflow-x: auto; white-space: nowrap; overflow-y:hidden;">
+                                                            <span class="hashtag">#boxing</span>
+                                                </div>
+            <div class="card-footer">
+                capacity: 2/10000
+            </div>
+        </div>
+    </a>
+</div>                
+                                    <div class="col-12 col-sm-6 col-lg-4 mb-4">
+    <a href="http://127.0.0.1:8000/events/21/details" style="text-decoration: none; color: inherit;">
+        <div class="card text-white bg-primary mb-3 mx-auto" style="max-width:30rem; max-height:43rem;">
+            <img src="http://localhost:8000/event/default.png" alt = "Climbing Challenge" class="img-fluid" style="height: 25rem; object-fit: cover;">
+
+            <div class="card-body">
+                <h4 class="card-title" style="overflow: hidden; white-space: nowrap; text-overflow: ellipsis;">Climbing Challenge</h4>
+            </div>
+            <div class=" card-body">
+                <p class=" card-text">Porto</p>
+                <p class="card-text">24/03/24</p>
+            </div>
+            <div class="card-header" style="overflow-x: auto; white-space: nowrap; overflow-y:hidden;">
+                                                            <span class="hashtag">#climbing</span>
+                                                </div>
+            <div class="card-footer">
+                capacity: 2/5000
+            </div>
+        </div>
+    </a>
+</div>                
+                            </div>
+                <div>
+        <ul class="pagination pagination-sm">
+            
+                            
+                
+                
+                                                                                        <li class="page-item active"><a class="page-link" href="#">1</a></li>
+                                                                                                <li class="page-item"><a class="page-link" href="http://127.0.0.1:8000/events?page=2" data-url="http://127.0.0.1:8000/events?page=2">2</a></li>
+                                                                                </ul>
+    </div>
+
+
+    </div>
+
+    <div id="overlay" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0, 0, 0, 0.5); z-index: 1000;"></div>
+            <div class="modal" id="newEventModal" tabindex="-1" role="dialog" aria-labelledby="newEventModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="newEventModalLabel">
+                                                                        Create Event
+                                                            </h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <form method="POST" action="http://127.0.0.1:8000/events/create" enctype="multipart/form-data">
+                    <input type="hidden" name="_token" value="Ww5JWzWRGZ8hFTQfeO5qYqS5LcbKG1M2FH720VVY">
+                    <fieldset>
+                                                    <div class="form-group">
+                                <label for="event_type">Event Type</label>
+                                <select id="event_type" name="event_type" class="form-control" style="height: 3em" required>
+                                    <option value="free" selected>Free to Join</option>
+                                    <option value="tickets">Tickets Required</option>
+                                </select>
+                            </div>
+                            <div id="ticketFields" style="display: none;">
+                                <div class="form-group">
+                                    <label for="ticket_limit">Ticket Limit by User</label>
+                                    <input type="number" class="form-control" id="ticket_limit" name="ticket_limit" placeholder="How many tickets per user">
+                                                                    </div>
+                                <div class="form-group">
+                                    <label for="ticket_price">Ticket Price</label>
+                                    <input type="number" class="form-control" id="ticket_price" name="ticket_price" placeholder="price of each ticket">
+                                    <p>Specify the price for each ticket.</p>
+                                                                    </div>
+                            </div>
+                                                <div class="form-group" id="event_type">
+                            <label for="title" class="form-label mt-4">Title</label>
+                            <input type="text" class="form-control" id="title" name="title" placeholder="Event title"  required >
+                                                    </div>
+                        <div class="form-group">
+                            <label for="description" class="form-label mt-4">Description</label>
+                            <textarea class="form-control" id="description" name="description" placeholder="Event description"  required ></textarea>
+                                                    </div>
+                        <div id="typeEvent" class="form-group">
+                            <label for="type">Type</label>
+                            <select id="type" name="type" class="form-control" style="height: 3em"  required >
+                            <option value="" disabled hidden>Select visibility</option>
+                                <option value="public"  selected >Public</option>
+                                <option value="private" >Private</option>
+                                <option value="approval" >Approval</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="date">Date</label>
+                            <input type="date" class="form-control" id="date" name="date"   required >
+                                                    </div>
+                        <div class="form-group">
+                            <label for="capacity">Capacity</label>
+                            <input type="number" class="form-control" id="capacity" placeholder="Event Capacity" name="capacity"   required >
+                                                    </div>
+                        <div class="form-group">
+                            <label for="place">Place</label>
+                            <input type="text" placeholder="Place where event will be held" class="form-control" id="place" name="place"   required >
+                                                    </div>
+                        <div class="card">
+                            <div class="card-header">
+                                <h5 class="mb-0">Hashtags</h5>
+                            </div>
+                            <div class="card-body hashtags-body">
+                                                                    <div class="form-check">
+                                        <input class="form-check-input" type="checkbox" name="hashtags2[]" value="11" id="hashtag0211">
+                                        <label class="form-check-label" for="hashtag0211">
+                                            #art
+                                        </label>
+                                    </div>
+                                                                    <div class="form-check">
+                                        <input class="form-check-input" type="checkbox" name="hashtags2[]" value="21" id="hashtag0221">
+                                        <label class="form-check-label" for="hashtag0221">
+                                            #badminton
+                                        </label>
+                                    </div>
+                                                                    <div class="form-check">
+                                        <input class="form-check-input" type="checkbox" name="hashtags2[]" value="16" id="hashtag0216">
+                                        <label class="form-check-label" for="hashtag0216">
+                                            #baseball
+                                        </label>
+                                    </div>
+                                                                    <div class="form-check">
+                                        <input class="form-check-input" type="checkbox" name="hashtags2[]" value="4" id="hashtag024">
+                                        <label class="form-check-label" for="hashtag024">
+                                            #basketball
+                                        </label>
+                                    </div>
+                                                                    <div class="form-check">
+                                        <input class="form-check-input" type="checkbox" name="hashtags2[]" value="18" id="hashtag0218">
+                                        <label class="form-check-label" for="hashtag0218">
+                                            #boxing
+                                        </label>
+                                    </div>
+                                                                    <div class="form-check">
+                                        <input class="form-check-input" type="checkbox" name="hashtags2[]" value="19" id="hashtag0219">
+                                        <label class="form-check-label" for="hashtag0219">
+                                            #climbing
+                                        </label>
+                                    </div>
+                                                                    <div class="form-check">
+                                        <input class="form-check-input" type="checkbox" name="hashtags2[]" value="10" id="hashtag0210">
+                                        <label class="form-check-label" for="hashtag0210">
+                                            #concert
+                                        </label>
+                                    </div>
+                                                                    <div class="form-check">
+                                        <input class="form-check-input" type="checkbox" name="hashtags2[]" value="13" id="hashtag0213">
+                                        <label class="form-check-label" for="hashtag0213">
+                                            #cricket
+                                        </label>
+                                    </div>
+                                                                    <div class="form-check">
+                                        <input class="form-check-input" type="checkbox" name="hashtags2[]" value="7" id="hashtag027">
+                                        <label class="form-check-label" for="hashtag027">
+                                            #cycling
+                                        </label>
+                                    </div>
+                                                                    <div class="form-check">
+                                        <input class="form-check-input" type="checkbox" name="hashtags2[]" value="2" id="hashtag022">
+                                        <label class="form-check-label" for="hashtag022">
+                                            #esports
+                                        </label>
+                                    </div>
+                                                                    <div class="form-check">
+                                        <input class="form-check-input" type="checkbox" name="hashtags2[]" value="1" id="hashtag021">
+                                        <label class="form-check-label" for="hashtag021">
+                                            #football
+                                        </label>
+                                    </div>
+                                                                    <div class="form-check">
+                                        <input class="form-check-input" type="checkbox" name="hashtags2[]" value="8" id="hashtag028">
+                                        <label class="form-check-label" for="hashtag028">
+                                            #gaming
+                                        </label>
+                                    </div>
+                                                                    <div class="form-check">
+                                        <input class="form-check-input" type="checkbox" name="hashtags2[]" value="17" id="hashtag0217">
+                                        <label class="form-check-label" for="hashtag0217">
+                                            #golf
+                                        </label>
+                                    </div>
+                                                                    <div class="form-check">
+                                        <input class="form-check-input" type="checkbox" name="hashtags2[]" value="5" id="hashtag025">
+                                        <label class="form-check-label" for="hashtag025">
+                                            #hockey
+                                        </label>
+                                    </div>
+                                                                    <div class="form-check">
+                                        <input class="form-check-input" type="checkbox" name="hashtags2[]" value="20" id="hashtag0220">
+                                        <label class="form-check-label" for="hashtag0220">
+                                            #rugby
+                                        </label>
+                                    </div>
+                                                                    <div class="form-check">
+                                        <input class="form-check-input" type="checkbox" name="hashtags2[]" value="3" id="hashtag023">
+                                        <label class="form-check-label" for="hashtag023">
+                                            #running
+                                        </label>
+                                    </div>
+                                                                    <div class="form-check">
+                                        <input class="form-check-input" type="checkbox" name="hashtags2[]" value="15" id="hashtag0215">
+                                        <label class="form-check-label" for="hashtag0215">
+                                            #skiing
+                                        </label>
+                                    </div>
+                                                                    <div class="form-check">
+                                        <input class="form-check-input" type="checkbox" name="hashtags2[]" value="14" id="hashtag0214">
+                                        <label class="form-check-label" for="hashtag0214">
+                                            #surfing
+                                        </label>
+                                    </div>
+                                                                    <div class="form-check">
+                                        <input class="form-check-input" type="checkbox" name="hashtags2[]" value="9" id="hashtag029">
+                                        <label class="form-check-label" for="hashtag029">
+                                            #swimming
+                                        </label>
+                                    </div>
+                                                                    <div class="form-check">
+                                        <input class="form-check-input" type="checkbox" name="hashtags2[]" value="6" id="hashtag026">
+                                        <label class="form-check-label" for="hashtag026">
+                                            #tennis
+                                        </label>
+                                    </div>
+                                                                    <div class="form-check">
+                                        <input class="form-check-input" type="checkbox" name="hashtags2[]" value="12" id="hashtag0212">
+                                        <label class="form-check-label" for="hashtag0212">
+                                            #volleyball
+                                        </label>
+                                    </div>
+                                                            </div>
+                        </div>
+                        <div class="form-group mt-5">
+                            <label for="file">Event Photo</label>
+                            <p>
+                                                                    Choose a photo or leave empty to use the default image.
+                                                            </p>
+                            <input class="form-control" id="file" name="file" type="file">
+                                                    </div>
+                        <button type="submit" class="btn btn-primary mt-4">
+                                                            Create Event
+                                                    </button>
+                    </fieldset>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>    </div>
+
+    </div>
+    <footer class="footer bg-primary" style="padding: 10px; margin-top: 20px;">
+    <div class="container mt-3">
+        <div class="row">
+            <div class="col-md-6">
+                <h1 style="color: white;">EventNest</h1>
+                <p style="color: white;">Email: eventnest@example.com</p>
+                <p style="color: white;">Phone: +351 912888787</p>
+            </div>
+            <div class="col-md-6">
+                <h4 style="color: white;">Quick Links</h4>
+                <div class="row">
+                    <div class="col-md-6">
+                        <ul style="list-style-type: none; color: white;">
+                                                            <li><a style="color: white;" href="http://127.0.0.1:8000/events">Events</a></li>
+                                                        <li><a style="color: white;" href="http://127.0.0.1:8000/about">AboutUs</a></li>
+                            <li><a style="color: white;" href="http://127.0.0.1:8000/contactus">ContactUs</a></li>
+                        </ul>
+                    </div>
+                    <div class="col-md-6">
+                                                <ul style="list-style-type: none; color: white;">
+                                                            <li><a style="color: white;" href="http://127.0.0.1:8000/user/44/profile">Profile</a></li>
+                                <li><a style="color: white;" href="http://127.0.0.1:8000/user/44/events/created">MyEvents</a></li>
+                                                        <li><a style="color: white;" href="http://127.0.0.1:8000/user/44/notifications">Notifications</a></li>
+                        </ul>
+                                            </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</footer>
+</body>
+
+
+</html>
